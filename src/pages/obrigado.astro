@@ -1,0 +1,68 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { paymentMethods, site } from "../lib/site";
+
+const url = new URL(Astro.request.url);
+const orderNumber = url.searchParams.get("num");
+---
+
+<BaseLayout title="Obrigado pela tua encomenda">
+  <section class="py-20">
+    <div class="section max-w-3xl">
+      <div class="rounded-3xl border border-rosa-200 bg-rosa-50/60 p-10 text-center">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rosa-500 text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </div>
+        <h1 class="mt-6 text-3xl font-semibold text-ink sm:text-4xl">Obrigado!</h1>
+        {orderNumber && (
+          <p class="mt-2 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-rosa-500">
+            Encomenda #{orderNumber}
+          </p>
+        )}
+        <p class="mt-3 text-sm leading-relaxed text-ink-soft sm:text-base">
+          Recebemos a tua encomenda e vamos responder-te por email nas próximas horas para
+          confirmar os detalhes. Se não receberes nada em 24 horas, verifica a pasta de spam
+          ou contacta-nos em <a class="text-rosa-500 underline" href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+      </div>
+
+      <div class="mt-10">
+        <h2 class="text-xl font-semibold text-ink">Instruções de pagamento</h2>
+        <p class="mt-2 text-sm text-ink-soft">
+          A produção da encomenda inicia-se apenas após confirmação do pagamento. Escolhe
+          o método que indicaste no checkout:
+        </p>
+
+        <div class="mt-6 grid gap-4">
+          {paymentMethods.map((m) => (
+            <details class="rounded-3xl border border-ink-line bg-white p-6" open={m.id === "mbway"}>
+              <summary class="flex cursor-pointer items-center justify-between text-left text-lg font-semibold text-ink">
+                {m.label}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-ink-muted transition group-open:rotate-180">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </summary>
+              <p class="mt-4 whitespace-pre-line text-sm leading-relaxed text-ink-soft">{m.instructions}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-10 rounded-3xl border border-ink-line bg-white p-6 text-sm text-ink-soft">
+        <p class="font-semibold text-ink">E agora?</p>
+        <ul class="mt-2 space-y-1 text-xs">
+          <li>• Efetua o pagamento com o método escolhido</li>
+          <li>• Envia-nos o comprovativo por email (transferência) ou aguarda confirmação automática (MB Way/PayPal)</li>
+          <li>• Preparamos a tua encomenda em {site.preparationDays}</li>
+          <li>• Recebes o código de tracking {site.shippingProvider} por email assim que a encomenda sair do atelier</li>
+        </ul>
+      </div>
+
+      <div class="mt-10 text-center">
+        <a href="/catalogo" class="btn-secondary">Ver mais produtos</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

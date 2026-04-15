@@ -1,0 +1,59 @@
+---
+import { formatEuro, categoryLabel, type CategorySlug } from "../lib/site";
+
+interface Props {
+  slug: string;
+  name: string;
+  price: number;
+  image: string;
+  category: CategorySlug;
+  bestseller?: boolean;
+}
+
+const { slug, name, price, image, category, bestseller = false } = Astro.props;
+---
+
+<a href={`/catalogo/${slug}`} class="card group">
+  <div class="aspect-square overflow-hidden bg-rosa-50">
+    <img
+      src={image}
+      alt={name}
+      loading="lazy"
+      class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+    />
+    {bestseller && (
+      <span class="absolute left-4 top-4 inline-flex items-center rounded-full bg-rosa-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+        Mais vendido
+      </span>
+    )}
+  </div>
+
+  <div class="flex flex-1 flex-col gap-2 p-5">
+    <span class="text-[10px] font-medium uppercase tracking-wide text-ink-muted">
+      {categoryLabel(category)}
+    </span>
+    <h3 class="text-base font-semibold text-ink transition group-hover:text-rosa-500">
+      {name}
+    </h3>
+    <div class="mt-auto flex items-center justify-between pt-2">
+      <span class="text-lg font-semibold text-ink">{formatEuro(price)}</span>
+      <span class="inline-flex items-center gap-1 text-xs font-medium text-rosa-500 transition group-hover:gap-2">
+        Ver produto
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="h-4 w-4"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </span>
+    </div>
+  </div>
+</a>

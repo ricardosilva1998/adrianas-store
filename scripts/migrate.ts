@@ -1,0 +1,17 @@
+import { drizzle } from "drizzle-orm/postgres-js";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import postgres from "postgres";
+
+const url = process.env.DATABASE_URL ?? process.env.DATABASE_PUBLIC_URL;
+if (!url) {
+  console.error("DATABASE_URL não configurado");
+  process.exit(1);
+}
+
+const sql = postgres(url, { max: 1, prepare: false });
+const db = drizzle(sql);
+
+console.log("A correr migrations...");
+await migrate(db, { migrationsFolder: "./src/db/migrations" });
+console.log("✔ Migrations concluídas.");
+await sql.end();

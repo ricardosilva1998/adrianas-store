@@ -1,0 +1,58 @@
+---
+import CartIcon from "./islands/CartIcon.tsx";
+import { navLinks, site } from "../lib/site";
+
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === "/" ? currentPath === "/" : currentPath.startsWith(href);
+---
+
+<header class="sticky top-0 z-40 border-b border-ink-line bg-white/95 backdrop-blur">
+  <div class="section flex h-20 items-center justify-between gap-6">
+    <a href="/" class="flex items-center gap-3" aria-label={site.name}>
+      <img src="/logo.svg" alt={site.name} class="h-10 w-auto" />
+    </a>
+
+    <nav class="hidden items-center gap-1 md:flex" aria-label="Navegação principal">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            isActive(link.href)
+              ? "bg-rosa-50 text-rosa-500"
+              : "text-ink hover:bg-rosa-50 hover:text-rosa-500"
+          }`}
+        >
+          {link.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <a
+        href="/catalogo"
+        class="hidden text-sm font-medium text-ink-soft transition hover:text-rosa-500 md:inline-flex"
+      >
+        Encomendar
+      </a>
+      <CartIcon client:load />
+    </div>
+  </div>
+
+  <div class="md:hidden">
+    <nav class="section flex items-center gap-1 overflow-x-auto pb-3 pt-1" aria-label="Navegação mobile">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
+            isActive(link.href)
+              ? "bg-rosa-50 text-rosa-500"
+              : "text-ink-soft hover:bg-rosa-50 hover:text-rosa-500"
+          }`}
+        >
+          {link.label}
+        </a>
+      ))}
+    </nav>
+  </div>
+</header>

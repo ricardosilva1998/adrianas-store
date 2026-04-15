@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CheckoutForm from "../components/islands/CheckoutForm.tsx";
+---
+
+<BaseLayout title="Checkout">
+  <section class="border-b border-ink-line py-12">
+    <div class="section">
+      <span class="text-xs font-medium uppercase tracking-wide text-rosa-500">
+        Finalizar
+      </span>
+      <h1 class="mt-2 text-4xl font-semibold text-ink sm:text-5xl">
+        Confirmar encomenda
+      </h1>
+      <p class="mt-3 max-w-2xl text-sm text-ink-soft">
+        Preenche os teus dados. Após submeteres, recebes por email as instruções de pagamento.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-12">
+    <div class="section">
+      <CheckoutForm client:only="react" />
+    </div>
+  </section>
+</BaseLayout>

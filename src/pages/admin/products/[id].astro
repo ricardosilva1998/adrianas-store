@@ -1,0 +1,51 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ProductForm from "../../../components/admin/ProductForm.tsx";
+import { getProductById } from "../../../lib/queries";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+
+const id = Number(Astro.params.id);
+if (!Number.isFinite(id)) return Astro.redirect("/admin/products");
+
+const product = await getProductById(id);
+if (!product) {
+  return new Response("Produto não encontrado", { status: 404 });
+}
+
+const initial = {
+  id: product.id,
+  slug: product.slug,
+  name: product.name,
+  description: product.description,
+  longDescription: product.longDescription,
+  priceCents: product.priceCents,
+  category: product.category,
+  stock: product.stock,
+  unlimitedStock: product.unlimitedStock,
+  bestseller: product.bestseller,
+  personalizable: product.personalizable,
+  active: product.active,
+  sortOrder: product.sortOrder,
+  images: product.images.map((i) => ({ url: i.url, alt: i.alt })),
+  colors: product.colors.map((c) => ({ name: c.name, hex: c.hex })),
+};
+---
+
+<AdminLayout title={`Editar ${product.name}`} user={user}>
+  <div class="mb-6 flex items-center justify-between">
+    <a href="/admin/products" class="text-xs text-ink-muted hover:text-rosa-500">
+      ← Voltar aos produtos
+    </a>
+    <a
+      href={`/catalogo/${product.slug}`}
+      target="_blank"
+      rel="noopener"
+      class="text-xs text-ink-muted hover:text-rosa-500"
+    >
+      Ver na loja →
+    </a>
+  </div>
+  <ProductForm client:load mode="edit" initial={initial} />
+</AdminLayout>

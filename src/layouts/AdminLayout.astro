@@ -1,0 +1,111 @@
+---
+import "../styles/global.css";
+import type { SessionUser } from "../lib/auth";
+
+interface Props {
+  title: string;
+  user: SessionUser;
+}
+
+const { title, user } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+const navItems = [
+  { href: "/admin", label: "Dashboard", icon: "home" },
+  { href: "/admin/orders", label: "Encomendas", icon: "shopping-bag" },
+  { href: "/admin/products", label: "Produtos", icon: "package" },
+  { href: "/admin/pages", label: "Páginas", icon: "file-text" },
+];
+
+if (user.role === "admin") {
+  navItems.push({ href: "/admin/users", label: "Utilizadores", icon: "users" });
+}
+
+const isActive = (href: string) =>
+  href === "/admin" ? currentPath === "/admin" : currentPath.startsWith(href);
+---
+
+<!doctype html>
+<html lang="pt-PT">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} — Admin Adriana's Store</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-dvh bg-rosa-50/30 font-sans text-ink antialiased">
+    <div class="flex min-h-dvh">
+      <aside class="hidden w-64 shrink-0 flex-col border-r border-ink-line bg-white md:flex">
+        <div class="border-b border-ink-line px-6 py-5">
+          <a href="/" class="flex items-center gap-3">
+            <img src="/logo.svg" alt="Adriana's Store" class="h-9 w-auto" />
+          </a>
+          <p class="mt-2 text-[10px] font-semibold uppercase tracking-wide text-rosa-500">
+            Admin
+          </p>
+        </div>
+        <nav class="flex-1 space-y-1 px-3 py-4">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                isActive(item.href)
+                  ? "bg-rosa-50 text-rosa-500"
+                  : "text-ink-soft hover:bg-rosa-50 hover:text-rosa-500"
+              }`}
+            >
+              <span class="h-2 w-2 rounded-full bg-current opacity-60"></span>
+              {item.label}
+            </a>
+          ))}
+        </nav>
+        <div class="border-t border-ink-line px-5 py-4 text-xs">
+          <p class="font-semibold text-ink">{user.name || user.email}</p>
+          <p class="text-ink-muted">{user.role === "admin" ? "Administrador" : "Editor"}</p>
+          <form method="POST" action="/api/admin/logout" class="mt-3">
+            <button type="submit" class="text-xs font-medium text-rosa-500 hover:underline">
+              Terminar sessão
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <div class="flex min-w-0 flex-1 flex-col">
+        <header class="sticky top-0 z-20 flex items-center justify-between border-b border-ink-line bg-white/90 px-5 py-4 backdrop-blur md:px-10">
+          <div>
+            <h1 class="text-lg font-semibold text-ink sm:text-xl">{title}</h1>
+          </div>
+          <div class="flex items-center gap-3 text-xs text-ink-muted">
+            <a href="/" class="hover:text-rosa-500">Ver site →</a>
+          </div>
+        </header>
+
+        <nav class="md:hidden">
+          <div class="flex gap-1 overflow-x-auto border-b border-ink-line bg-white px-5 py-2">
+            {navItems.map((item) => (
+              <a
+                href={item.href}
+                class={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                  isActive(item.href)
+                    ? "bg-rosa-50 text-rosa-500"
+                    : "text-ink-soft hover:text-rosa-500"
+                }`}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <main class="flex-1 px-5 py-8 md:px-10">
+          <slot />
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

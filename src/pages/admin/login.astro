@@ -1,0 +1,75 @@
+---
+import "../../styles/global.css";
+import { getSessionUser } from "../../lib/auth";
+
+const user = await getSessionUser(Astro.cookies);
+if (user) return Astro.redirect("/admin");
+
+const error = Astro.url.searchParams.get("error");
+---
+
+<!doctype html>
+<html lang="pt-PT">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Entrar — Admin Adriana's Store</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="flex min-h-dvh items-center justify-center bg-rosa-50/60 font-sans text-ink antialiased">
+    <div class="w-full max-w-md px-5">
+      <div class="rounded-3xl border border-ink-line bg-white p-8 shadow-[0_40px_80px_-40px_rgba(237,115,150,0.4)]">
+        <div class="flex items-center justify-center">
+          <img src="/logo.svg" alt="Adriana's Store" class="h-10 w-auto" />
+        </div>
+        <h1 class="mt-6 text-center text-2xl font-semibold text-ink">Entrar no admin</h1>
+        <p class="mt-2 text-center text-sm text-ink-soft">
+          Acesso restrito a administradores da loja.
+        </p>
+
+        {error && (
+          <div class="mt-6 rounded-2xl border border-rosa-200 bg-rosa-50 p-4 text-sm text-rosa-600">
+            Email ou password incorretos. Tenta novamente.
+          </div>
+        )}
+
+        <form method="POST" action="/api/admin/login" class="mt-8 space-y-4">
+          <div>
+            <label for="email" class="field-label">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+              class="field-input"
+            />
+          </div>
+          <div>
+            <label for="password" class="field-label">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              autocomplete="current-password"
+              class="field-input"
+            />
+          </div>
+          <button type="submit" class="btn-primary mt-6 w-full">
+            Entrar
+          </button>
+        </form>
+      </div>
+
+      <p class="mt-6 text-center text-xs text-ink-muted">
+        <a href="/" class="hover:text-rosa-500">← Voltar ao site</a>
+      </p>
+    </div>
+  </body>
+</html>

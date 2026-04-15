@@ -1,0 +1,91 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { getAllProducts, formatEuro } from "../../../lib/queries";
+import { categoryLabel } from "../../../lib/site";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+
+const products = await getAllProducts();
+---
+
+<AdminLayout title="Produtos" user={user}>
+  <div class="flex items-center justify-between">
+    <p class="text-sm text-ink-soft">{products.length} produtos</p>
+    <a href="/admin/products/new" class="btn-primary">
+      + Novo produto
+    </a>
+  </div>
+
+  <div class="mt-6 overflow-hidden rounded-3xl border border-ink-line bg-white">
+    {products.length === 0 ? (
+      <div class="p-12 text-center text-sm text-ink-muted">
+        Ainda não há produtos. <a href="/admin/products/new" class="text-rosa-500 underline">Criar o primeiro</a>.
+      </div>
+    ) : (
+      <table class="w-full text-sm">
+        <thead class="bg-rosa-50/40 text-xs uppercase tracking-wide text-ink-muted">
+          <tr>
+            <th class="px-6 py-3 text-left font-semibold"></th>
+            <th class="px-6 py-3 text-left font-semibold">Nome</th>
+            <th class="px-6 py-3 text-left font-semibold">Categoria</th>
+            <th class="px-6 py-3 text-left font-semibold">Preço</th>
+            <th class="px-6 py-3 text-left font-semibold">Stock</th>
+            <th class="px-6 py-3 text-left font-semibold">Estado</th>
+            <th class="px-6 py-3 text-right font-semibold"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p) => (
+            <tr class="border-t border-ink-line">
+              <td class="px-6 py-4">
+                <div class="h-12 w-12 overflow-hidden rounded-xl bg-rosa-50">
+                  <img
+                    src={p.images[0]?.url ?? "/placeholders/product.svg"}
+                    alt={p.name}
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="font-medium text-ink">{p.name}</div>
+                <div class="text-xs text-ink-muted">{p.slug}</div>
+              </td>
+              <td class="px-6 py-4 text-xs text-ink-muted">
+                {categoryLabel(p.category)}
+              </td>
+              <td class="px-6 py-4 text-sm text-ink">{formatEuro(p.priceCents)}</td>
+              <td class="px-6 py-4 text-xs">
+                {p.unlimitedStock ? (
+                  <span class="text-ink-muted">Ilimitado</span>
+                ) : (
+                  <span class={p.stock === 0 ? "font-semibold text-rosa-500" : "text-ink"}>
+                    {p.stock}
+                  </span>
+                )}
+              </td>
+              <td class="px-6 py-4">
+                <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase ${p.active ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>
+                  {p.active ? "Ativo" : "Inativo"}
+                </span>
+                {p.bestseller && (
+                  <span class="ml-1 inline-flex items-center rounded-full bg-rosa-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase text-rosa-500">
+                    Bestseller
+                  </span>
+                )}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <a
+                  href={`/admin/products/${p.id}`}
+                  class="text-xs font-medium text-rosa-500 hover:underline"
+                >
+                  Editar →
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+</AdminLayout>

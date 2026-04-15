@@ -1,0 +1,100 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { listOrders, formatEuro } from "../../../lib/queries";
+import { STATUS_COLORS, STATUS_LABELS } from "../../../lib/orders";
+import type { OrderStatus } from "../../../db/schema";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+
+const url = new URL(Astro.request.url);
+const activeStatus = url.searchParams.get("status") as OrderStatus | null;
+const orders = await listOrders(
+  activeStatus ? { status: activeStatus } : {},
+);
+
+const filterOptions: Array<{ label: string; value: OrderStatus | "all" }> = [
+  { label: "Todas", value: "all" },
+  { label: "Novas", value: "new" },
+  { label: "Pagas", value: "paid" },
+  { label: "Em preparação", value: "preparing" },
+  { label: "Enviadas", value: "shipped" },
+  { label: "Entregues", value: "delivered" },
+  { label: "Canceladas", value: "cancelled" },
+];
+---
+
+<AdminLayout title="Encomendas" user={user}>
+  <div class="flex flex-wrap items-center gap-2">
+    {filterOptions.map((opt) => {
+      const active =
+        (opt.value === "all" && !activeStatus) || opt.value === activeStatus;
+      const href = opt.value === "all" ? "/admin/orders" : `/admin/orders?status=${opt.value}`;
+      return (
+        <a
+          href={href}
+          class={`rounded-full border px-4 py-1.5 text-xs font-medium transition ${
+            active
+              ? "border-rosa-400 bg-rosa-50 text-rosa-500"
+              : "border-ink-line text-ink-soft hover:border-rosa-300 hover:text-rosa-500"
+          }`}
+        >
+          {opt.label}
+        </a>
+      );
+    })}
+  </div>
+
+  <div class="mt-6 overflow-hidden rounded-3xl border border-ink-line bg-white">
+    {orders.length === 0 ? (
+      <div class="p-12 text-center text-sm text-ink-muted">
+        Ainda não há encomendas nesta vista.
+      </div>
+    ) : (
+      <table class="w-full text-sm">
+        <thead class="bg-rosa-50/40 text-xs uppercase tracking-wide text-ink-muted">
+          <tr>
+            <th class="px-6 py-3 text-left font-semibold">Número</th>
+            <th class="px-6 py-3 text-left font-semibold">Cliente</th>
+            <th class="px-6 py-3 text-left font-semibold">Status</th>
+            <th class="px-6 py-3 text-left font-semibold">Total</th>
+            <th class="px-6 py-3 text-left font-semibold">Data</th>
+            <th class="px-6 py-3 text-right font-semibold"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders.map((o) => (
+            <tr class="border-t border-ink-line">
+              <td class="px-6 py-4 font-mono text-xs text-ink">{o.number}</td>
+              <td class="px-6 py-4">
+                <div class="text-sm font-medium text-ink">{o.customerName}</div>
+                <div class="text-xs text-ink-muted">{o.customerEmail}</div>
+              </td>
+              <td class="px-6 py-4">
+                <span class={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${STATUS_COLORS[o.status]}`}>
+                  {STATUS_LABELS[o.status]}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-ink">{formatEuro(o.subtotalCents)}</td>
+              <td class="px-6 py-4 text-xs text-ink-muted">
+                {new Date(o.createdAt).toLocaleDateString("pt-PT", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <a
+                  href={`/admin/orders/${o.id}`}
+                  class="text-xs font-medium text-rosa-500 hover:underline"
+                >
+                  Abrir →
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+</AdminLayout>

@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@theme {
+  --color-rosa-50: #fdf2f8;
+  --color-rosa-100: #fce7f3;
+  --color-rosa-200: #fbcfe8;
+  --color-rosa-300: #f9a8d4;
+  --color-rosa-400: #F691B4;
+  --color-rosa-500: #ED7396;
+  --color-rosa-600: #db2777;
+  --color-rosa-700: #be185d;
+
+  --color-ink: #111111;
+  --color-ink-soft: #4a4a4a;
+  --color-ink-muted: #8a8a8a;
+  --color-ink-line: #eaeaea;
+
+  --font-sans:
+    "Inter",
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+
+  --font-display:
+    "Inter",
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+}
+
+html {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100dvh;
+  background: #ffffff;
+}
+
+a {
+  color: inherit;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-rosa-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-rosa-400 px-6 py-3 text-sm font-medium text-white transition hover:bg-rosa-500 focus-visible:bg-rosa-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink px-6 py-3 text-sm font-medium text-ink transition hover:bg-ink hover:text-white focus-visible:bg-ink focus-visible:text-white active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-ink transition hover:bg-rosa-100;
+  }
+
+  .pill {
+    @apply inline-flex items-center rounded-full border border-ink-line px-4 py-1.5 text-xs font-medium uppercase tracking-wide text-ink-soft transition hover:border-rosa-400 hover:text-rosa-500;
+  }
+
+  .pill-active {
+    @apply border-rosa-400 bg-rosa-50 text-rosa-500;
+  }
+
+  .section {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  .card {
+    @apply relative flex h-full flex-col overflow-hidden rounded-3xl border border-ink-line bg-white transition hover:-translate-y-0.5 hover:border-rosa-300 hover:shadow-[0_20px_40px_-20px_rgba(237,115,150,0.35)];
+  }
+
+  .field-label {
+    @apply block text-xs font-medium uppercase tracking-wide text-ink-soft;
+  }
+
+  .field-input {
+    @apply mt-1 block w-full rounded-xl border border-ink-line bg-white px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus:border-rosa-400 focus:outline-none focus:ring-2 focus:ring-rosa-200;
+  }
+}

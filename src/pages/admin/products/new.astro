@@ -1,0 +1,16 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ProductForm from "../../../components/admin/ProductForm.tsx";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+---
+
+<AdminLayout title="Novo produto" user={user}>
+  <div class="mb-6">
+    <a href="/admin/products" class="text-xs text-ink-muted hover:text-rosa-500">
+      ← Voltar aos produtos
+    </a>
+  </div>
+  <ProductForm client:load mode="create" />
+</AdminLayout>

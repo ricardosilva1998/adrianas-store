@@ -1,0 +1,39 @@
+---
+import ProductCard from "./ProductCard.astro";
+import type { CategorySlug } from "../lib/site";
+
+interface GridProduct {
+  slug: string;
+  name: string;
+  price: number;
+  image: string;
+  category: CategorySlug;
+  bestseller?: boolean;
+}
+
+interface Props {
+  products: GridProduct[];
+  empty?: string;
+}
+
+const { products, empty = "Ainda não há produtos nesta categoria." } = Astro.props;
+---
+
+{products.length === 0 ? (
+  <div class="rounded-3xl border border-dashed border-ink-line bg-rosa-50 p-12 text-center">
+    <p class="text-sm text-ink-soft">{empty}</p>
+  </div>
+) : (
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    {products.map((product) => (
+      <ProductCard
+        slug={product.slug}
+        name={product.name}
+        price={product.price}
+        image={product.image}
+        category={product.category}
+        bestseller={product.bestseller}
+      />
+    ))}
+  </div>
+)}
