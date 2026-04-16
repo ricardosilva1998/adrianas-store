@@ -29,9 +29,15 @@ No test framework is configured.
 
 **Routing**: File-based via Astro. API routes in `src/pages/api/`. Admin routes (`/admin/*`, `/api/admin/*`) are JWT-protected via Astro middleware (`src/middleware.ts`). Storefront CMS pages use a catch-all route `src/pages/[...slug].astro` that fetches pages from the database by slug (empty slug = "home"). Reserved routes (`catalogo`, `carrinho`, `checkout`, `obrigado`, `admin`, `api`) are excluded from the catch-all.
 
-**Database**: PostgreSQL with Drizzle ORM. Schema defined in `src/db/schema.ts` (8 tables, 4 enums). Connection in `src/db/client.ts`. Order creation uses transactions. Migrations auto-run on container startup.
+**Database**: PostgreSQL with Drizzle ORM. Schema defined in `src/db/schema.ts` (12 tables, 5 enums). Connection in `src/db/client.ts`. Order creation uses transactions. Migrations auto-run on container startup. Seed data (`npm run db:seed`) populates products, pages, admin user, `site_config`, slots, and media placeholders; idempotent — skips rows that already exist.
 
-**Block-based CMS**: All pages (homepage, institutional, custom) use a block editor. Blocks are stored as a JSONB array on the `pages` table. 8 block types: hero, text, product-grid, category-grid, image-gallery, cta-banner, faq, contact-info. Block type definitions, Zod schemas, and factories in `src/lib/blocks.ts`. Admin block editor in `src/components/admin/BlockEditor.tsx`. Storefront block renderers in `src/components/blocks/`.
+**Block-based CMS**: All pages (homepage, institutional, custom) use a block editor. Blocks are stored as a JSONB array on the `pages` table. 18 block types grouped in three tiers:
+- **Static content** (usable anywhere — pages, templates, slots): `hero`, `text`, `product-grid`, `category-grid`, `image-gallery`, `cta-banner`, `faq`, `contact-info`, `testimonials`, `newsletter`, `image-text-split`, `video-embed`, `divider`
+- **Data-binding** (templates only; require bound context): `product-gallery`, `product-info`, `product-long-description`, `product-related`, `catalog-grid-bound`
+
+Block type definitions, Zod schemas, factories, and the `blocksAllowedIn(context)` helper live in `src/lib/blocks.ts`. Admin page editor is `src/components/admin/BlockEditor.tsx`; template and slot editors (`TemplateEditor.tsx`, `SlotEditor.tsx`) reuse the block picker but keep simpler per-block forms. Storefront renderers are Astro components in `src/components/blocks/`, dispatched by `BlockRenderer.astro` which accepts an optional `context: { product, relatedProducts, products, activeCategory }` for data-binding blocks.
+
+**Drafts + publish**: `pages.draftBlocks` (nullable jsonb) holds pending edits. Admin "Guardar rascunho" writes there; "Publicar" promotes draftBlocks → blocks and clears draftBlocks. A yellow "Rascunho" badge on `/admin/pages` flags pages with pending drafts. Admins preview unpublished content at `/<slug>?draft=1` (middleware loads the admin session for storefront GETs with `?draft=1` or `?preview=<token>`).
 
 **Templates system**: Reusable block layouts for the catalog page and product-detail pages. Templates are stored in the `templates` table (kind: `catalog` | `product-detail`, blocks JSONB, active flag). Admin UI at `/admin/templates` (list) and `/admin/templates/[id]` (editor via `TemplateEditor.tsx`). When an active template exists for a route, `catalogo/index.astro` and `catalogo/[slug].astro` render via `BlockRenderer` with the appropriate context (`{ products, activeCategory }` or `{ product, relatedProducts }`); otherwise the hardcoded fallback layout is used. 5 data-binding block types (`product-gallery`, `product-info`, `product-long-description`, `product-related`, `catalog-grid-bound`) are only available in templates via `blocksAllowedIn(context)` in `src/lib/blocks.ts`.
 
@@ -39,7 +45,7 @@ No test framework is configured.
 
 **Named slots**: `src/pages/carrinho.astro`, `src/pages/checkout.astro`, and `src/pages/obrigado.astro` embed `<Slot name="..." />` components that render blocks from the `slots` table. Admin fills each slot at `/admin/slots` with content blocks (no data-binding blocks — cart/checkout/thank-you have no product context). Five named slots are seeded on startup.
 
-**Media library**: `media_library` table plus `/admin/media` gallery where admins paste image URLs, upload to R2, and copy URLs for use in blocks/products. 15 Lorem Picsum placeholder URLs are seeded on first run (`isPlaceholder=true`) so the site has visual content out of the gate. Admin can delete placeholders when replacing with real photos.
+**Media library**: `media_library` table plus `/admin/media` gallery where admins paste image URLs, upload to R2, and copy URLs for use in blocks/products. 15 Lorem Picsum placeholder URLs are seeded on first run (`isPlaceholder=true`) so the site has visual content out of the gate. Admin can delete placeholders when replacing with real photos. The reusable `ImagePicker` component (`src/components/admin/ImagePicker.tsx`) is embedded in every block form that has an image field (Hero, ImageGallery, ImageTextSplit, ThemeEditor logo) — it opens a modal over `/api/admin/media` to pick from the gallery, accepts raw URLs, and can trigger an R2 upload that registers the result in the library.
 
 **Auth**: JWT tokens in HTTP-only cookies (7-day TTL), bcrypt password hashing. Two roles: `admin` (full access) and `editor` (limited). Public routes: `/admin/login` and `/api/admin/login`.
 
@@ -62,6 +68,8 @@ No test framework is configured.
 - `src/lib/preview-store.ts` — in-memory preview token map
 - `src/lib/` — Business logic: auth, queries, orders, email, R2 uploads, block types
 - `src/db/` — Drizzle schema, client, migrations
+- `docs/superpowers/specs/` — design specs (phase roadmap, data models)
+- `docs/superpowers/plans/` — implementation plans (task-by-task breakdowns)
 
 ## Conventions
 
@@ -71,4 +79,6 @@ No test framework is configured.
 - **Order flow**: `new → paid → preparing → shipped → delivered` (or `cancelled`). All transitions logged in `order_events` audit trail
 - **Products**: Support optional personalization (phrase + color choices), stored as JSONB in order items
 - **Site identity / theme**: edited in-admin via `/admin/theme` and `/admin/globals`. Do NOT add hardcoded nav/footer/identity strings — they belong in `site_config.globals`. `src/lib/site.ts` keeps only the category enum and `formatEuro`.
+- **No HTML in admin inputs**: the user is non-technical. Block form fields must never accept raw HTML. When a rendered element needs styled variants (e.g., an accent color within a heading), add a second field to the block schema rather than letting the admin type `<span class="…">`. Hero does this with `title` + `titleAccent`.
+- **Image fields use `ImagePicker`**: any block or editor form that stores an image URL uses `src/components/admin/ImagePicker.tsx`, never a bare text input. That gives admins gallery picker + upload + URL paste in one control.
 - **Node version**: >= 22.12.0
