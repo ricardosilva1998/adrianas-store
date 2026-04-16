@@ -4,6 +4,8 @@ import type { Block } from "../../lib/blocks";
 type IframeApi = { postMessage: (msg: unknown) => void };
 export const PreviewIframeContext = createContext<IframeApi | null>(null);
 
+const DESKTOP_VIRTUAL_WIDTH = 1280;
+
 interface Props {
   slug: string;
   title: string;
@@ -32,6 +34,9 @@ export default function PagePreviewShell({
   const debounceRef = useRef<number | null>(null);
   const popupRef = useRef<Window | null>(null);
   const [popupOpen, setPopupOpen] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const previewWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [wrapperSize, setWrapperSize] = useState({ width: 0, height: 0 });
 
   // Create preview token on mount. Clean up on unmount.
   useEffect(() => {
@@ -71,6 +76,9 @@ export default function PagePreviewShell({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, blocks }),
       }).then(() => {
+        if (iframeRef.current?.contentWindow) {
+          iframeRef.current.contentWindow.postMessage({ kind: "page-preview-reload" }, "*");
+        }
         if (popupRef.current && !popupRef.current.closed) {
           popupRef.current.postMessage({ kind: "page-preview-reload" }, "*");
         }
@@ -93,8 +101,22 @@ export default function PagePreviewShell({
     return () => window.clearInterval(id);
   }, [popupOpen]);
 
+  // Track the size of the side preview wrapper for scaling.
+  useEffect(() => {
+    if (!previewWrapperRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      setWrapperSize({ width, height });
+    });
+    observer.observe(previewWrapperRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const previewPath = slug === "home" ? "/" : `/${slug}`;
   const previewUrl = token ? `${previewPath}?preview=${token}` : previewPath;
+
+  const scale = wrapperSize.width > 0 ? Math.min(1, wrapperSize.width / DESKTOP_VIRTUAL_WIDTH) : 1;
+  const virtualHeight = wrapperSize.height > 0 && scale > 0 ? wrapperSize.height / scale : 720;
 
   const openPopup = () => {
     if (popupRef.current && !popupRef.current.closed) {
@@ -118,10 +140,11 @@ export default function PagePreviewShell({
     setPopupOpen(false);
   };
 
-  // Iframe API for child components (scroll-to-block, etc.) now targets the popup.
+  // Iframe API for child components (scroll-to-block, etc.) targets both inline iframe and popup.
   const api = useMemo<IframeApi>(
     () => ({
       postMessage: (msg) => {
+        iframeRef.current?.contentWindow?.postMessage(msg, "*");
         if (popupRef.current && !popupRef.current.closed) {
           popupRef.current.postMessage(msg, "*");
         }
@@ -171,10 +194,28 @@ export default function PagePreviewShell({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto bg-surface-muted">
-          <div className="mx-auto max-w-3xl px-6 py-8">
-            {children}
+        <div className="flex flex-1 overflow-hidden">
+          <div className="flex-1 min-w-0 overflow-y-auto bg-surface-muted">
+            <div className="mx-auto max-w-3xl px-6 py-8">
+              {children}
+            </div>
           </div>
+          <aside
+            ref={previewWrapperRef}
+            className="hidden w-[440px] shrink-0 overflow-hidden border-l border-ink-line bg-ink-line/30 p-4 lg:block"
+          >
+            <div
+              className="relative overflow-hidden rounded-2xl border border-ink-line bg-white shadow-sm"
+              style={{
+                width: DESKTOP_VIRTUAL_WIDTH,
+                height: virtualHeight,
+                transform: `scale(${scale})`,
+                transformOrigin: "top left",
+              }}
+            >
+              <iframe ref={iframeRef} src={previewUrl} className="h-full w-full border-0" title="Pré-visualização" />
+            </div>
+          </aside>
         </div>
       </div>
     </PreviewIframeContext.Provider>
