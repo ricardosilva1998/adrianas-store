@@ -119,6 +119,8 @@ export const pages = pgTable("pages", {
   slug: text("slug").primaryKey(),
   title: text("title").notNull(),
   body: text("body").notNull(),
+  blocks: jsonb("blocks").notNull().default([]),
+  published: boolean("published").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
