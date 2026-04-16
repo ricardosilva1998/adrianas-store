@@ -5,6 +5,7 @@ import postgres from "postgres";
 import bcrypt from "bcryptjs";
 import { sql as drizzleSql } from "drizzle-orm";
 import * as schema from "../src/db/schema";
+import { DEFAULT_SITE_CONFIG } from "../src/lib/config";
 
 const url = process.env.DATABASE_URL ?? process.env.DATABASE_PUBLIC_URL;
 if (!url) {
@@ -293,11 +294,27 @@ const seedAdminUser = async () => {
   }
 };
 
+const seedSiteConfig = async () => {
+  console.log("⚙️  A semear site_config...");
+  const existing = await db.select().from(schema.siteConfig).limit(1);
+  if (existing.length > 0) {
+    console.log("  · site_config já existe, skip");
+    return;
+  }
+  await db.insert(schema.siteConfig).values({
+    id: 1,
+    theme: DEFAULT_SITE_CONFIG.theme,
+    globals: DEFAULT_SITE_CONFIG.globals,
+  });
+  console.log("  ✔ site_config inicial escrito");
+};
+
 const main = async () => {
   try {
     await seedProducts();
     await seedPages();
     await seedAdminUser();
+    await seedSiteConfig();
     console.log("✅ Seed concluído.");
   } finally {
     await client.end();
