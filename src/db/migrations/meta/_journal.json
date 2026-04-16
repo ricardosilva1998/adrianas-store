@@ -29,6 +29,13 @@
       "when": 1776359828569,
       "tag": "0003_handy_molten_man",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1776360060771,
+      "tag": "0004_late_shard",
+      "breakpoints": true
     }
   ]
 }

@@ -128,6 +128,28 @@ export const pages = pgTable("pages", {
   draftBlocks: jsonb("draft_blocks"),
 });
 
+export const templateKind = pgEnum("template_kind", ["catalog", "product-detail"]);
+
+export const templates = pgTable(
+  "templates",
+  {
+    id: serial("id").primaryKey(),
+    kind: templateKind("kind").notNull(),
+    name: text("name").notNull(),
+    blocks: jsonb("blocks").notNull(),
+    active: boolean("active").notNull().default(false),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("templates_kind_idx").on(t.kind),
+    uniqueIndex("templates_active_per_kind")
+      .on(t.kind)
+      .where(sql`${t.active} = true`),
+  ],
+);
+
 export const siteConfig = pgTable(
   "site_config",
   {
@@ -275,3 +297,5 @@ export type OrderStatus = (typeof orderStatus.enumValues)[number];
 export type ProductCategorySlug = (typeof productCategory.enumValues)[number];
 export type PaymentMethodId = (typeof paymentMethod.enumValues)[number];
 export type UserRole = (typeof userRole.enumValues)[number];
+export type TemplateRow = typeof templates.$inferSelect;
+export type TemplateKind = (typeof templateKind.enumValues)[number];

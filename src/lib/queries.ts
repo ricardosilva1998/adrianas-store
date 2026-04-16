@@ -1,6 +1,6 @@
 import { db, schema } from "../db/client";
 import { eq, and, desc, asc, inArray, sql } from "drizzle-orm";
-import type { ProductCategorySlug } from "../db/schema";
+import type { ProductCategorySlug, TemplateKind } from "../db/schema";
 
 export type ProductWithExtras = {
   id: number;
@@ -180,6 +180,32 @@ export const getProductsByCategory = async (
     .orderBy(asc(schema.products.sortOrder))
     .limit(limit);
   return attachExtras(rows);
+};
+
+export const getActiveTemplate = async (kind: TemplateKind) => {
+  const [tpl] = await db
+    .select()
+    .from(schema.templates)
+    .where(and(eq(schema.templates.kind, kind), eq(schema.templates.active, true)))
+    .limit(1);
+  return tpl ?? null;
+};
+
+export const listTemplates = async (kind: TemplateKind) => {
+  return db
+    .select()
+    .from(schema.templates)
+    .where(eq(schema.templates.kind, kind))
+    .orderBy(desc(schema.templates.updatedAt));
+};
+
+export const getTemplateById = async (id: number) => {
+  const [tpl] = await db
+    .select()
+    .from(schema.templates)
+    .where(eq(schema.templates.id, id))
+    .limit(1);
+  return tpl ?? null;
 };
 
 export const isAvailable = (p: ProductWithExtras): boolean =>
