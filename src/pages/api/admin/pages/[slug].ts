@@ -2,12 +2,14 @@ import type { APIRoute } from "astro";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "../../../../db/client";
+import { blocksArraySchema } from "../../../../lib/blocks";
 
 export const prerender = false;
 
-const Schema = z.object({
+const UpdateSchema = z.object({
   title: z.string().min(1).max(200),
-  body: z.string().max(50000),
+  blocks: blocksArraySchema,
+  published: z.boolean(),
 });
 
 export const PUT: APIRoute = async ({ params, request, locals }) => {
@@ -21,10 +23,10 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = Schema.safeParse(body);
+  const parsed = UpdateSchema.safeParse(body);
   if (!parsed.success) {
     return new Response(
-      JSON.stringify({ error: "Dados inválidos", issues: parsed.error.format() }),
+      JSON.stringify({ error: "Dados invalidos", issues: parsed.error.format() }),
       { status: 400 },
     );
   }
@@ -34,7 +36,8 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       .update(schema.pages)
       .set({
         title: parsed.data.title,
-        body: parsed.data.body,
+        blocks: parsed.data.blocks,
+        published: parsed.data.published,
         updatedAt: new Date(),
       })
       .where(eq(schema.pages.slug, slug));
@@ -42,8 +45,29 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (err) {
     console.error("[pages] Falha a atualizar:", err);
-    return new Response(JSON.stringify({ error: "Erro ao guardar" }), {
-      status: 500,
-    });
+    return new Response(JSON.stringify({ error: "Erro ao guardar" }), { status: 500 });
+  }
+};
+
+export const DELETE: APIRoute = async ({ params, locals }) => {
+  if (!locals.user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  }
+
+  const slug = params.slug;
+  if (!slug) {
+    return new Response(JSON.stringify({ error: "Slug em falta" }), { status: 400 });
+  }
+
+  if (slug === "home") {
+    return new Response(JSON.stringify({ error: "Nao podes apagar a homepage" }), { status: 400 });
+  }
+
+  try {
+    await db.delete(schema.pages).where(eq(schema.pages.slug, slug));
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
+  } catch (err) {
+    console.error("[pages] Falha a apagar:", err);
+    return new Response(JSON.stringify({ error: "Erro ao apagar" }), { status: 500 });
   }
 };
