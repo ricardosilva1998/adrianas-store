@@ -31,6 +31,7 @@ export default function PagePreviewShell({
 }: Props) {
   const [device, setDevice] = useState<Device>("desktop");
   const [token, setToken] = useState<string | null>(null);
+  const tokenRef = useRef<string | null>(null);
   const debounceRef = useRef<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -48,12 +49,15 @@ export default function PagePreviewShell({
       });
       if (!res.ok) return;
       const data = (await res.json()) as { token: string };
-      if (!cancelled) setToken(data.token);
+      if (!cancelled) {
+        setToken(data.token);
+        tokenRef.current = data.token;
+      }
     })();
     return () => {
       cancelled = true;
-      if (token) {
-        fetch(`/api/admin/pages/${slug}/preview?token=${token}`, { method: "DELETE" });
+      if (tokenRef.current) {
+        fetch(`/api/admin/pages/${slug}/preview?token=${tokenRef.current}`, { method: "DELETE" });
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

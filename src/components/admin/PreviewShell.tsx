@@ -30,6 +30,7 @@ export default function PreviewShell({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const tokenRef = useRef<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const debounceRef = useRef<number | null>(null);
 
@@ -44,12 +45,15 @@ export default function PreviewShell({
       });
       if (!res.ok) return;
       const data = await res.json() as { token: string };
-      if (!cancelled) setToken(data.token);
+      if (!cancelled) {
+        setToken(data.token);
+        tokenRef.current = data.token;
+      }
     })();
     return () => {
       cancelled = true;
-      if (token) {
-        fetch(`/api/admin/site-config/preview?token=${token}`, { method: "DELETE" });
+      if (tokenRef.current) {
+        fetch(`/api/admin/site-config/preview?token=${tokenRef.current}`, { method: "DELETE" });
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
