@@ -14,6 +14,7 @@ interface Props {
   onMoveDown: () => void;
   onRemove: () => void;
   onToggleExpand: () => void;
+  onDirtyChange?: (id: string, dirty: boolean) => void;
 }
 
 const blockLabel = (type: BlockType) =>
@@ -30,6 +31,7 @@ export default function BlockCard({
   onMoveDown,
   onRemove,
   onToggleExpand,
+  onDirtyChange,
 }: Props) {
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -58,6 +60,7 @@ export default function BlockCard({
     onChange({ ...block, data: { ...block.data, ...data } });
     setDirty(true);
     setJustSaved(false);
+    onDirtyChange?.(block.id, true);
   };
 
   const handleSave = async () => {
@@ -75,6 +78,7 @@ export default function BlockCard({
       }
       setDirty(false);
       setJustSaved(true);
+      onDirtyChange?.(block.id, false);
       setTimeout(() => setJustSaved(false), 2500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao guardar");

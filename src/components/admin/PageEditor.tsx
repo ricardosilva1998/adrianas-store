@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import type { Block, BlockType } from "../../lib/blocks";
 import { createBlock } from "../../lib/blocks";
 import PagePreviewShell, { PreviewIframeContext } from "./PagePreviewShell";
@@ -28,6 +28,7 @@ interface ContentProps {
   addBlock: (type: BlockType) => Promise<void>;
   setBlocks: Dispatch<SetStateAction<Block[]>>;
   setHasDraft: (v: boolean) => void;
+  onDirtyChange: (id: string, dirty: boolean) => void;
 }
 
 function PageEditorContent({
@@ -45,6 +46,7 @@ function PageEditorContent({
   addBlock,
   setBlocks,
   setHasDraft,
+  onDirtyChange,
 }: ContentProps) {
   const iframeApi = useContext(PreviewIframeContext);
 
@@ -72,6 +74,7 @@ function PageEditorContent({
             setExpanded(nextId);
             if (nextId) iframeApi?.postMessage({ kind: "scroll-to-block", id: nextId });
           }}
+          onDirtyChange={onDirtyChange}
         />
       ))}
 
@@ -115,17 +118,27 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
   const [publishing, setPublishing] = useState(false);
   const [discarding, setDiscarding] = useState(false);
   const [hasDraft, setHasDraft] = useState(initialHasDraft);
+  const [dirtyBlockIds, setDirtyBlockIds] = useState<Set<string>>(new Set());
+
+  const handleDirtyChange = useCallback((id: string, dirty: boolean) => {
+    setDirtyBlockIds((prev) => {
+      const next = new Set(prev);
+      if (dirty) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const onBeforeUnload = (ev: BeforeUnloadEvent) => {
-      if (JSON.stringify(blocks) !== JSON.stringify(initialBlocks)) {
+      if (dirtyBlockIds.size > 0) {
         ev.preventDefault();
         ev.returnValue = "";
       }
     };
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [blocks, initialBlocks]);
+  }, [dirtyBlockIds]);
 
   const upsertBlock = (updated: Block) => {
     setBlocks((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
@@ -217,6 +230,7 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
         addBlock={addBlock}
         setBlocks={setBlocks}
         setHasDraft={setHasDraft}
+        onDirtyChange={handleDirtyChange}
       />
     </PagePreviewShell>
   );
