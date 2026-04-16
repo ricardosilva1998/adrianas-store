@@ -64,7 +64,7 @@ export default function UsersManager({ users: initial, currentUserId }: Props) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
-      <div className="rounded-3xl border border-ink-line bg-white">
+      <div className="rounded-3xl border border-ink-line bg-surface">
         <table className="w-full text-sm">
           <thead className="bg-rosa-50/40 text-xs uppercase tracking-wide text-ink-muted">
             <tr>
@@ -108,7 +108,7 @@ export default function UsersManager({ users: initial, currentUserId }: Props) {
         </table>
       </div>
 
-      <aside className="rounded-3xl border border-ink-line bg-white p-6">
+      <aside className="rounded-3xl border border-ink-line bg-surface p-6">
         <h2 className="text-lg font-semibold text-ink">Adicionar utilizador</h2>
         <form onSubmit={handleCreate} className="mt-5 space-y-4">
           <div>

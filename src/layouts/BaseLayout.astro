@@ -52,27 +52,44 @@ const isPreview = Astro.url.searchParams.has("preview");
         // Live preview listener: parent admin editor can postMessage CSS/font
         // updates so color changes feel instant without iframe reload.
         window.addEventListener("message", (ev) => {
-          if (!ev.data || ev.data.kind !== "preview-theme-css") return;
-          const style = document.getElementById("preview-theme-css") ||
-            (() => {
-              const s = document.createElement("style");
-              s.id = "preview-theme-css";
-              document.head.appendChild(s);
-              return s;
-            })();
-          style.textContent = ev.data.css;
+          if (!ev?.data?.kind) return;
 
-          if (ev.data.fontsHref) {
-            const link = document.getElementById("preview-fonts-link");
-            if (link) {
-              link.setAttribute("href", ev.data.fontsHref);
-            } else {
-              const l = document.createElement("link");
-              l.id = "preview-fonts-link";
-              l.rel = "stylesheet";
-              l.href = ev.data.fontsHref;
-              document.head.appendChild(l);
+          if (ev.data.kind === "preview-theme-css") {
+            const style = document.getElementById("preview-theme-css") ||
+              (() => {
+                const s = document.createElement("style");
+                s.id = "preview-theme-css";
+                document.head.appendChild(s);
+                return s;
+              })();
+            style.textContent = ev.data.css;
+
+            if (ev.data.fontsHref) {
+              const link = document.getElementById("preview-fonts-link");
+              if (link) {
+                link.setAttribute("href", ev.data.fontsHref);
+              } else {
+                const l = document.createElement("link");
+                l.id = "preview-fonts-link";
+                l.rel = "stylesheet";
+                l.href = ev.data.fontsHref;
+                document.head.appendChild(l);
+              }
             }
+          } else if (ev.data.kind === "scroll-to-block" && typeof ev.data.id === "string") {
+            const el = document.querySelector(`[data-block-id="${ev.data.id}"]`);
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "start" });
+              el.animate(
+                [
+                  { outline: "2px solid #ED7396", outlineOffset: "4px" },
+                  { outline: "2px solid transparent", outlineOffset: "4px" }
+                ],
+                { duration: 800 }
+              );
+            }
+          } else if (ev.data.kind === "page-preview-reload") {
+            window.location.reload();
           }
         });
       </script>

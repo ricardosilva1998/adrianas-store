@@ -19,9 +19,11 @@ npm run db:generate  # Generate migrations from schema changes
 npm run db:push      # Push schema directly to database
 npm run db:migrate   # Run pending migrations
 npm run db:seed      # Seed initial admin user
+npm test             # Run Vitest suite once
+npm run test:watch   # Vitest in watch mode
 ```
 
-No test framework is configured.
+Tests: Vitest + React Testing Library. Unit tests live alongside their source (`src/lib/foo.ts` → `src/lib/foo.test.ts`; `src/components/admin/Foo.tsx` → `src/components/admin/Foo.test.tsx`). No database in tests — pure functions and component behaviour only.
 
 ## Architecture
 

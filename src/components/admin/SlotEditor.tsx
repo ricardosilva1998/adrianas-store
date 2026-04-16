@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { Block, BlockType } from "../../lib/blocks";
-import { BLOCK_TYPES, blocksAllowedIn, createBlock } from "../../lib/blocks";
+import { BLOCK_TYPES, createBlock, instantiatePreset } from "../../lib/blocks";
+import BlockForm from "./BlockForm";
+import BlockPickerDialog from "./BlockPickerDialog";
 
 interface Props {
   name: string;
@@ -9,6 +11,9 @@ interface Props {
   blocks: Block[];
 }
 
+const blockLabel = (type: BlockType) =>
+  BLOCK_TYPES.find((bt) => bt.type === type)?.label ?? type;
+
 export default function SlotEditor({ name, label, page, blocks: initialBlocks }: Props) {
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
   const [saving, setSaving] = useState(false);
@@ -16,8 +21,6 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
   const [success, setSuccess] = useState(false);
   const [expandedBlock, setExpandedBlock] = useState<string | null>(initialBlocks[0]?.id ?? null);
   const [showPicker, setShowPicker] = useState(false);
-
-  const allowedTypes = blocksAllowedIn("page");
 
   const updateBlock = (id: string, data: any) =>
     setBlocks((prev) =>
@@ -65,12 +68,9 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
     }
   };
 
-  const blockLabel = (type: BlockType) =>
-    BLOCK_TYPES.find((bt) => bt.type === type)?.label ?? type;
-
   return (
     <div className="grid gap-6">
-      <div className="rounded-3xl border border-ink-line bg-white p-6">
+      <div className="rounded-3xl border border-ink-line bg-surface p-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-rosa-500">
           {page}
         </p>
@@ -82,7 +82,7 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
 
       <div className="grid gap-4">
         {blocks.map((block, idx) => (
-          <div key={block.id} className="rounded-3xl border border-ink-line bg-white">
+          <div key={block.id} className="rounded-3xl border border-ink-line bg-surface">
             <div
               className="flex cursor-pointer items-center justify-between px-6 py-4"
               onClick={() =>
@@ -119,59 +119,32 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
             </div>
             {expandedBlock === block.id && (
               <div className="border-t border-ink-line px-6 py-5">
-                <p className="mb-2 text-xs text-ink-muted">
-                  Tipo: <strong>{block.type}</strong>. Edita os campos JSON abaixo (cuidado com a sintaxe).
-                </p>
-                <textarea
-                  value={JSON.stringify(block.data, null, 2)}
-                  onChange={(e) => {
-                    try {
-                      const parsed = JSON.parse(e.target.value);
-                      updateBlock(block.id, parsed);
-                    } catch { /* ignore */ }
-                  }}
-                  rows={10}
-                  className="w-full resize-y rounded-xl border border-ink-line bg-white p-4 font-mono text-xs leading-relaxed"
-                />
+                <BlockForm block={block} onChange={(data) => updateBlock(block.id, data)} />
               </div>
             )}
           </div>
         ))}
       </div>
 
-      {showPicker ? (
-        <div className="rounded-3xl border border-dashed border-rosa-300 bg-rosa-50/60 p-6">
-          <h4 className="mb-4 text-sm font-semibold text-ink">Adicionar bloco</h4>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {allowedTypes.map((bt) => (
-              <button
-                key={bt.type}
-                type="button"
-                onClick={() => addBlock(bt.type)}
-                className="rounded-2xl border border-ink-line bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-rosa-300 hover:shadow"
-              >
-                <span className="text-sm font-semibold text-ink">{bt.label}</span>
-                <p className="mt-1 text-[11px] text-ink-muted">{bt.description}</p>
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowPicker(false)}
-            className="mt-4 text-xs text-ink-muted hover:text-rosa-500"
-          >
-            Cancelar
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setShowPicker(true)}
-          className="w-full rounded-3xl border border-dashed border-ink-line p-4 text-sm text-ink-muted transition hover:border-rosa-300 hover:text-rosa-500"
-        >
-          + Adicionar bloco
-        </button>
-      )}
+      <BlockPickerDialog
+        open={showPicker}
+        context="page"
+        onClose={() => setShowPicker(false)}
+        onInsertBlockType={(type) => { addBlock(type); setShowPicker(false); }}
+        onInsertPreset={(preset) => {
+          const block = instantiatePreset(preset);
+          setBlocks((prev) => [...prev, block]);
+          setShowPicker(false);
+        }}
+      />
+
+      <button
+        type="button"
+        onClick={() => setShowPicker(true)}
+        className="w-full rounded-3xl border border-dashed border-ink-line p-4 text-sm text-ink-muted transition hover:border-rosa-300 hover:text-rosa-500"
+      >
+        + Adicionar bloco
+      </button>
 
       <div className="flex items-center justify-between">
         <div>

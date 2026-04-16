@@ -286,6 +286,18 @@ export function blocksAllowedIn(
   return BLOCK_TYPES.filter((bt) => !bt.allowedIn || bt.allowedIn.includes(context));
 }
 
+// --- Preset instantiation helper ---
+
+export function instantiatePreset<T extends { type: BlockType; data: any }>(
+  preset: T,
+): Block {
+  return {
+    id: nanoid(10),
+    type: preset.type,
+    data: structuredClone(preset.data),
+  } as Block;
+}
+
 // --- Default data factories ---
 
 export function createBlock(type: BlockType): Block {

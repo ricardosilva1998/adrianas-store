@@ -30,6 +30,7 @@ export default function PreviewShell({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const tokenRef = useRef<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const debounceRef = useRef<number | null>(null);
 
@@ -44,12 +45,15 @@ export default function PreviewShell({
       });
       if (!res.ok) return;
       const data = await res.json() as { token: string };
-      if (!cancelled) setToken(data.token);
+      if (!cancelled) {
+        setToken(data.token);
+        tokenRef.current = data.token;
+      }
     })();
     return () => {
       cancelled = true;
-      if (token) {
-        fetch(`/api/admin/site-config/preview?token=${token}`, { method: "DELETE" });
+      if (tokenRef.current) {
+        fetch(`/api/admin/site-config/preview?token=${tokenRef.current}`, { method: "DELETE" });
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,7 +91,7 @@ export default function PreviewShell({
 
   return (
     <div className="flex h-[calc(100vh-80px)] flex-col">
-      <div className="flex items-center justify-between border-b border-ink-line bg-white px-6 py-3">
+      <div className="flex items-center justify-between border-b border-ink-line bg-surface px-6 py-3">
         <div className="flex gap-1 rounded-full border border-ink-line p-1">
           <button
             type="button"
@@ -127,7 +131,7 @@ export default function PreviewShell({
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-ink-line bg-white p-6">
+        <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-ink-line bg-surface p-6">
           {children}
         </aside>
         <div className="flex-1 overflow-hidden bg-ink-line/40 p-4">

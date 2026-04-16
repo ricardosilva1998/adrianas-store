@@ -74,7 +74,7 @@ export default function OrderActions({
   };
 
   return (
-    <div className="rounded-3xl border border-ink-line bg-white p-6">
+    <div className="rounded-3xl border border-ink-line bg-surface p-6">
       <h3 className="text-lg font-semibold text-ink">Ações</h3>
 
       {status === "shipped" || status === "delivered" || status === "cancelled" ? (

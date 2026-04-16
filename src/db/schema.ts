@@ -175,6 +175,25 @@ export const mediaLibrary = pgTable("media_library", {
 
 export type MediaRow = typeof mediaLibrary.$inferSelect;
 
+export const blockPresets = pgTable(
+  "block_presets",
+  {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    type: text("type").notNull(),
+    data: jsonb("data").notNull(),
+    createdByUserId: integer("created_by_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("block_presets_type_idx").on(t.type)],
+);
+
+export type BlockPresetRow = typeof blockPresets.$inferSelect;
+
 export const siteConfig = pgTable(
   "site_config",
   {

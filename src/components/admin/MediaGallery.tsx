@@ -98,7 +98,7 @@ export default function MediaGallery({ initial }: Props) {
   return (
     <div className="grid gap-6">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-ink-line bg-white p-4">
+      <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-ink-line bg-surface p-4">
         <input
           type="text"
           placeholder="Filtrar por alt ou tag..."
@@ -167,7 +167,7 @@ export default function MediaGallery({ initial }: Props) {
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {filtered.map((m) => (
-            <div key={m.id} className="group relative overflow-hidden rounded-2xl border border-ink-line bg-white">
+            <div key={m.id} className="group relative overflow-hidden rounded-2xl border border-ink-line bg-surface">
               <div className="aspect-square w-full overflow-hidden bg-rosa-50">
                 <img src={m.url} alt={m.alt} className="h-full w-full object-cover" loading="lazy" />
               </div>

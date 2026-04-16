@@ -1,6 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import { getSessionUser } from "./lib/auth";
-import { getPreview } from "./lib/preview-store";
+import { getPreview, getPagePreview } from "./lib/preview-store";
 
 const PUBLIC_ADMIN_ROUTES = new Set(["/admin/login", "/api/admin/login"]);
 
@@ -40,9 +40,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (previewToken) {
     const user = context.locals.user ?? (await getSessionUser(context.cookies));
     if (user) {
-      const pending = getPreview(previewToken);
-      if (pending) {
-        context.locals.previewConfig = pending;
+      const pendingConfig = getPreview(previewToken);
+      if (pendingConfig) {
+        context.locals.previewConfig = pendingConfig;
+      }
+      const pendingPage = getPagePreview(previewToken);
+      if (pendingPage) {
+        context.locals.pagePreview = pendingPage;
       }
     }
   }

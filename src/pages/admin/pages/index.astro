@@ -20,7 +20,7 @@ const allPages = await db.select().from(schema.pages);
     {allPages.map((p) => (
       <a
         href={`/admin/pages/${p.slug}`}
-        class="group rounded-3xl border border-ink-line bg-white p-6 transition hover:-translate-y-0.5 hover:border-rosa-300"
+        class="group rounded-3xl border border-ink-line bg-surface p-6 transition hover:-translate-y-0.5 hover:border-rosa-300"
       >
         <div class="flex items-center justify-between">
           <span class="text-[10px] font-semibold uppercase tracking-wide text-rosa-500">

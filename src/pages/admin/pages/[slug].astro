@@ -1,6 +1,6 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import BlockEditor from "../../../components/admin/BlockEditor.tsx";
+import PageEditor from "../../../components/admin/PageEditor.tsx";
 import { getPage } from "../../../lib/queries";
 
 const user = Astro.locals.user;
@@ -18,28 +18,13 @@ const editableBlocks = (page.draftBlocks ?? page.blocks ?? []) as any[];
 const hasDraft = page.draftBlocks !== null;
 ---
 
-<AdminLayout title={`Editar: ${page.title}`} user={user}>
-  <div class="mb-6 flex items-center justify-between">
-    <a href="/admin/pages" class="text-xs text-ink-muted hover:text-rosa-500">
-      ← Todas as paginas
-    </a>
-    <a
-      href={`/${slug === "home" ? "" : slug}`}
-      target="_blank"
-      rel="noopener"
-      class="text-xs text-ink-muted hover:text-rosa-500"
-    >
-      Ver no site →
-    </a>
-  </div>
-
-  <BlockEditor
+<AdminLayout title={`Editar: ${page.title}`} user={user} hideLayoutPadding>
+  <PageEditor
     client:load
     slug={slug}
     title={page.title}
-    blocks={editableBlocks}
+    initialBlocks={editableBlocks}
     published={page.published}
-    mode="edit"
     hasDraft={hasDraft}
   />
 </AdminLayout>
