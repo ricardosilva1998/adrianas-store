@@ -22,7 +22,7 @@ const revenueDiff = stats.revenue.prevMonth
   <section class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
     <a
       href="/admin/orders?status=new"
-      class="group rounded-3xl border border-ink-line bg-white p-6 transition hover:-translate-y-0.5 hover:border-rosa-300"
+      class="group rounded-3xl border border-ink-line bg-surface p-6 transition hover:-translate-y-0.5 hover:border-rosa-300"
     >
       <p class="text-xs font-semibold uppercase tracking-wide text-rosa-500">A aguardar ação</p>
       <p class="mt-3 text-4xl font-semibold text-ink">{pendingTotal}</p>
@@ -33,13 +33,13 @@ const revenueDiff = stats.revenue.prevMonth
       </div>
     </a>
 
-    <div class="rounded-3xl border border-ink-line bg-white p-6">
+    <div class="rounded-3xl border border-ink-line bg-surface p-6">
       <p class="text-xs font-semibold uppercase tracking-wide text-rosa-500">Receita total</p>
       <p class="mt-3 text-4xl font-semibold text-ink">{formatEuro(stats.revenue.total)}</p>
       <p class="mt-3 text-xs text-ink-muted">Encomendas confirmadas</p>
     </div>
 
-    <div class="rounded-3xl border border-ink-line bg-white p-6">
+    <div class="rounded-3xl border border-ink-line bg-surface p-6">
       <p class="text-xs font-semibold uppercase tracking-wide text-rosa-500">Mês atual</p>
       <p class="mt-3 text-4xl font-semibold text-ink">{formatEuro(stats.revenue.month)}</p>
       <p class="mt-3 text-xs text-ink-muted">
@@ -49,7 +49,7 @@ const revenueDiff = stats.revenue.prevMonth
       </p>
     </div>
 
-    <div class="rounded-3xl border border-ink-line bg-white p-6">
+    <div class="rounded-3xl border border-ink-line bg-surface p-6">
       <p class="text-xs font-semibold uppercase tracking-wide text-rosa-500">Mês anterior</p>
       <p class="mt-3 text-4xl font-semibold text-ink">
         {formatEuro(stats.revenue.prevMonth)}
@@ -61,7 +61,7 @@ const revenueDiff = stats.revenue.prevMonth
   <section class="mt-8 grid gap-5 lg:grid-cols-[1.4fr_1fr]">
     <DailyChart client:load data={stats.daily} />
 
-    <div class="rounded-3xl border border-ink-line bg-white p-6">
+    <div class="rounded-3xl border border-ink-line bg-surface p-6">
       <div>
         <p class="text-xs font-semibold uppercase tracking-wide text-rosa-500">Top 5</p>
         <h3 class="mt-1 text-lg font-semibold text-ink">Mais vendidos</h3>

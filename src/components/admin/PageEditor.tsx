@@ -109,7 +109,7 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
       onDiscardDraft={handleDiscardDraft}
     >
       <div className="grid gap-4">
-        <div className="rounded-3xl border border-ink-line bg-white p-6">
+        <div className="rounded-3xl border border-ink-line bg-surface p-6">
           <label className="field-label" htmlFor="title">Título</label>
           <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="field-input" />
         </div>

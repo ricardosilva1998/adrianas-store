@@ -203,7 +203,7 @@ export default function ProductForm({ initial, mode }: Props) {
   return (
     <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
       <div className="space-y-6">
-        <section className="rounded-3xl border border-ink-line bg-white p-6">
+        <section className="rounded-3xl border border-ink-line bg-surface p-6">
           <h2 className="text-lg font-semibold text-ink">Informação básica</h2>
           <div className="mt-5 grid gap-4">
             <div>
@@ -255,7 +255,7 @@ export default function ProductForm({ initial, mode }: Props) {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-ink-line bg-white p-6">
+        <section className="rounded-3xl border border-ink-line bg-surface p-6">
           <h2 className="text-lg font-semibold text-ink">Imagens</h2>
           <p className="mt-1 text-xs text-ink-muted">
             Adiciona as fotos reais do produto. Podes fazer upload ou colar um URL externo.
@@ -332,7 +332,7 @@ export default function ProductForm({ initial, mode }: Props) {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-ink-line bg-white p-6">
+        <section className="rounded-3xl border border-ink-line bg-surface p-6">
           <h2 className="text-lg font-semibold text-ink">Cores disponíveis</h2>
           {data.colors.map((c, i) => (
             <div key={i} className="mt-3 flex items-center gap-3">
@@ -368,7 +368,7 @@ export default function ProductForm({ initial, mode }: Props) {
       </div>
 
       <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-        <section className="rounded-3xl border border-ink-line bg-white p-6">
+        <section className="rounded-3xl border border-ink-line bg-surface p-6">
           <h2 className="text-lg font-semibold text-ink">Preço e stock</h2>
           <div className="mt-5 grid gap-4">
             <div>
@@ -424,7 +424,7 @@ export default function ProductForm({ initial, mode }: Props) {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-ink-line bg-white p-6">
+        <section className="rounded-3xl border border-ink-line bg-surface p-6">
           <h2 className="text-lg font-semibold text-ink">Publicação</h2>
           <div className="mt-5 space-y-3 text-sm">
             <label className="flex items-center gap-3">

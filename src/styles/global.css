@@ -104,7 +104,7 @@ svg {
   }
 
   .card {
-    @apply relative flex h-full flex-col overflow-hidden rounded-3xl border border-ink-line bg-white transition hover:-translate-y-0.5 hover:border-rosa-300 hover:shadow-[0_20px_40px_-20px_rgba(237,115,150,0.35)];
+    @apply relative flex h-full flex-col overflow-hidden rounded-3xl border border-ink-line bg-surface transition hover:-translate-y-0.5 hover:border-rosa-300 hover:shadow-[0_20px_40px_-20px_rgba(237,115,150,0.35)];
   }
 
   .field-label {
@@ -112,6 +112,6 @@ svg {
   }
 
   .field-input {
-    @apply mt-1 block w-full rounded-xl border border-ink-line bg-white px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus:border-rosa-400 focus:outline-none focus:ring-2 focus:ring-rosa-200;
+    @apply mt-1 block w-full rounded-xl border border-ink-line bg-surface px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus:border-rosa-400 focus:outline-none focus:ring-2 focus:ring-rosa-200;
   }
 }

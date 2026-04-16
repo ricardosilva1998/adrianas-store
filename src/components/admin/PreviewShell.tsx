@@ -87,7 +87,7 @@ export default function PreviewShell({
 
   return (
     <div className="flex h-[calc(100vh-80px)] flex-col">
-      <div className="flex items-center justify-between border-b border-ink-line bg-white px-6 py-3">
+      <div className="flex items-center justify-between border-b border-ink-line bg-surface px-6 py-3">
         <div className="flex gap-1 rounded-full border border-ink-line p-1">
           <button
             type="button"
@@ -127,7 +127,7 @@ export default function PreviewShell({
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-ink-line bg-white p-6">
+        <aside className="w-[420px] shrink-0 overflow-y-auto border-r border-ink-line bg-surface p-6">
           {children}
         </aside>
         <div className="flex-1 overflow-hidden bg-ink-line/40 p-4">

@@ -25,7 +25,7 @@ const pageLabels: Record<string, string> = {
         <h2 class="mb-4 text-lg font-semibold text-ink">{pageLabels[page] ?? page}</h2>
         <ul class="grid gap-3">
           {list.map((s) => (
-            <li class="flex items-center justify-between rounded-2xl border border-ink-line bg-white px-5 py-4">
+            <li class="flex items-center justify-between rounded-2xl border border-ink-line bg-surface px-5 py-4">
               <div>
                 <a href={`/admin/slots/${s.name}`} class="text-sm font-medium text-ink hover:text-rosa-500">
                   {s.label}

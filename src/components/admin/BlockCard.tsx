@@ -84,7 +84,7 @@ export default function BlockCard({
   };
 
   return (
-    <div className="rounded-3xl border border-ink-line bg-white">
+    <div className="rounded-3xl border border-ink-line bg-surface">
       <div className="flex cursor-pointer items-center justify-between px-6 py-4" onClick={onToggleExpand}>
         <div className="flex items-center gap-3">
           <span className="rounded-full bg-rosa-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-rosa-600">
@@ -105,7 +105,7 @@ export default function BlockCard({
               ⋯
             </button>
             {menuOpen && (
-              <div role="menu" className="absolute right-0 top-full z-10 mt-1 w-56 rounded-xl border border-ink-line bg-white p-1 shadow-lg">
+              <div role="menu" className="absolute right-0 top-full z-10 mt-1 w-56 rounded-xl border border-ink-line bg-surface p-1 shadow-lg">
                 <button
                   role="menuitem"
                   type="button"

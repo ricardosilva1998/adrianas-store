@@ -112,7 +112,7 @@ function NavForm({ config, setGlobals }: FormProps) {
         getId={(_, i) => `nav-${i}`}
         onReorder={(next) => setGlobals({ nav: next })}
         renderItem={(link, i, handle) => (
-          <div className="flex items-center gap-2 rounded-lg border border-ink-line bg-white p-2">
+          <div className="flex items-center gap-2 rounded-lg border border-ink-line bg-surface p-2">
             {handle}
             <input
               value={link.label}
@@ -170,7 +170,7 @@ function FooterForm({ config, setGlobals }: FormProps) {
         getId={(_, i) => `col-${i}`}
         onReorder={(next) => setGlobals({ footer: { ...footer, columns: next } })}
         renderItem={(col, ci, handle) => (
-          <div className="rounded-lg border border-ink-line bg-white p-3">
+          <div className="rounded-lg border border-ink-line bg-surface p-3">
             <div className="flex items-center gap-2">
               {handle}
               <input
@@ -288,7 +288,7 @@ function PaymentsForm({ config, setGlobals }: FormProps) {
       getId={(p) => `pay-${p.id}`}
       onReorder={(next) => setGlobals({ payments: next })}
       renderItem={(p, i, handle) => (
-        <div className="space-y-2 rounded-lg border border-ink-line bg-white p-3">
+        <div className="space-y-2 rounded-lg border border-ink-line bg-surface p-3">
           <div className="flex items-center gap-2">
             {handle}
             <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{p.id}</span>

@@ -69,7 +69,7 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
 
   return (
     <div className="grid gap-6">
-      <div className="rounded-3xl border border-ink-line bg-white p-6">
+      <div className="rounded-3xl border border-ink-line bg-surface p-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-rosa-500">
           {page}
         </p>
@@ -81,7 +81,7 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
 
       <div className="grid gap-4">
         {blocks.map((block, idx) => (
-          <div key={block.id} className="rounded-3xl border border-ink-line bg-white">
+          <div key={block.id} className="rounded-3xl border border-ink-line bg-surface">
             <div
               className="flex cursor-pointer items-center justify-between px-6 py-4"
               onClick={() =>
@@ -130,7 +130,7 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
                     } catch { /* ignore */ }
                   }}
                   rows={10}
-                  className="w-full resize-y rounded-xl border border-ink-line bg-white p-4 font-mono text-xs leading-relaxed"
+                  className="w-full resize-y rounded-xl border border-ink-line bg-surface p-4 font-mono text-xs leading-relaxed"
                 />
               </div>
             )}

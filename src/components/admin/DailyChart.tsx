@@ -34,7 +34,7 @@ export default function DailyChart({ data }: Props) {
   const total = points.reduce((s, p) => s + p.count, 0);
 
   return (
-    <div className="rounded-3xl border border-ink-line bg-white p-6">
+    <div className="rounded-3xl border border-ink-line bg-surface p-6">
       <div className="flex items-end justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-rosa-500">

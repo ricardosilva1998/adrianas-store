@@ -60,9 +60,9 @@ const isActive = (href: string) =>
       rel="stylesheet"
     />
   </head>
-  <body class="min-h-dvh bg-rosa-50/30 font-sans text-ink antialiased">
+  <body class="min-h-dvh bg-surface-muted font-sans text-ink antialiased">
     <div class="flex min-h-dvh">
-      <aside class="hidden w-64 shrink-0 flex-col border-r border-ink-line bg-white md:flex">
+      <aside class="hidden w-64 shrink-0 flex-col border-r border-ink-line bg-surface md:flex">
         <div class="border-b border-ink-line px-6 py-5">
           <a href="/" class="flex items-center gap-3">
             <img src="/logo.svg" alt="Adriana's Store" class="h-9 w-auto" />
@@ -98,7 +98,7 @@ const isActive = (href: string) =>
       </aside>
 
       <div class="flex min-w-0 flex-1 flex-col">
-        <header class="sticky top-0 z-20 flex items-center justify-between border-b border-ink-line bg-white/90 px-5 py-4 backdrop-blur md:px-10">
+        <header class="sticky top-0 z-20 flex items-center justify-between border-b border-ink-line bg-surface/90 px-5 py-4 backdrop-blur md:px-10">
           <div>
             <h1 class="text-lg font-semibold text-ink sm:text-xl">{title}</h1>
           </div>
@@ -109,7 +109,7 @@ const isActive = (href: string) =>
         </header>
 
         <nav class="md:hidden">
-          <div class="flex gap-1 overflow-x-auto border-b border-ink-line bg-white px-5 py-2">
+          <div class="flex gap-1 overflow-x-auto border-b border-ink-line bg-surface px-5 py-2">
             {navItems.map((item) => (
               <a
                 href={item.href}

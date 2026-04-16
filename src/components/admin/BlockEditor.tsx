@@ -123,7 +123,7 @@ export default function BlockEditor({
   return (
     <div className="grid gap-6">
       {/* Page settings */}
-      <div className="rounded-3xl border border-ink-line bg-white p-6">
+      <div className="rounded-3xl border border-ink-line bg-surface p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="field-label" htmlFor="title">Titulo</label>
@@ -166,7 +166,7 @@ export default function BlockEditor({
         {blocks.map((block, idx) => (
           <div
             key={block.id}
-            className="rounded-3xl border border-ink-line bg-white"
+            className="rounded-3xl border border-ink-line bg-surface"
           >
             {/* Block header */}
             <div
@@ -233,7 +233,7 @@ export default function BlockEditor({
                 key={bt.type}
                 type="button"
                 onClick={() => addBlock(bt.type)}
-                className="rounded-2xl border border-ink-line bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-rosa-300 hover:shadow"
+                className="rounded-2xl border border-ink-line bg-surface p-4 text-left transition hover:-translate-y-0.5 hover:border-rosa-300 hover:shadow"
               >
                 <span className="text-sm font-semibold text-ink">{bt.label}</span>
                 <p className="mt-1 text-[11px] text-ink-muted">{bt.description}</p>

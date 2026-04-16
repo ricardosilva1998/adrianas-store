@@ -92,7 +92,7 @@ function TextForm({ data, onChange }: { data: any; onChange: (d: any) => void })
           value={data.markdown}
           onChange={(e) => onChange({ markdown: e.target.value })}
           rows={16}
-          className="mt-2 w-full resize-y rounded-xl border border-ink-line bg-white p-4 font-mono text-xs leading-relaxed"
+          className="mt-2 w-full resize-y rounded-xl border border-ink-line bg-surface p-4 font-mono text-xs leading-relaxed"
         />
       </div>
       <div>
@@ -176,7 +176,7 @@ function CategoryGridForm({ data, onChange }: { data: any; onChange: (d: any) =>
               className={`cursor-pointer rounded-full border px-3 py-1.5 text-xs font-medium transition ${
                 (data.categories ?? []).includes(c.value)
                   ? "border-rosa-300 bg-rosa-100 text-rosa-600"
-                  : "border-ink-line bg-white text-ink-muted hover:border-rosa-200"
+                  : "border-ink-line bg-surface text-ink-muted hover:border-rosa-200"
               }`}
             >
               <input
@@ -221,7 +221,7 @@ function ImageGalleryForm({ data, onChange }: { data: any; onChange: (d: any) =>
     <div className="grid gap-4">
       <label className="field-label">Imagens</label>
       {images.map((img: any, i: number) => (
-        <div key={i} className="rounded-xl border border-ink-line bg-white p-4">
+        <div key={i} className="rounded-xl border border-ink-line bg-surface p-4">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">#{i + 1}</span>
             <div className="flex items-center gap-1">
@@ -285,7 +285,7 @@ function CtaBannerForm({ data, onChange }: { data: any; onChange: (d: any) => vo
               className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
                 data.bgColor === color
                   ? "border-rosa-300 bg-rosa-100 text-rosa-600"
-                  : "border-ink-line bg-white text-ink-muted"
+                  : "border-ink-line bg-surface text-ink-muted"
               }`}
             >
               <input
@@ -329,7 +329,7 @@ function FaqForm({ data, onChange }: { data: any; onChange: (d: any) => void }) 
       </div>
       <label className="field-label">Perguntas & Respostas</label>
       {items.map((item: any, idx: number) => (
-        <div key={idx} className="grid gap-2 rounded-xl border border-ink-line bg-white p-4">
+        <div key={idx} className="grid gap-2 rounded-xl border border-ink-line bg-surface p-4">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">#{idx + 1}</span>
             <button type="button" onClick={() => removeItem(idx)} className="text-xs text-ink-muted hover:text-red-500">Remover</button>
@@ -402,7 +402,7 @@ function TestimonialsForm({ data, onChange }: { data: any; onChange: (d: any) =>
       </div>
       <label className="field-label">Testemunhos</label>
       {items.map((item: any, idx: number) => (
-        <div key={idx} className="grid gap-2 rounded-xl border border-ink-line bg-white p-4">
+        <div key={idx} className="grid gap-2 rounded-xl border border-ink-line bg-surface p-4">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">#{idx + 1}</span>
             <button type="button" onClick={() => removeItem(idx)} className="text-xs text-ink-muted hover:text-red-500">Remover</button>
@@ -486,7 +486,7 @@ function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) 
               className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
                 data.layout === layout
                   ? "border-rosa-300 bg-rosa-100 text-rosa-600"
-                  : "border-ink-line bg-white text-ink-muted"
+                  : "border-ink-line bg-surface text-ink-muted"
               }`}
             >
               <input
@@ -509,7 +509,7 @@ function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) 
             value={data.markdown}
             onChange={(e) => onChange({ markdown: e.target.value })}
             rows={12}
-            className="mt-2 w-full resize-y rounded-xl border border-ink-line bg-white p-4 font-mono text-xs leading-relaxed"
+            className="mt-2 w-full resize-y rounded-xl border border-ink-line bg-surface p-4 font-mono text-xs leading-relaxed"
           />
         </div>
         <div>
@@ -559,7 +559,7 @@ function DividerForm({ data, onChange }: { data: any; onChange: (d: any) => void
               className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
                 data.style === value
                   ? "border-rosa-300 bg-rosa-100 text-rosa-600"
-                  : "border-ink-line bg-white text-ink-muted"
+                  : "border-ink-line bg-surface text-ink-muted"
               }`}
             >
               <input
@@ -588,7 +588,7 @@ function DividerForm({ data, onChange }: { data: any; onChange: (d: any) => void
               className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
                 data.spacing === value
                   ? "border-rosa-300 bg-rosa-100 text-rosa-600"
-                  : "border-ink-line bg-white text-ink-muted"
+                  : "border-ink-line bg-surface text-ink-muted"
               }`}
             >
               <input

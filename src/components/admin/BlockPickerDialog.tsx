@@ -57,7 +57,7 @@ export default function BlockPickerDialog({ open, context, onClose, onInsertBloc
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-6">
-      <div className="flex h-[85vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded-3xl border border-ink-line bg-white shadow-2xl">
+      <div className="flex h-[85vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded-3xl border border-ink-line bg-surface shadow-2xl">
         <div className="flex items-center justify-between border-b border-ink-line px-6 py-4">
           <div role="tablist" className="flex gap-1 rounded-full border border-ink-line p-1">
             <button role="tab" aria-selected={tab === "blocos"} onClick={() => setTab("blocos")} className={`px-4 py-1 text-sm font-medium rounded-full ${tab === "blocos" ? "bg-ink text-white" : "text-ink-soft"}`}>Blocos</button>

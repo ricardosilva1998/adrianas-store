@@ -124,7 +124,7 @@ function GalleryModal({ onClose, onPick }: { onClose: () => void; onPick: (url: 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={onClose}>
       <div
-        className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white shadow-xl"
+        className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-surface shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-ink-line px-6 py-4">
@@ -160,7 +160,7 @@ function GalleryModal({ onClose, onPick }: { onClose: () => void; onPick: (url: 
                   key={m.id}
                   type="button"
                   onClick={() => onPick(m.url)}
-                  className="group overflow-hidden rounded-2xl border border-ink-line bg-white text-left transition hover:border-rosa-300 hover:shadow"
+                  className="group overflow-hidden rounded-2xl border border-ink-line bg-surface text-left transition hover:border-rosa-300 hover:shadow"
                 >
                   <div className="aspect-square w-full overflow-hidden bg-rosa-50">
                     <img src={m.url} alt={m.alt} className="h-full w-full object-cover transition group-hover:scale-105" loading="lazy" />
