@@ -27,43 +27,44 @@ export interface TemplateContext {
 }
 
 interface Props {
-  block: { type: string; data: any };
+  block: { id?: string; type: string; data: any };
   context?: TemplateContext;
 }
 
 const { block, context } = Astro.props;
 ---
+<div data-block-id={block.id}>
+  {block.type === "hero" && <HeroBlock data={block.data} />}
+  {block.type === "text" && <TextBlock data={block.data} />}
+  {block.type === "product-grid" && <ProductGridBlock data={block.data} />}
+  {block.type === "category-grid" && <CategoryGridBlock data={block.data} />}
+  {block.type === "image-gallery" && <ImageGalleryBlock data={block.data} />}
+  {block.type === "cta-banner" && <CtaBannerBlock data={block.data} />}
+  {block.type === "faq" && <FaqBlock data={block.data} />}
+  {block.type === "contact-info" && <ContactInfoBlock data={block.data} />}
+  {block.type === "testimonials" && <TestimonialsBlock data={block.data} />}
+  {block.type === "newsletter" && <NewsletterBlock data={block.data} />}
+  {block.type === "image-text-split" && <ImageTextSplitBlock data={block.data} />}
+  {block.type === "video-embed" && <VideoEmbedBlock data={block.data} />}
+  {block.type === "divider" && <DividerBlock data={block.data} />}
 
-{block.type === "hero" && <HeroBlock data={block.data} />}
-{block.type === "text" && <TextBlock data={block.data} />}
-{block.type === "product-grid" && <ProductGridBlock data={block.data} />}
-{block.type === "category-grid" && <CategoryGridBlock data={block.data} />}
-{block.type === "image-gallery" && <ImageGalleryBlock data={block.data} />}
-{block.type === "cta-banner" && <CtaBannerBlock data={block.data} />}
-{block.type === "faq" && <FaqBlock data={block.data} />}
-{block.type === "contact-info" && <ContactInfoBlock data={block.data} />}
-{block.type === "testimonials" && <TestimonialsBlock data={block.data} />}
-{block.type === "newsletter" && <NewsletterBlock data={block.data} />}
-{block.type === "image-text-split" && <ImageTextSplitBlock data={block.data} />}
-{block.type === "video-embed" && <VideoEmbedBlock data={block.data} />}
-{block.type === "divider" && <DividerBlock data={block.data} />}
-
-{block.type === "product-gallery" && context?.product && (
-  <ProductGalleryBlock data={block.data} product={context.product} />
-)}
-{block.type === "product-info" && context?.product && (
-  <ProductInfoBlock data={block.data} product={context.product} />
-)}
-{block.type === "product-long-description" && context?.product && (
-  <ProductLongDescriptionBlock data={block.data} product={context.product} />
-)}
-{block.type === "product-related" && (
-  <ProductRelatedBlock data={block.data} relatedProducts={context?.relatedProducts ?? []} />
-)}
-{block.type === "catalog-grid-bound" && (
-  <CatalogGridBoundBlock
-    data={block.data}
-    products={context?.products ?? []}
-    activeCategory={context?.activeCategory}
-  />
-)}
+  {block.type === "product-gallery" && context?.product && (
+    <ProductGalleryBlock data={block.data} product={context.product} />
+  )}
+  {block.type === "product-info" && context?.product && (
+    <ProductInfoBlock data={block.data} product={context.product} />
+  )}
+  {block.type === "product-long-description" && context?.product && (
+    <ProductLongDescriptionBlock data={block.data} product={context.product} />
+  )}
+  {block.type === "product-related" && (
+    <ProductRelatedBlock data={block.data} relatedProducts={context?.relatedProducts ?? []} />
+  )}
+  {block.type === "catalog-grid-bound" && (
+    <CatalogGridBoundBlock
+      data={block.data}
+      products={context?.products ?? []}
+      activeCategory={context?.activeCategory}
+    />
+  )}
+</div>

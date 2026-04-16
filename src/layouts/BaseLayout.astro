@@ -74,6 +74,24 @@ const isPreview = Astro.url.searchParams.has("preview");
               document.head.appendChild(l);
             }
           }
+
+          if (ev.data.kind === "scroll-to-block" && typeof ev.data.id === "string") {
+            const el = document.querySelector(`[data-block-id="${ev.data.id}"]`);
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "start" });
+              el.animate(
+                [
+                  { outline: "2px solid #ED7396", outlineOffset: "4px" },
+                  { outline: "2px solid transparent", outlineOffset: "4px" }
+                ],
+                { duration: 800 }
+              );
+            }
+          }
+
+          if (ev.data.kind === "page-preview-reload") {
+            window.location.reload();
+          }
         });
       </script>
     )}
