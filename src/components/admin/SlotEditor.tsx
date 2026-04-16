@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Block, BlockType } from "../../lib/blocks";
-import { createBlock } from "../../lib/blocks";
+import { BLOCK_TYPES, createBlock } from "../../lib/blocks";
 import BlockPickerDialog from "./BlockPickerDialog";
 
 interface Props {
@@ -9,6 +9,9 @@ interface Props {
   page: string;
   blocks: Block[];
 }
+
+const blockLabel = (type: BlockType) =>
+  BLOCK_TYPES.find((bt) => bt.type === type)?.label ?? type;
 
 export default function SlotEditor({ name, label, page, blocks: initialBlocks }: Props) {
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
@@ -87,7 +90,7 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
             >
               <div className="flex items-center gap-3">
                 <span className="rounded-full bg-rosa-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-rosa-600">
-                  {block.type}
+                  {blockLabel(block.type)}
                 </span>
                 <span className="text-xs text-ink-muted">
                   {expandedBlock === block.id ? "▼" : "▶"}
