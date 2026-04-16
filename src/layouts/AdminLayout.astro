@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import type { SessionUser } from "../lib/auth";
+import ThemeToggle from "../components/admin/ThemeToggle.tsx";
 
 interface Props {
   title: string;
@@ -10,6 +11,9 @@ interface Props {
 
 const { title, user, hideLayoutPadding = false } = Astro.props;
 const currentPath = Astro.url.pathname;
+const themeCookie = Astro.cookies.get("adriana-admin-theme")?.value;
+const initialTheme: "dark" | "light" | null =
+  themeCookie === "dark" || themeCookie === "light" ? themeCookie : null;
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: "home" },
@@ -32,11 +36,23 @@ const isActive = (href: string) =>
 ---
 
 <!doctype html>
-<html lang="pt-PT">
+<html lang="pt-PT" class={initialTheme === "dark" ? "dark" : undefined}>
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline define:vars={{ initialTheme }}>
+      if (!initialTheme) {
+        try {
+          const stored = localStorage.getItem("adriana-admin-theme");
+          const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          const effective = stored ?? (systemDark ? "dark" : "light");
+          if (effective === "dark") document.documentElement.classList.add("dark");
+        } catch {
+          /* ignore */
+        }
+      }
+    </script>
     <meta name="robots" content="noindex, nofollow" />
     <title>{title} — Admin Adriana's Store</title>
     <link
@@ -87,6 +103,7 @@ const isActive = (href: string) =>
             <h1 class="text-lg font-semibold text-ink sm:text-xl">{title}</h1>
           </div>
           <div class="flex items-center gap-3 text-xs text-ink-muted">
+            <ThemeToggle client:load />
             <a href="/" class="hover:text-rosa-500">Ver site →</a>
           </div>
         </header>
