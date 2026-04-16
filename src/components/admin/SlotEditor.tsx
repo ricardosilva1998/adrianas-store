@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Block, BlockType } from "../../lib/blocks";
-import { BLOCK_TYPES, blocksAllowedIn, createBlock } from "../../lib/blocks";
+import { createBlock } from "../../lib/blocks";
+import BlockPickerDialog from "./BlockPickerDialog";
 
 interface Props {
   name: string;
@@ -16,8 +17,6 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
   const [success, setSuccess] = useState(false);
   const [expandedBlock, setExpandedBlock] = useState<string | null>(initialBlocks[0]?.id ?? null);
   const [showPicker, setShowPicker] = useState(false);
-
-  const allowedTypes = blocksAllowedIn("page");
 
   const updateBlock = (id: string, data: any) =>
     setBlocks((prev) =>
@@ -65,9 +64,6 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
     }
   };
 
-  const blockLabel = (type: BlockType) =>
-    BLOCK_TYPES.find((bt) => bt.type === type)?.label ?? type;
-
   return (
     <div className="grid gap-6">
       <div className="rounded-3xl border border-ink-line bg-white p-6">
@@ -91,7 +87,7 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
             >
               <div className="flex items-center gap-3">
                 <span className="rounded-full bg-rosa-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-rosa-600">
-                  {blockLabel(block.type)}
+                  {block.type}
                 </span>
                 <span className="text-xs text-ink-muted">
                   {expandedBlock === block.id ? "▼" : "▶"}
@@ -139,39 +135,25 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
         ))}
       </div>
 
-      {showPicker ? (
-        <div className="rounded-3xl border border-dashed border-rosa-300 bg-rosa-50/60 p-6">
-          <h4 className="mb-4 text-sm font-semibold text-ink">Adicionar bloco</h4>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {allowedTypes.map((bt) => (
-              <button
-                key={bt.type}
-                type="button"
-                onClick={() => addBlock(bt.type)}
-                className="rounded-2xl border border-ink-line bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-rosa-300 hover:shadow"
-              >
-                <span className="text-sm font-semibold text-ink">{bt.label}</span>
-                <p className="mt-1 text-[11px] text-ink-muted">{bt.description}</p>
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowPicker(false)}
-            className="mt-4 text-xs text-ink-muted hover:text-rosa-500"
-          >
-            Cancelar
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setShowPicker(true)}
-          className="w-full rounded-3xl border border-dashed border-ink-line p-4 text-sm text-ink-muted transition hover:border-rosa-300 hover:text-rosa-500"
-        >
-          + Adicionar bloco
-        </button>
-      )}
+      <BlockPickerDialog
+        open={showPicker}
+        context="page"
+        onClose={() => setShowPicker(false)}
+        onInsertBlockType={(type) => { addBlock(type); setShowPicker(false); }}
+        onInsertPreset={(preset) => {
+          const block = { id: crypto.randomUUID().slice(0, 10), type: preset.type, data: preset.data } as any;
+          setBlocks((prev) => [...prev, block]);
+          setShowPicker(false);
+        }}
+      />
+
+      <button
+        type="button"
+        onClick={() => setShowPicker(true)}
+        className="w-full rounded-3xl border border-dashed border-ink-line p-4 text-sm text-ink-muted transition hover:border-rosa-300 hover:text-rosa-500"
+      >
+        + Adicionar bloco
+      </button>
 
       <div className="flex items-center justify-between">
         <div>
