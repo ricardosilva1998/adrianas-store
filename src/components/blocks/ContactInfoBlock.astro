@@ -1,0 +1,58 @@
+---
+interface Props {
+  data: {
+    email: string;
+    whatsapp: string;
+    instagram: string;
+    address: string;
+  };
+}
+
+const { data } = Astro.props;
+const hasContent = data.email || data.whatsapp || data.instagram || data.address;
+---
+
+{hasContent && (
+  <section class="py-16">
+    <div class="section max-w-3xl">
+      <div class="grid gap-6 sm:grid-cols-2">
+        {data.email && (
+          <a href={`mailto:${data.email}`} class="flex items-center gap-4 rounded-2xl border border-ink-line bg-white p-5 transition hover:border-rosa-300">
+            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-rosa-100 text-rosa-500">@</span>
+            <div>
+              <span class="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">Email</span>
+              <p class="text-sm font-medium text-ink">{data.email}</p>
+            </div>
+          </a>
+        )}
+        {data.whatsapp && (
+          <a href={`https://wa.me/${data.whatsapp.replace(/[^0-9+]/g, "")}`} class="flex items-center gap-4 rounded-2xl border border-ink-line bg-white p-5 transition hover:border-rosa-300">
+            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-rosa-100 text-rosa-500">W</span>
+            <div>
+              <span class="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">WhatsApp</span>
+              <p class="text-sm font-medium text-ink">{data.whatsapp}</p>
+            </div>
+          </a>
+        )}
+        {data.instagram && (
+          <a href={`https://instagram.com/${data.instagram.replace("@", "")}`} class="flex items-center gap-4 rounded-2xl border border-ink-line bg-white p-5 transition hover:border-rosa-300">
+            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-rosa-100 text-rosa-500">IG</span>
+            <div>
+              <span class="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">Instagram</span>
+              <p class="text-sm font-medium text-ink">{data.instagram}</p>
+            </div>
+          </a>
+        )}
+        {data.address && (
+          <div class="flex items-center gap-4 rounded-2xl border border-ink-line bg-white p-5">
+            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-rosa-100 text-rosa-500">M</span>
+            <div>
+              <span class="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">Morada</span>
+              <p class="text-sm font-medium text-ink">{data.address}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+)}

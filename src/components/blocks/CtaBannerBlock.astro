@@ -1,0 +1,47 @@
+---
+interface Props {
+  data: {
+    title: string;
+    subtitle: string;
+    buttonText: string;
+    buttonUrl: string;
+    bgColor: "rosa" | "ink";
+  };
+}
+
+const { data } = Astro.props;
+const isInk = data.bgColor === "ink";
+---
+
+<section class="py-20">
+  <div class="section">
+    <div class={`rounded-[40px] px-8 py-16 text-center md:px-16 ${isInk ? "bg-ink text-white" : "bg-rosa-100 text-ink"}`}>
+      {data.title && (
+        <h2 class={`text-3xl font-semibold leading-tight sm:text-4xl ${isInk ? "text-white" : "text-ink"}`}>
+          {data.title}
+        </h2>
+      )}
+      {data.subtitle && (
+        <p class={`mt-5 mx-auto max-w-xl text-sm leading-relaxed ${isInk ? "text-white/70" : "text-ink-soft"}`}>
+          {data.subtitle}
+        </p>
+      )}
+      {data.buttonText && data.buttonUrl && (
+        <a
+          href={data.buttonUrl}
+          class={`mt-8 inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-medium transition ${
+            isInk
+              ? "border-white/20 text-white hover:border-rosa-300 hover:text-rosa-300"
+              : "border-rosa-300 text-rosa-600 hover:bg-rosa-200"
+          }`}
+        >
+          {data.buttonText}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
+            <path d="M5 12h14" />
+            <path d="m12 5 7 7-7 7" />
+          </svg>
+        </a>
+      )}
+    </div>
+  </div>
+</section>
