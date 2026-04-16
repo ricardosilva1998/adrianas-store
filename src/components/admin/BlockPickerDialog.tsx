@@ -103,7 +103,7 @@ export default function BlockPickerDialog({ open, context, onClose, onInsertBloc
                         <BlockIllustration type={p.type} />
                       </div>
                       <div className="text-sm font-semibold text-ink">{p.name}</div>
-                      <div className="text-[10px] uppercase tracking-wide text-rosa-600 dark:text-rosa-300">{p.type}</div>
+                      <div className="text-[10px] uppercase tracking-wide text-rosa-700 dark:text-rosa-300">{p.type}</div>
                     </button>
                   ))}
                 </div>
