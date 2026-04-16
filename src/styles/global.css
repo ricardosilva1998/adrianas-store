@@ -14,6 +14,8 @@
   --color-ink-soft: #4a4a4a;
   --color-ink-muted: #8a8a8a;
   --color-ink-line: #eaeaea;
+  --color-surface: #ffffff;
+  --color-surface-muted: #faf7f8;
 
   --font-sans:
     "Inter",
@@ -31,6 +33,20 @@
     ui-sans-serif,
     system-ui,
     sans-serif;
+}
+
+html.dark {
+  --color-ink: #f4f4f5;
+  --color-ink-soft: #c4c4c7;
+  --color-ink-muted: #8a8a94;
+  --color-ink-line: #2b2b31;
+  --color-surface: #1c1c22;
+  --color-surface-muted: #16161a;
+}
+
+html.dark,
+html.dark body {
+  background: var(--color-surface-muted);
 }
 
 html {
