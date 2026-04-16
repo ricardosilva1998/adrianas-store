@@ -7,6 +7,14 @@ import { sql as drizzleSql } from "drizzle-orm";
 import * as schema from "../src/db/schema";
 import { DEFAULT_SITE_CONFIG } from "../src/lib/config";
 
+const SEEDED_SLOTS: Array<{ name: string; label: string; page: string }> = [
+  { name: "carrinho-top", label: "Topo do Carrinho", page: "carrinho" },
+  { name: "carrinho-before-checkout", label: "Antes do botão de checkout", page: "carrinho" },
+  { name: "checkout-top", label: "Topo do Checkout", page: "checkout" },
+  { name: "obrigado-top", label: "Topo da página de Obrigado", page: "obrigado" },
+  { name: "obrigado-after-payment", label: "Depois das instruções de pagamento", page: "obrigado" },
+];
+
 const url = process.env.DATABASE_URL ?? process.env.DATABASE_PUBLIC_URL;
 if (!url) {
   console.error("DATABASE_URL não configurado");
@@ -309,12 +317,35 @@ const seedSiteConfig = async () => {
   console.log("  ✔ site_config inicial escrito");
 };
 
+const seedSlots = async () => {
+  console.log("🧩 A semear slots...");
+  for (const slot of SEEDED_SLOTS) {
+    const existing = await db
+      .select()
+      .from(schema.slots)
+      .where(drizzleSql`${schema.slots.name} = ${slot.name}`)
+      .limit(1);
+    if (existing.length > 0) {
+      console.log(`  · ${slot.name} (já existe, skip)`);
+      continue;
+    }
+    await db.insert(schema.slots).values({
+      name: slot.name,
+      label: slot.label,
+      page: slot.page,
+      blocks: [],
+    });
+    console.log(`  ✔ ${slot.name}`);
+  }
+};
+
 const main = async () => {
   try {
     await seedProducts();
     await seedPages();
     await seedAdminUser();
     await seedSiteConfig();
+    await seedSlots();
     console.log("✅ Seed concluído.");
   } finally {
     await client.end();

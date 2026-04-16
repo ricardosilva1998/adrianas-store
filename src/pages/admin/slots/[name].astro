@@ -1,0 +1,25 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import SlotEditor from "../../../components/admin/SlotEditor.tsx";
+import { getSlot } from "../../../lib/queries";
+import type { Block } from "../../../lib/blocks";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+
+const name = Astro.params.name;
+if (!name) return new Response("Not found", { status: 404 });
+
+const slot = await getSlot(name);
+if (!slot) return new Response("Not found", { status: 404 });
+---
+
+<AdminLayout title={`Slot — ${slot.label}`} user={user}>
+  <SlotEditor
+    client:only="react"
+    name={slot.name}
+    label={slot.label}
+    page={slot.page}
+    blocks={(slot.blocks ?? []) as Block[]}
+  />
+</AdminLayout>

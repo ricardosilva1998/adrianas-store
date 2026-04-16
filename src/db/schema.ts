@@ -150,6 +150,18 @@ export const templates = pgTable(
   ],
 );
 
+export const slots = pgTable("slots", {
+  name: text("name").primaryKey(),       // stable identifier, e.g., "carrinho-top"
+  label: text("label").notNull(),        // display label for admin
+  page: text("page").notNull(),          // "carrinho" | "checkout" | "obrigado"
+  blocks: jsonb("blocks").notNull().default([]),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type SlotRow = typeof slots.$inferSelect;
+
 export const siteConfig = pgTable(
   "site_config",
   {

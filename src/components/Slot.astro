@@ -1,0 +1,20 @@
+---
+import BlockRenderer from "./blocks/BlockRenderer.astro";
+import { getSlot } from "../lib/queries";
+
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+const slot = await getSlot(name);
+const blocks = (slot?.blocks ?? []) as Array<{ type: string; data: any }>;
+---
+
+{blocks.length > 0 && (
+  <>
+    {blocks.map((block) => (
+      <BlockRenderer block={block} />
+    ))}
+  </>
+)}

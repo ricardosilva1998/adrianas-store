@@ -37,6 +37,8 @@ No test framework is configured.
 
 **Site config (theme + globals)**: A singleton row in the `site_config` table stores the live `theme` (colors, fonts, logo, radius) and `globals` (nav, footer, banner, identity, payments). Storefront SSR reads it via `getSiteConfig()` in `src/lib/config.ts` (5-min in-process cache, invalidated on save). Tailwind v4's `@theme` CSS variables are overridden at runtime by a `<style>` block injected in `BaseLayout.astro`. Admin editors at `/admin/theme` and `/admin/globals` use a shared `PreviewShell` with an iframe + preview token (`?preview=<token>`) honoured by the middleware for logged-in admins. Phase 1 roadmap in `docs/superpowers/specs/2026-04-16-low-code-admin-builder-design.md`.
 
+**Named slots**: `src/pages/carrinho.astro`, `src/pages/checkout.astro`, and `src/pages/obrigado.astro` embed `<Slot name="..." />` components that render blocks from the `slots` table. Admin fills each slot at `/admin/slots` with content blocks (no data-binding blocks — cart/checkout/thank-you have no product context). Five named slots are seeded on startup.
+
 **Auth**: JWT tokens in HTTP-only cookies (7-day TTL), bcrypt password hashing. Two roles: `admin` (full access) and `editor` (limited). Public routes: `/admin/login` and `/api/admin/login`.
 
 **Client state**: Nanostores with persistent localStorage (`adriana-cart` key) for the shopping cart. No server-side cache layer.

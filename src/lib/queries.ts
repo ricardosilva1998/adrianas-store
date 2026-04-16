@@ -208,6 +208,19 @@ export const getTemplateById = async (id: number) => {
   return tpl ?? null;
 };
 
+export const getSlot = async (name: string) => {
+  const [slot] = await db
+    .select()
+    .from(schema.slots)
+    .where(eq(schema.slots.name, name))
+    .limit(1);
+  return slot ?? null;
+};
+
+export const listSlots = async () => {
+  return db.select().from(schema.slots).orderBy(asc(schema.slots.page), asc(schema.slots.name));
+};
+
 export const isAvailable = (p: ProductWithExtras): boolean =>
   p.active && (p.unlimitedStock || p.stock > 0);
 

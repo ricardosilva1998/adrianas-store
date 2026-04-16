@@ -1,0 +1,44 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { listSlots } from "../../../lib/queries";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+
+const slots = await listSlots();
+const grouped = slots.reduce<Record<string, typeof slots>>((acc, s) => {
+  (acc[s.page] = acc[s.page] || []).push(s);
+  return acc;
+}, {});
+
+const pageLabels: Record<string, string> = {
+  carrinho: "Carrinho",
+  checkout: "Checkout",
+  obrigado: "Obrigado",
+};
+---
+
+<AdminLayout title="Slots" user={user}>
+  <div class="grid gap-10">
+    {Object.entries(grouped).map(([page, list]) => (
+      <section>
+        <h2 class="mb-4 text-lg font-semibold text-ink">{pageLabels[page] ?? page}</h2>
+        <ul class="grid gap-3">
+          {list.map((s) => (
+            <li class="flex items-center justify-between rounded-2xl border border-ink-line bg-white px-5 py-4">
+              <div>
+                <a href={`/admin/slots/${s.name}`} class="text-sm font-medium text-ink hover:text-rosa-500">
+                  {s.label}
+                </a>
+                <p class="mt-0.5 text-xs text-ink-muted">
+                  {Array.isArray(s.blocks) ? s.blocks.length : 0} bloco(s)
+                </p>
+              </div>
+              <div class="text-xs text-ink-muted">{s.name}</div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+</AdminLayout>

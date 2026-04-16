@@ -1,9 +1,12 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import CheckoutForm from "../components/islands/CheckoutForm.tsx";
+import Slot from "../components/Slot.astro";
 ---
 
 <BaseLayout title="Checkout">
+  <Slot name="checkout-top" />
+
   <section class="border-b border-ink-line py-12">
     <div class="section">
       <span class="text-xs font-medium uppercase tracking-wide text-rosa-500">

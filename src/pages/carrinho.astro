@@ -1,9 +1,12 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import CartView from "../components/islands/CartView.tsx";
+import Slot from "../components/Slot.astro";
 ---
 
 <BaseLayout title="Carrinho">
+  <Slot name="carrinho-top" />
+
   <section class="border-b border-ink-line py-12">
     <div class="section">
       <span class="text-xs font-medium uppercase tracking-wide text-rosa-500">
@@ -23,4 +26,6 @@ import CartView from "../components/islands/CartView.tsx";
       <CartView client:only="react" />
     </div>
   </section>
+
+  <Slot name="carrinho-before-checkout" />
 </BaseLayout>

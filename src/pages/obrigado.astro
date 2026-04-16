@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Slot from "../components/Slot.astro";
 import { getSiteConfig } from "../lib/config-server";
 
 const config = await getSiteConfig(Astro.locals.previewConfig);
@@ -10,6 +11,8 @@ const orderNumber = url.searchParams.get("num");
 ---
 
 <BaseLayout title="Obrigado pela tua encomenda">
+  <Slot name="obrigado-top" />
+
   <section class="py-20">
     <div class="section max-w-3xl">
       <div class="rounded-3xl border border-rosa-200 bg-rosa-50/60 p-10 text-center">
@@ -52,6 +55,8 @@ const orderNumber = url.searchParams.get("num");
           ))}
         </div>
       </div>
+
+      <Slot name="obrigado-after-payment" />
 
       <div class="mt-10 rounded-3xl border border-ink-line bg-white p-6 text-sm text-ink-soft">
         <p class="font-semibold text-ink">E agora?</p>
