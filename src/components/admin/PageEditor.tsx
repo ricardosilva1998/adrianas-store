@@ -97,12 +97,18 @@ function PageEditorContent({
           const block = instantiatePreset(preset);
           setBlocks((prev) => [...prev, block]);
           setExpanded(block.id);
-          await fetch(`/api/admin/pages/${slug}/blocks`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ block }),
-          });
-          setHasDraft(true);
+          try {
+            const res = await fetch(`/api/admin/pages/${slug}/blocks`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ block }),
+            });
+            if (!res.ok) throw new Error(`Erro ${res.status}`);
+            setHasDraft(true);
+          } catch {
+            setBlocks((cur) => cur.filter((b) => b.id !== block.id));
+            alert("Erro ao inserir preset. Tenta novamente.");
+          }
           setShowPicker(false);
         }}
       />
@@ -149,21 +155,35 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
     if (idx === -1) return;
     const newIdx = direction === "up" ? idx - 1 : idx + 1;
     if (newIdx < 0 || newIdx >= blocks.length) return;
+    const prev = blocks;
     const next = blocks.slice();
     [next[idx], next[newIdx]] = [next[newIdx], next[idx]];
     setBlocks(next);
-    await fetch(`/api/admin/pages/${slug}/blocks/order`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids: next.map((b) => b.id) }),
-    });
-    setHasDraft(true);
+    try {
+      const res = await fetch(`/api/admin/pages/${slug}/blocks/order`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: next.map((b) => b.id) }),
+      });
+      if (!res.ok) throw new Error(`Erro ${res.status}`);
+      setHasDraft(true);
+    } catch {
+      setBlocks(prev);
+      alert("Erro ao mover bloco. Tenta novamente.");
+    }
   };
 
   const removeBlock = async (id: string) => {
-    setBlocks((prev) => prev.filter((b) => b.id !== id));
-    await fetch(`/api/admin/pages/${slug}/blocks/${id}`, { method: "DELETE" });
-    setHasDraft(true);
+    const prev = blocks;
+    setBlocks((cur) => cur.filter((b) => b.id !== id));
+    try {
+      const res = await fetch(`/api/admin/pages/${slug}/blocks/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(`Erro ${res.status}`);
+      setHasDraft(true);
+    } catch {
+      setBlocks(prev);
+      alert("Erro ao remover bloco. Tenta novamente.");
+    }
   };
 
   const addBlock = async (type: BlockType) => {
@@ -171,23 +191,28 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
     setBlocks((prev) => [...prev, block]);
     setExpanded(block.id);
     setShowPicker(false);
-    await fetch(`/api/admin/pages/${slug}/blocks`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ block }),
-    });
-    setHasDraft(true);
+    try {
+      const res = await fetch(`/api/admin/pages/${slug}/blocks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ block }),
+      });
+      if (!res.ok) throw new Error(`Erro ${res.status}`);
+      setHasDraft(true);
+    } catch {
+      setBlocks((cur) => cur.filter((b) => b.id !== block.id));
+      alert("Erro ao adicionar bloco. Tenta novamente.");
+    }
   };
 
   const handlePublish = async () => {
     setPublishing(true);
     try {
-      await fetch(`/api/admin/pages/${slug}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, blocks, published, saveAsDraft: false }),
-      });
-      setHasDraft(false);
+      const res = await fetch(`/api/admin/pages/${slug}/publish`, { method: "POST" });
+      if (!res.ok) throw new Error(`Erro ${res.status}`);
+      window.location.reload();
+    } catch {
+      alert("Erro ao publicar. Tenta novamente.");
     } finally {
       setPublishing(false);
     }
@@ -197,8 +222,11 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
     if (!confirm("Descartar as alterações não publicadas?")) return;
     setDiscarding(true);
     try {
-      await fetch(`/api/admin/pages/${slug}/discard-draft`, { method: "POST" });
+      const res = await fetch(`/api/admin/pages/${slug}/discard-draft`, { method: "POST" });
+      if (!res.ok) throw new Error(`Erro ${res.status}`);
       window.location.reload();
+    } catch {
+      alert("Erro ao descartar rascunho. Tenta novamente.");
     } finally {
       setDiscarding(false);
     }
@@ -212,6 +240,7 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
       publishing={publishing}
       discarding={discarding}
       hasDraft={hasDraft}
+      publishBlocked={dirtyBlockIds.size > 0}
       onPublish={handlePublish}
       onDiscardDraft={handleDiscardDraft}
     >

@@ -13,6 +13,7 @@ interface Props {
   publishing?: boolean;
   discarding?: boolean;
   hasDraft?: boolean;
+  publishBlocked?: boolean;
   children: ReactNode;
   onPublish: () => Promise<void>;
   onDiscardDraft: () => Promise<void>;
@@ -25,6 +26,7 @@ export default function PagePreviewShell({
   publishing = false,
   discarding = false,
   hasDraft = false,
+  publishBlocked = false,
   children,
   onPublish,
   onDiscardDraft,
@@ -160,11 +162,13 @@ export default function PagePreviewShell({
           <button
             type="button"
             onClick={popupOpen ? closePopup : openPopup}
-            className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition ${
+            disabled={!token}
+            className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition disabled:opacity-50 ${
               popupOpen
                 ? "border border-rosa-400 bg-rosa-50 text-rosa-700 hover:border-rosa-500 dark:bg-rosa-500/15 dark:text-rosa-200"
                 : "bg-ink text-white hover:bg-ink/90"
             }`}
+            title={!token ? "Aguarda a pré-visualização..." : undefined}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden>
               <path d="M14 3h7v7M21 3l-9 9M10 5H5a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5" />
@@ -186,7 +190,8 @@ export default function PagePreviewShell({
             <button
               type="button"
               onClick={onPublish}
-              disabled={publishing}
+              disabled={publishing || publishBlocked}
+              title={publishBlocked ? "Guarda todos os blocos primeiro" : undefined}
               className="rounded-full bg-rosa-400 px-5 py-2 text-sm font-medium text-white hover:bg-rosa-500 disabled:opacity-40"
             >
               {publishing ? "A publicar…" : "Publicar"}

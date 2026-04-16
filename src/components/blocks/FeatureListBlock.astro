@@ -11,8 +11,10 @@ interface Props {
 }
 
 const { data } = Astro.props;
+const hasItems = data.items && data.items.length > 0;
 ---
 
+{hasItems && (
 <section class="section py-16">
   {(data.title || data.subtitle) && (
     <div class="mb-12 text-center">
@@ -40,3 +42,4 @@ const { data } = Astro.props;
     ))}
   </div>
 </section>
+)}

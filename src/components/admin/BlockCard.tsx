@@ -44,13 +44,22 @@ export default function BlockCard({
     const name = window.prompt("Nome do bloco personalizado?");
     if (!name || !name.trim()) return;
     setSavingPreset(true);
+    setError(null);
     try {
-      await fetch("/api/admin/block-presets", {
+      const res = await fetch("/api/admin/block-presets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim(), type: block.type, data: block.data }),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error((body as { error?: string }).error ?? `Erro ${res.status}`);
+      }
       setMenuOpen(false);
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao guardar preset");
     } finally {
       setSavingPreset(false);
     }

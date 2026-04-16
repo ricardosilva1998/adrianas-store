@@ -1,6 +1,16 @@
 import { z } from "zod";
 import { nanoid } from "nanoid";
 
+// --- Shared validators ---
+
+const safeUrl = z
+  .string()
+  .refine(
+    (s) => s === "" || !/['")\\]/.test(s),
+    "URL contém caracteres inválidos",
+  )
+  .default("");
+
 // --- Block data schemas ---
 
 const heroDataSchema = z.object({
@@ -9,7 +19,7 @@ const heroDataSchema = z.object({
   subtitle: z.string().default(""),
   buttonText: z.string().default(""),
   buttonUrl: z.string().default(""),
-  imageUrl: z.string().default(""),
+  imageUrl: safeUrl,
   layout: z.enum(["image-right", "image-left", "background-image", "centered"]).default("image-right"),
 });
 
@@ -33,7 +43,7 @@ const categoryGridDataSchema = z.object({
 
 const imageGalleryDataSchema = z.object({
   images: z.array(z.object({
-    url: z.string(),
+    url: z.string().min(1).refine((s) => !/['")\\]/.test(s), "URL inválido"),
     alt: z.string().default(""),
   })).default([]),
 });
@@ -44,7 +54,7 @@ const ctaBannerDataSchema = z.object({
   buttonText: z.string().default(""),
   buttonUrl: z.string().default(""),
   bgColor: z.enum(["rosa", "ink"]).default("ink"),
-  backgroundImage: z.string().default(""),
+  backgroundImage: safeUrl,
   align: z.enum(["left", "center"]).default("left"),
 });
 
@@ -80,7 +90,7 @@ const newsletterDataSchema = z.object({
 });
 
 const imageTextSplitDataSchema = z.object({
-  imageUrl: z.string().default(""),
+  imageUrl: safeUrl,
   imageAlt: z.string().default(""),
   title: z.string().default(""),
   markdown: z.string().default(""),

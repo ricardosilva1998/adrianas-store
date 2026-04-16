@@ -52,6 +52,7 @@ const isPreview = Astro.url.searchParams.has("preview");
         // Live preview listener: parent admin editor can postMessage CSS/font
         // updates so color changes feel instant without iframe reload.
         window.addEventListener("message", (ev) => {
+          if (ev.origin !== window.location.origin) return;
           if (!ev?.data?.kind) return;
 
           if (ev.data.kind === "preview-theme-css") {
@@ -77,7 +78,7 @@ const isPreview = Astro.url.searchParams.has("preview");
               }
             }
           } else if (ev.data.kind === "scroll-to-block" && typeof ev.data.id === "string") {
-            const el = document.querySelector(`[data-block-id="${ev.data.id}"]`);
+            const el = document.querySelector(`[data-block-id="${CSS.escape(ev.data.id)}"]`);
             if (el) {
               el.scrollIntoView({ behavior: "smooth", block: "start" });
               el.animate(

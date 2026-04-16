@@ -86,3 +86,11 @@ describe("new block schemas", () => {
     expect(parsed.success).toBe(false);
   });
 });
+
+describe("URL safety validation", () => {
+  it("rejects hero imageUrl with quote characters", () => {
+    const bad = { id: "h", type: "hero", data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "x.jpg') ; opacity:0", layout: "background-image" } };
+    const parsed = blockSchema.safeParse(bad);
+    expect(parsed.success).toBe(false);
+  });
+});
