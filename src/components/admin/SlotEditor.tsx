@@ -90,7 +90,7 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
               }
             >
               <div className="flex items-center gap-3">
-                <span className="rounded-full bg-rosa-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-rosa-600 dark:bg-rosa-500/15 dark:text-rosa-200">
+                <span className="rounded-full bg-rosa-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-rosa-700 dark:bg-rosa-500/15 dark:text-rosa-200">
                   {blockLabel(block.type)}
                 </span>
                 <span className="text-xs text-ink-muted">

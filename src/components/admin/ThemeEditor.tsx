@@ -159,7 +159,7 @@ export default function ThemeEditor({ initialConfig }: Props) {
                 onClick={() => setTheme({ radius: r.value })}
                 className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium ${
                   config.theme.radius === r.value
-                    ? "border-rosa-400 bg-rosa-50 text-rosa-600 dark:bg-rosa-500/15 dark:text-rosa-200"
+                    ? "border-rosa-400 bg-rosa-50 text-rosa-700 dark:bg-rosa-500/15 dark:text-rosa-200"
                     : "border-ink-line text-ink-soft hover:border-rosa-300"
                 }`}
               >
