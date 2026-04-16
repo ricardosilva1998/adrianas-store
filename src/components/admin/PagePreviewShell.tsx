@@ -34,6 +34,8 @@ export default function PagePreviewShell({
   const tokenRef = useRef<string | null>(null);
   const debounceRef = useRef<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const previewWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [wrapperSize, setWrapperSize] = useState({ width: 0, height: 0 });
 
   const api = useMemo<IframeApi>(() => ({
     postMessage: (msg) => iframeRef.current?.contentWindow?.postMessage(msg, "*"),
@@ -80,6 +82,22 @@ export default function PagePreviewShell({
     };
   }, [title, blocks, token, slug]);
 
+  useEffect(() => {
+    if (!previewWrapperRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      setWrapperSize({ width, height });
+    });
+    observer.observe(previewWrapperRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const DESKTOP_VIRTUAL_WIDTH = 1280;
+  const MOBILE_VIRTUAL_WIDTH = 390;
+  const virtualWidth = device === "mobile" ? MOBILE_VIRTUAL_WIDTH : DESKTOP_VIRTUAL_WIDTH;
+  const scale = wrapperSize.width > 0 ? Math.min(1, (wrapperSize.width - 32) / virtualWidth) : 1;
+  const virtualHeight = wrapperSize.height > 0 && scale > 0 ? wrapperSize.height / scale : 720;
+
   const previewPath = slug === "home" ? "/" : `/${slug}`;
   const iframeSrc = token ? `${previewPath}?preview=${token}` : previewPath;
 
@@ -108,9 +126,17 @@ export default function PagePreviewShell({
             {children}
           </PreviewIframeContext.Provider>
         </aside>
-        <div className="flex-1 overflow-hidden bg-ink-line/40 p-4">
-          <div className="mx-auto h-full overflow-hidden rounded-2xl border border-ink-line bg-white shadow-sm" style={{ maxWidth: device === "mobile" ? 390 : "100%" }}>
-            <iframe ref={iframeRef} src={iframeSrc} className="h-full w-full" title="Preview" />
+        <div ref={previewWrapperRef} className="flex-1 overflow-hidden bg-ink-line/40 p-4">
+          <div
+            className="relative overflow-hidden rounded-2xl border border-ink-line bg-white shadow-sm"
+            style={{
+              width: virtualWidth,
+              height: virtualHeight,
+              transform: `scale(${scale})`,
+              transformOrigin: "top left",
+            }}
+          >
+            <iframe ref={iframeRef} src={iframeSrc} className="h-full w-full border-0" title="Preview" />
           </div>
         </div>
       </div>
