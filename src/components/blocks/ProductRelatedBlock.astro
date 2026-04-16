@@ -1,0 +1,35 @@
+---
+import ProductCard from "../ProductCard.astro";
+import type { ProductRelatedData } from "../../lib/blocks";
+import type { ProductWithExtras } from "../../lib/queries";
+
+interface Props {
+  data: ProductRelatedData;
+  relatedProducts: ProductWithExtras[];
+}
+
+const { data, relatedProducts } = Astro.props;
+const limited = relatedProducts.slice(0, data.limit);
+---
+
+{limited.length > 0 && (
+  <section class="border-t border-ink-line bg-rosa-50/40 py-20">
+    <div class="section">
+      {data.title && (
+        <h2 class="text-2xl font-semibold text-ink sm:text-3xl">{data.title}</h2>
+      )}
+      <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {limited.map((p) => (
+          <ProductCard
+            slug={p.slug}
+            name={p.name}
+            price={p.priceCents / 100}
+            image={p.images[0]?.url ?? "/placeholders/product.svg"}
+            category={p.category}
+            bestseller={p.bestseller}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+)}

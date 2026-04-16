@@ -1,0 +1,84 @@
+---
+import ProductActions from "../islands/ProductActions.tsx";
+import type { ProductInfoData } from "../../lib/blocks";
+import type { ProductWithExtras } from "../../lib/queries";
+import { formatEuro, isAvailable } from "../../lib/queries";
+import { categoryLabel } from "../../lib/site";
+
+interface Props {
+  data: ProductInfoData;
+  product: ProductWithExtras;
+}
+
+const { data, product } = Astro.props;
+const available = isAvailable(product);
+const shippingLines = data.shippingInfo.split("\n").filter((l) => l.trim() !== "");
+---
+
+<div class="flex flex-col gap-6">
+  {data.showBreadcrumbs && (
+    <nav class="text-xs text-ink-muted" aria-label="Breadcrumbs">
+      <a href="/" class="hover:text-rosa-500">Início</a>
+      <span class="mx-2">/</span>
+      <a href="/catalogo" class="hover:text-rosa-500">Catálogo</a>
+      <span class="mx-2">/</span>
+      <a
+        href={`/catalogo?categoria=${product.category}`}
+        class="hover:text-rosa-500"
+      >
+        {categoryLabel(product.category)}
+      </a>
+      <span class="mx-2">/</span>
+      <span class="text-ink">{product.name}</span>
+    </nav>
+  )}
+
+  <div>
+    <span class="text-xs font-medium uppercase tracking-wide text-rosa-500">
+      {categoryLabel(product.category)}
+    </span>
+    <h1 class="mt-2 text-3xl font-semibold text-ink sm:text-4xl">
+      {product.name}
+    </h1>
+    <p class="mt-3 text-2xl font-semibold text-ink">
+      {formatEuro(product.priceCents)}
+    </p>
+  </div>
+
+  <p class="text-sm leading-relaxed text-ink-soft sm:text-base">
+    {product.description}
+  </p>
+
+  {available ? (
+    <ProductActions
+      client:load
+      product={{
+        slug: product.slug,
+        name: product.name,
+        price: product.priceCents / 100,
+        image: product.images[0]?.url ?? "/placeholders/product.svg",
+        category: product.category,
+        personalizable: product.personalizable,
+        availableColors: product.colors.map((c) => ({ name: c.name, hex: c.hex })),
+      }}
+    />
+  ) : (
+    <div class="rounded-2xl border border-ink-line bg-rosa-50 p-5 text-sm text-ink-soft">
+      <p class="font-semibold text-ink">Esgotado temporariamente</p>
+      <p class="mt-1 text-xs">
+        Contacta-nos por email ou Instagram se quiseres saber quando volta a ficar disponível.
+      </p>
+    </div>
+  )}
+
+  {shippingLines.length > 0 && (
+    <div class="rounded-2xl border border-ink-line bg-rosa-50/60 p-5 text-sm text-ink-soft">
+      <p class="font-semibold text-ink">Informações de envio</p>
+      <ul class="mt-2 space-y-1 text-xs">
+        {shippingLines.map((line) => (
+          <li>{line}</li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>

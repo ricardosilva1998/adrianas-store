@@ -1,0 +1,77 @@
+---
+import type { ProductGalleryData } from "../../lib/blocks";
+import type { ProductWithExtras } from "../../lib/queries";
+import { isAvailable } from "../../lib/queries";
+
+interface Props {
+  data: ProductGalleryData;
+  product: ProductWithExtras;
+}
+
+const { data, product } = Astro.props;
+const available = isAvailable(product);
+const heroId = `hero-image-${product.slug}`;
+const thumbsClass = `thumbs-${product.slug}`;
+---
+
+<div class="flex flex-col gap-4">
+  <div class="relative aspect-square overflow-hidden rounded-3xl border border-ink-line bg-rosa-50">
+    <img
+      id={heroId}
+      src={product.images[0]?.url ?? "/placeholders/product.svg"}
+      alt={product.images[0]?.alt || product.name}
+      class="h-full w-full object-cover"
+    />
+    {data.showBadges && product.bestseller && (
+      <span class="absolute left-5 top-5 inline-flex items-center rounded-full bg-rosa-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+        Mais vendido
+      </span>
+    )}
+    {data.showBadges && !available && (
+      <span class="absolute right-5 top-5 inline-flex items-center rounded-full bg-ink px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+        Esgotado
+      </span>
+    )}
+  </div>
+
+  {data.showThumbs && product.images.length > 1 && (
+    <div class="grid grid-cols-4 gap-3">
+      {product.images.map((img, i) => (
+        <button
+          type="button"
+          class:list={["thumb", thumbsClass, "aspect-square overflow-hidden rounded-xl border border-ink-line bg-rosa-50 transition hover:border-rosa-400"]}
+          data-src={img.url}
+          data-hero={heroId}
+          data-thumbs-class={thumbsClass}
+          data-index={i}
+          aria-label={`Imagem ${i + 1}`}
+        >
+          <img src={img.url} alt={img.alt} class="h-full w-full object-cover" />
+        </button>
+      ))}
+    </div>
+  )}
+
+  <p class="mt-2 text-xs text-ink-muted">
+    As imagens mostram exemplos reais de encomendas anteriores, para ilustrar possíveis
+    estampas e designs.
+  </p>
+</div>
+
+<script is:inline>
+  (function () {
+    document.querySelectorAll(".thumb[data-hero]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var heroId = btn.getAttribute("data-hero");
+        var thumbsClass = btn.getAttribute("data-thumbs-class");
+        var src = btn.getAttribute("data-src");
+        var hero = document.getElementById(heroId);
+        if (hero && src) hero.setAttribute("src", src);
+        document.querySelectorAll("." + thumbsClass).forEach(function (b) {
+          b.classList.remove("ring-2", "ring-rosa-400");
+        });
+        btn.classList.add("ring-2", "ring-rosa-400");
+      });
+    });
+  })();
+</script>

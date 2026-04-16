@@ -12,12 +12,26 @@ import NewsletterBlock from "./NewsletterBlock.astro";
 import ImageTextSplitBlock from "./ImageTextSplitBlock.astro";
 import VideoEmbedBlock from "./VideoEmbedBlock.astro";
 import DividerBlock from "./DividerBlock.astro";
+import ProductGalleryBlock from "./ProductGalleryBlock.astro";
+import ProductInfoBlock from "./ProductInfoBlock.astro";
+import ProductLongDescriptionBlock from "./ProductLongDescriptionBlock.astro";
+import ProductRelatedBlock from "./ProductRelatedBlock.astro";
+import CatalogGridBoundBlock from "./CatalogGridBoundBlock.astro";
+import type { ProductWithExtras } from "../../lib/queries";
+
+export interface TemplateContext {
+  product?: ProductWithExtras;
+  relatedProducts?: ProductWithExtras[];
+  products?: ProductWithExtras[];
+  activeCategory?: string;
+}
 
 interface Props {
   block: { type: string; data: any };
+  context?: TemplateContext;
 }
 
-const { block } = Astro.props;
+const { block, context } = Astro.props;
 ---
 
 {block.type === "hero" && <HeroBlock data={block.data} />}
@@ -33,3 +47,23 @@ const { block } = Astro.props;
 {block.type === "image-text-split" && <ImageTextSplitBlock data={block.data} />}
 {block.type === "video-embed" && <VideoEmbedBlock data={block.data} />}
 {block.type === "divider" && <DividerBlock data={block.data} />}
+
+{block.type === "product-gallery" && context?.product && (
+  <ProductGalleryBlock data={block.data} product={context.product} />
+)}
+{block.type === "product-info" && context?.product && (
+  <ProductInfoBlock data={block.data} product={context.product} />
+)}
+{block.type === "product-long-description" && context?.product && (
+  <ProductLongDescriptionBlock data={block.data} product={context.product} />
+)}
+{block.type === "product-related" && (
+  <ProductRelatedBlock data={block.data} relatedProducts={context?.relatedProducts ?? []} />
+)}
+{block.type === "catalog-grid-bound" && (
+  <CatalogGridBoundBlock
+    data={block.data}
+    products={context?.products ?? []}
+    activeCategory={context?.activeCategory}
+  />
+)}

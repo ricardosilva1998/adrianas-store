@@ -92,6 +92,34 @@ const dividerDataSchema = z.object({
   spacing: z.enum(["small", "medium", "large"]).default("medium"),
 });
 
+const productGalleryDataSchema = z.object({
+  showThumbs: z.boolean().default(true),
+  showBadges: z.boolean().default(true),
+});
+
+const productInfoDataSchema = z.object({
+  showBreadcrumbs: z.boolean().default(true),
+  shippingInfo: z.string().default(
+    "• Preparação: 3 a 5 dias úteis\n• Envios via CTT para Portugal Continental e Ilhas\n• Pagamento via MB Way, transferência bancária ou PayPal",
+  ),
+});
+
+const productLongDescriptionDataSchema = z.object({
+  title: z.string().default(""),
+});
+
+const productRelatedDataSchema = z.object({
+  title: z.string().default("Talvez também gostes"),
+  limit: z.number().int().min(1).max(12).default(4),
+});
+
+const catalogGridBoundDataSchema = z.object({
+  title: z.string().default(""),
+  subtitle: z.string().default(""),
+  showCategoryFilter: z.boolean().default(true),
+  columns: z.enum(["2", "3", "4"]).default("4"),
+});
+
 // --- Block schema (discriminated union) ---
 
 const heroBlockSchema = z.object({
@@ -172,6 +200,12 @@ const dividerBlockSchema = z.object({
   data: dividerDataSchema,
 });
 
+const productGalleryBlockSchema = z.object({ id: z.string(), type: z.literal("product-gallery"), data: productGalleryDataSchema });
+const productInfoBlockSchema = z.object({ id: z.string(), type: z.literal("product-info"), data: productInfoDataSchema });
+const productLongDescriptionBlockSchema = z.object({ id: z.string(), type: z.literal("product-long-description"), data: productLongDescriptionDataSchema });
+const productRelatedBlockSchema = z.object({ id: z.string(), type: z.literal("product-related"), data: productRelatedDataSchema });
+const catalogGridBoundBlockSchema = z.object({ id: z.string(), type: z.literal("catalog-grid-bound"), data: catalogGridBoundDataSchema });
+
 export const blockSchema = z.discriminatedUnion("type", [
   heroBlockSchema,
   textBlockSchema,
@@ -186,6 +220,11 @@ export const blockSchema = z.discriminatedUnion("type", [
   imageTextSplitBlockSchema,
   videoEmbedBlockSchema,
   dividerBlockSchema,
+  productGalleryBlockSchema,
+  productInfoBlockSchema,
+  productLongDescriptionBlockSchema,
+  productRelatedBlockSchema,
+  catalogGridBoundBlockSchema,
 ]);
 
 export const blocksArraySchema = z.array(blockSchema);
@@ -206,10 +245,20 @@ export type NewsletterData = z.infer<typeof newsletterDataSchema>;
 export type ImageTextSplitData = z.infer<typeof imageTextSplitDataSchema>;
 export type VideoEmbedData = z.infer<typeof videoEmbedDataSchema>;
 export type DividerData = z.infer<typeof dividerDataSchema>;
+export type ProductGalleryData = z.infer<typeof productGalleryDataSchema>;
+export type ProductInfoData = z.infer<typeof productInfoDataSchema>;
+export type ProductLongDescriptionData = z.infer<typeof productLongDescriptionDataSchema>;
+export type ProductRelatedData = z.infer<typeof productRelatedDataSchema>;
+export type CatalogGridBoundData = z.infer<typeof catalogGridBoundDataSchema>;
 
 // --- Block metadata for the admin picker ---
 
-export const BLOCK_TYPES: Array<{ type: BlockType; label: string; description: string }> = [
+export const BLOCK_TYPES: Array<{
+  type: BlockType;
+  label: string;
+  description: string;
+  allowedIn?: Array<"page" | "template-catalog" | "template-product-detail">;
+}> = [
   { type: "hero", label: "Hero", description: "Banner com titulo, subtitulo, botao e imagem" },
   { type: "text", label: "Texto", description: "Bloco de texto com suporte a Markdown" },
   { type: "product-grid", label: "Grelha de Produtos", description: "Mostra produtos (mais vendidos, por categoria, ou todos)" },
@@ -223,7 +272,18 @@ export const BLOCK_TYPES: Array<{ type: BlockType; label: string; description: s
   { type: "image-text-split", label: "Imagem + Texto", description: "Imagem ao lado de texto em Markdown" },
   { type: "video-embed", label: "Vídeo", description: "Embed de YouTube ou Vimeo" },
   { type: "divider", label: "Separador", description: "Linha visual entre secções" },
+  { type: "product-gallery", label: "Galeria do Produto", description: "Imagens do produto com thumbs", allowedIn: ["template-product-detail"] },
+  { type: "product-info", label: "Info do Produto", description: "Nome, preço, descrição, botões", allowedIn: ["template-product-detail"] },
+  { type: "product-long-description", label: "Descrição Longa", description: "Conteúdo em Markdown do produto", allowedIn: ["template-product-detail"] },
+  { type: "product-related", label: "Produtos Relacionados", description: "Grelha de produtos da mesma categoria", allowedIn: ["template-product-detail"] },
+  { type: "catalog-grid-bound", label: "Grelha do Catálogo", description: "Produtos filtrados por categoria do URL", allowedIn: ["template-catalog"] },
 ];
+
+export function blocksAllowedIn(
+  context: "page" | "template-catalog" | "template-product-detail",
+): typeof BLOCK_TYPES {
+  return BLOCK_TYPES.filter((bt) => !bt.allowedIn || bt.allowedIn.includes(context));
+}
 
 // --- Default data factories ---
 
@@ -256,5 +316,18 @@ export function createBlock(type: BlockType): Block {
       return { id, type, data: { url: "", title: "", caption: "" } };
     case "divider":
       return { id, type, data: { style: "line", spacing: "medium" } };
+    case "product-gallery":
+      return { id, type, data: { showThumbs: true, showBadges: true } };
+    case "product-info":
+      return { id, type, data: {
+        showBreadcrumbs: true,
+        shippingInfo: "• Preparação: 3 a 5 dias úteis\n• Envios via CTT para Portugal Continental e Ilhas\n• Pagamento via MB Way, transferência bancária ou PayPal",
+      } };
+    case "product-long-description":
+      return { id, type, data: { title: "" } };
+    case "product-related":
+      return { id, type, data: { title: "Talvez também gostes", limit: 4 } };
+    case "catalog-grid-bound":
+      return { id, type, data: { title: "", subtitle: "", showCategoryFilter: true, columns: "4" } };
   }
 }

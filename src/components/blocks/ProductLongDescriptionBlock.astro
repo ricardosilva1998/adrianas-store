@@ -1,0 +1,26 @@
+---
+import type { ProductLongDescriptionData } from "../../lib/blocks";
+import type { ProductWithExtras } from "../../lib/queries";
+import { marked } from "marked";
+
+interface Props {
+  data: ProductLongDescriptionData;
+  product: ProductWithExtras;
+}
+
+const { data, product } = Astro.props;
+const longContent = product.longDescription
+  ? (marked.parse(product.longDescription, { async: false }) as string)
+  : "";
+---
+
+{longContent && (
+  <section class="py-12">
+    <div class="section">
+      {data.title && (
+        <h2 class="mb-6 text-2xl font-semibold text-ink sm:text-3xl">{data.title}</h2>
+      )}
+      <article class="prose prose-sm max-w-none text-ink-soft" set:html={longContent} />
+    </div>
+  </section>
+)}

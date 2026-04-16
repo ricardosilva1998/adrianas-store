@@ -1,0 +1,64 @@
+---
+import ProductCard from "../ProductCard.astro";
+import CategoryPills from "../CategoryPills.astro";
+import type { CatalogGridBoundData } from "../../lib/blocks";
+import type { ProductWithExtras } from "../../lib/queries";
+
+interface Props {
+  data: CatalogGridBoundData;
+  products: ProductWithExtras[];
+  activeCategory: string | undefined;
+}
+
+const { data, products, activeCategory } = Astro.props;
+
+const filtered = activeCategory
+  ? products.filter((p) => p.category === activeCategory)
+  : products;
+
+const gridClass = {
+  "2": "grid grid-cols-1 gap-6 sm:grid-cols-2",
+  "3": "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3",
+  "4": "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+}[data.columns];
+---
+
+<section class="py-12">
+  <div class="section">
+    {(data.title || data.subtitle) && (
+      <div class="mb-10">
+        {data.title && (
+          <h2 class="text-3xl font-semibold text-ink sm:text-4xl">{data.title}</h2>
+        )}
+        {data.subtitle && (
+          <p class="mt-3 max-w-2xl text-sm text-ink-soft">{data.subtitle}</p>
+        )}
+      </div>
+    )}
+
+    {data.showCategoryFilter && (
+      <div class="mb-8">
+        <CategoryPills active={activeCategory} />
+      </div>
+    )}
+
+    {filtered.length === 0 ? (
+      <div class="rounded-3xl border border-dashed border-ink-line bg-rosa-50 p-12 text-center text-sm text-ink-soft">
+        Ainda não há produtos nesta categoria. <a class="text-rosa-500 underline" href="/catalogo">Ver todas</a>
+      </div>
+    ) : (
+      <div class={gridClass}>
+        {filtered.map((p) => (
+          <ProductCard
+            slug={p.slug}
+            name={p.name}
+            price={p.priceCents / 100}
+            image={p.images[0]?.url ?? "/placeholders/product.svg"}
+            category={p.category}
+            bestseller={p.bestseller}
+          />
+        ))}
+      </div>
+    )}
+  </div>
+</section>
