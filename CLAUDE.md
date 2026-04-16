@@ -49,7 +49,8 @@ No test framework is configured.
 - `src/components/islands/` — React islands (Cart, Checkout, PersonalizeModal)
 - `src/components/admin/` — Admin dashboard React components (BlockEditor, ProductForm, ThemeEditor, GlobalsEditor, PreviewShell, DragList, ColorPicker, FontPicker, etc.)
 - `src/components/blocks/` — Storefront block renderer Astro components (HeroBlock, TextBlock, etc.)
-- `src/lib/config.ts` — site config types, Zod schemas, loader, theme CSS renderer
+- `src/lib/config.ts` — site config types, Zod schemas, defaults, theme CSS renderer (pure; safe for client islands)
+- `src/lib/config-server.ts` — `getSiteConfig()` + in-process cache (DB-touching; server-only)
 - `src/lib/theme-colors.ts` — hex → 50/.../700 shade derivation
 - `src/lib/fonts.ts` — curated Google Fonts list
 - `src/lib/preview-store.ts` — in-memory preview token map
