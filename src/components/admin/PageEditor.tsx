@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import type { Block, BlockType } from "../../lib/blocks";
-import { BLOCK_TYPES, createBlock } from "../../lib/blocks";
+import { createBlock } from "../../lib/blocks";
 import PagePreviewShell from "./PagePreviewShell";
 import BlockCard from "./BlockCard";
+import BlockPickerDialog from "./BlockPickerDialog";
 
 interface Props {
   slug: string;
@@ -129,24 +130,34 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
           />
         ))}
 
-        {showPicker ? (
-          <div className="rounded-3xl border border-dashed border-rosa-300 bg-rosa-50/60 p-6">
-            <h4 className="mb-4 text-sm font-semibold text-ink">Adicionar bloco</h4>
-            <div className="grid grid-cols-2 gap-3">
-              {BLOCK_TYPES.filter((bt) => !bt.allowedIn).map((bt) => (
-                <button key={bt.type} type="button" onClick={() => addBlock(bt.type)} className="rounded-2xl border border-ink-line bg-white p-4 text-left hover:border-rosa-300">
-                  <span className="text-sm font-semibold text-ink">{bt.label}</span>
-                  <p className="mt-1 text-[11px] text-ink-muted">{bt.description}</p>
-                </button>
-              ))}
-            </div>
-            <button type="button" onClick={() => setShowPicker(false)} className="mt-4 text-xs text-ink-muted hover:text-rosa-500">Cancelar</button>
-          </div>
-        ) : (
-          <button type="button" onClick={() => setShowPicker(true)} className="w-full rounded-3xl border border-dashed border-ink-line p-4 text-sm text-ink-muted hover:border-rosa-300 hover:text-rosa-500">
-            + Adicionar bloco
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setShowPicker(true)}
+          className="w-full rounded-3xl border border-dashed border-ink-line p-4 text-sm text-ink-muted hover:border-rosa-300 hover:text-rosa-500"
+        >
+          + Adicionar bloco
+        </button>
+        <BlockPickerDialog
+          open={showPicker}
+          context="page"
+          onClose={() => setShowPicker(false)}
+          onInsertBlockType={async (type) => {
+            await addBlock(type);
+            setShowPicker(false);
+          }}
+          onInsertPreset={async (preset) => {
+            const block = { id: crypto.randomUUID().slice(0, 10), type: preset.type, data: preset.data } as any;
+            setBlocks((prev) => [...prev, block]);
+            setExpanded(block.id);
+            await fetch(`/api/admin/pages/${slug}/blocks`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ block }),
+            });
+            setHasDraft(true);
+            setShowPicker(false);
+          }}
+        />
       </div>
     </PagePreviewShell>
   );
