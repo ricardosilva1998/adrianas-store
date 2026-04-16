@@ -36,3 +36,42 @@ export function getPreview(token: string): SiteConfig | null {
 export function clearPreview(token: string): void {
   store.delete(token);
 }
+
+import type { Block } from "./blocks";
+
+export type PagePreviewValue = {
+  slug: string;
+  title: string;
+  blocks: Block[];
+};
+
+type PageEntry = { value: PagePreviewValue; expiresAt: number };
+const pageStore = new Map<string, PageEntry>();
+
+function pageGc() {
+  const now = Date.now();
+  for (const [token, entry] of pageStore) {
+    if (entry.expiresAt <= now) pageStore.delete(token);
+  }
+}
+
+export function putPagePreview(value: PagePreviewValue): string {
+  pageGc();
+  const token = nanoid(16);
+  pageStore.set(token, { value, expiresAt: Date.now() + TTL_MS });
+  return token;
+}
+
+export function upsertPagePreview(token: string, value: PagePreviewValue): void {
+  pageGc();
+  pageStore.set(token, { value, expiresAt: Date.now() + TTL_MS });
+}
+
+export function getPagePreview(token: string): PagePreviewValue | null {
+  pageGc();
+  return pageStore.get(token)?.value ?? null;
+}
+
+export function clearPagePreview(token: string): void {
+  pageStore.delete(token);
+}
