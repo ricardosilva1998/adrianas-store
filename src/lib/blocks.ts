@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 
 const heroDataSchema = z.object({
   title: z.string().default(""),
+  titleAccent: z.string().default(""),
   subtitle: z.string().default(""),
   buttonText: z.string().default(""),
   buttonUrl: z.string().default(""),
@@ -291,7 +292,7 @@ export function createBlock(type: BlockType): Block {
   const id = nanoid(10);
   switch (type) {
     case "hero":
-      return { id, type, data: { title: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "" } };
+      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "" } };
     case "text":
       return { id, type, data: { markdown: "" } };
     case "product-grid":

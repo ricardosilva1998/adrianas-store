@@ -2,6 +2,7 @@
 interface Props {
   data: {
     title: string;
+    titleAccent?: string;
     subtitle: string;
     buttonText: string;
     buttonUrl: string;
@@ -20,8 +21,12 @@ const { data } = Astro.props;
 
   <div class="section relative grid gap-12 py-20 md:grid-cols-2 md:py-28 lg:py-32">
     <div class="flex flex-col justify-center">
-      {data.title && (
-        <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl lg:text-6xl" set:html={data.title} />
+      {(data.title || data.titleAccent) && (
+        <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl lg:text-6xl">
+          {data.title && <span>{data.title}</span>}
+          {data.title && data.titleAccent && <br />}
+          {data.titleAccent && <span class="text-rosa-500">{data.titleAccent}</span>}
+        </h1>
       )}
 
       {data.subtitle && (
@@ -48,7 +53,7 @@ const { data } = Astro.props;
         <div class="relative mx-auto aspect-[4/5] w-full max-w-lg">
           <div class="absolute inset-0 rounded-[40px] bg-rosa-100"></div>
           <div class="absolute inset-6 overflow-hidden rounded-[32px] border-8 border-white bg-white shadow-2xl">
-            <img src={data.imageUrl} alt={data.title} class="h-full w-full object-cover" />
+            <img src={data.imageUrl} alt={data.title || data.titleAccent} class="h-full w-full object-cover" />
           </div>
         </div>
       </div>

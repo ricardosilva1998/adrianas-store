@@ -15,7 +15,8 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:migrate": "tsx scripts/migrate.ts",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "db:migrate-hero-html": "tsx scripts/migrate-hero-html.ts"
   },
   "dependencies": {
     "@astrojs/node": "^10.0.4",

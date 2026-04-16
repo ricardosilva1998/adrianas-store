@@ -2,6 +2,7 @@ import { useState } from "react";
 import { marked } from "marked";
 import type { Block, BlockType } from "../../lib/blocks";
 import { BLOCK_TYPES, createBlock } from "../../lib/blocks";
+import ImagePicker from "./ImagePicker";
 
 interface Props {
   slug: string;
@@ -350,6 +351,15 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
         <input value={data.title} onChange={(e) => onChange({ title: e.target.value })} className="field-input" />
       </div>
       <div>
+        <label className="field-label">Destaque (em rosa, na linha seguinte)</label>
+        <input
+          value={data.titleAccent ?? ""}
+          onChange={(e) => onChange({ titleAccent: e.target.value })}
+          className="field-input"
+          placeholder="ex: feitas para ti"
+        />
+      </div>
+      <div>
         <label className="field-label">Subtitulo</label>
         <input value={data.subtitle} onChange={(e) => onChange({ subtitle: e.target.value })} className="field-input" />
       </div>
@@ -363,10 +373,11 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
           <input value={data.buttonUrl} onChange={(e) => onChange({ buttonUrl: e.target.value })} className="field-input" />
         </div>
       </div>
-      <div>
-        <label className="field-label">URL da imagem</label>
-        <input value={data.imageUrl} onChange={(e) => onChange({ imageUrl: e.target.value })} className="field-input" />
-      </div>
+      <ImagePicker
+        label="Imagem"
+        value={data.imageUrl}
+        onChange={(imageUrl) => onChange({ imageUrl })}
+      />
     </div>
   );
 }
@@ -485,12 +496,9 @@ function CategoryGridForm({ data, onChange }: { data: any; onChange: (d: any) =>
 
 function ImageGalleryForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
   const images: Array<{ url: string; alt: string }> = data.images ?? [];
-  const [newUrl, setNewUrl] = useState("");
 
   const addImage = () => {
-    if (!newUrl.trim()) return;
-    onChange({ images: [...images, { url: newUrl.trim(), alt: "" }] });
-    setNewUrl("");
+    onChange({ images: [...images, { url: "", alt: "" }] });
   };
 
   const removeImage = (idx: number) => {
@@ -509,51 +517,40 @@ function ImageGalleryForm({ data, onChange }: { data: any; onChange: (d: any) =>
     onChange({ images: copy });
   };
 
-  const handleUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-    if (!res.ok) return;
-    const { url } = await res.json();
-    onChange({ images: [...images, { url, alt: "" }] });
-  };
-
   return (
     <div className="grid gap-4">
       <label className="field-label">Imagens</label>
-      {images.map((img: any, idx: number) => (
-        <div key={idx} className="flex items-center gap-3 rounded-xl border border-ink-line bg-white p-3">
-          <img src={img.url} alt={img.alt} className="h-16 w-16 rounded-lg object-cover" />
-          <input
-            value={img.alt}
-            onChange={(e) => updateAlt(idx, e.target.value)}
-            placeholder="Texto alternativo"
-            className="field-input flex-1"
+      {images.map((img: any, i: number) => (
+        <div key={i} className="rounded-xl border border-ink-line bg-white p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">#{i + 1}</span>
+            <div className="flex items-center gap-1">
+              <button type="button" onClick={() => moveImage(i, "up")} disabled={i === 0} className="text-ink-muted hover:text-rosa-500 disabled:opacity-30">↑</button>
+              <button type="button" onClick={() => moveImage(i, "down")} disabled={i === images.length - 1} className="text-ink-muted hover:text-rosa-500 disabled:opacity-30">↓</button>
+              <button type="button" onClick={() => removeImage(i)} className="text-ink-muted hover:text-red-500">✕</button>
+            </div>
+          </div>
+          <ImagePicker
+            value={img.url}
+            onChange={(url) => {
+              const next = [...images];
+              next[i] = { ...next[i], url };
+              onChange({ images: next });
+            }}
           />
-          <button type="button" onClick={() => moveImage(idx, "up")} disabled={idx === 0} className="text-ink-muted hover:text-rosa-500 disabled:opacity-30">↑</button>
-          <button type="button" onClick={() => moveImage(idx, "down")} disabled={idx === images.length - 1} className="text-ink-muted hover:text-rosa-500 disabled:opacity-30">↓</button>
-          <button type="button" onClick={() => removeImage(idx)} className="text-ink-muted hover:text-red-500">✕</button>
+          <div className="mt-3">
+            <input
+              value={img.alt}
+              onChange={(e) => updateAlt(i, e.target.value)}
+              placeholder="Texto alternativo"
+              className="field-input"
+            />
+          </div>
         </div>
       ))}
-      <div className="flex gap-2">
-        <input
-          value={newUrl}
-          onChange={(e) => setNewUrl(e.target.value)}
-          placeholder="URL da imagem"
-          className="field-input flex-1"
-          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addImage())}
-        />
-        <button type="button" onClick={addImage} className="btn-secondary">Adicionar URL</button>
-        <label className="btn-secondary cursor-pointer">
-          Upload
-          <input
-            type="file"
-            accept="image/*"
-            className="sr-only"
-            onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
-          />
-        </label>
-      </div>
+      <button type="button" onClick={addImage} className="btn-secondary w-fit">
+        + Adicionar imagem
+      </button>
     </div>
   );
 }
@@ -767,15 +764,14 @@ function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) 
   const html = marked.parse(data.markdown || "", { async: false }) as string;
   return (
     <div className="grid gap-4">
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <label className="field-label">URL da imagem</label>
-          <input value={data.imageUrl} onChange={(e) => onChange({ imageUrl: e.target.value })} className="field-input" />
-        </div>
-        <div>
-          <label className="field-label">Texto alternativo da imagem</label>
-          <input value={data.imageAlt} onChange={(e) => onChange({ imageAlt: e.target.value })} className="field-input" />
-        </div>
+      <ImagePicker
+        label="Imagem"
+        value={data.imageUrl}
+        onChange={(imageUrl) => onChange({ imageUrl })}
+      />
+      <div>
+        <label className="field-label">Texto alternativo da imagem</label>
+        <input value={data.imageAlt} onChange={(e) => onChange({ imageAlt: e.target.value })} className="field-input" />
       </div>
       <div>
         <label className="field-label">Titulo</label>

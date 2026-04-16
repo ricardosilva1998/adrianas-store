@@ -3,6 +3,7 @@ import type { SiteConfig, Theme } from "../../lib/config";
 import { renderGoogleFontsHref, renderThemeCSS } from "../../lib/config";
 import ColorPicker from "./ColorPicker";
 import FontPicker from "./FontPicker";
+import ImagePicker from "./ImagePicker";
 import PreviewShell from "./PreviewShell";
 
 interface Props {
@@ -133,15 +134,10 @@ export default function ThemeEditor({ initialConfig }: Props) {
         <section>
           <h2 className="text-sm font-semibold text-ink">Logótipo</h2>
           <div className="mt-3 space-y-3">
-            <label className="field-label">URL do logótipo (deixa vazio para usar texto)</label>
-            <input
-              type="text"
+            <ImagePicker
+              label="Logótipo (deixa vazio para usar texto)"
               value={config.theme.logo.url ?? ""}
-              onChange={(e) =>
-                setTheme({ logo: { ...config.theme.logo, url: e.target.value || null } })
-              }
-              className="field-input"
-              placeholder="https://…/logo.svg"
+              onChange={(url) => setTheme({ logo: { ...config.theme.logo, url: url || null } })}
             />
             <label className="field-label">Texto alternativo</label>
             <input
