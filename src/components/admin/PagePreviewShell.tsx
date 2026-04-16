@@ -34,6 +34,7 @@ export default function PagePreviewShell({
   const tokenRef = useRef<string | null>(null);
   const debounceRef = useRef<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const popupRef = useRef<Window | null>(null);
   const previewWrapperRef = useRef<HTMLDivElement | null>(null);
   const [wrapperSize, setWrapperSize] = useState({ width: 0, height: 0 });
 
@@ -61,6 +62,9 @@ export default function PagePreviewShell({
       if (tokenRef.current) {
         fetch(`/api/admin/pages/${slug}/preview?token=${tokenRef.current}`, { method: "DELETE" });
       }
+      if (popupRef.current && !popupRef.current.closed) {
+        popupRef.current.close();
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -75,6 +79,9 @@ export default function PagePreviewShell({
         body: JSON.stringify({ title, blocks }),
       }).then(() => {
         iframeRef.current?.contentWindow?.postMessage({ kind: "page-preview-reload" }, "*");
+        if (popupRef.current && !popupRef.current.closed) {
+          popupRef.current.postMessage({ kind: "page-preview-reload" }, "*");
+        }
       });
     }, 300);
     return () => {
@@ -101,6 +108,19 @@ export default function PagePreviewShell({
   const previewPath = slug === "home" ? "/" : `/${slug}`;
   const iframeSrc = token ? `${previewPath}?preview=${token}` : previewPath;
 
+  const openPopup = () => {
+    if (popupRef.current && !popupRef.current.closed) {
+      popupRef.current.focus();
+      return;
+    }
+    const win = window.open(
+      iframeSrc,
+      "adriana-preview",
+      "width=1280,height=900,scrollbars=yes,resizable=yes,noopener=no,noreferrer=no",
+    );
+    if (win) popupRef.current = win;
+  };
+
   return (
     <div className="flex h-[calc(100vh-80px)] flex-col">
       <div className="flex items-center justify-between border-b border-ink-line bg-surface px-6 py-3">
@@ -109,6 +129,17 @@ export default function PagePreviewShell({
           <button type="button" onClick={() => setDevice("mobile")} className={`px-3 py-1 text-xs font-medium rounded-full ${device === "mobile" ? "bg-ink text-white" : "text-ink-soft"}`}>Mobile</button>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={openPopup}
+            title="Abrir pré-visualização numa nova janela"
+            aria-label="Abrir pré-visualização numa nova janela"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-ink-line text-ink-soft hover:border-rosa-300 hover:text-rosa-500"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden>
+              <path d="M14 3h7v7M21 3l-9 9M10 5H5a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5" />
+            </svg>
+          </button>
           {hasDraft && (
             <button type="button" onClick={onDiscardDraft} disabled={discarding} className="rounded-full border border-ink-line px-4 py-2 text-sm font-medium text-ink-soft hover:border-red-300 hover:text-red-500 disabled:opacity-40">
               {discarding ? "A descartar…" : "Descartar rascunho"}
