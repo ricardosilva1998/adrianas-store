@@ -1,0 +1,29 @@
+---
+import "../styles/global.css";
+import { renderThemeCSS, renderGoogleFontsHref } from "../lib/config";
+import { getSiteConfig } from "../lib/config-server";
+
+interface Props {
+  title?: string;
+}
+
+const config = await getSiteConfig(Astro.locals.previewConfig);
+const { title = "Pré-visualização" } = Astro.props;
+const themeCSS = renderThemeCSS(config.theme);
+const fontsHref = renderGoogleFontsHref(config.theme.fonts);
+---
+
+<!doctype html>
+<html lang="pt-PT">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link href={fontsHref} rel="stylesheet" />
+    <style set:html={themeCSS}></style>
+    <title>{title}</title>
+  </head>
+  <body class="bg-white text-ink antialiased">
+    <slot />
+  </body>
+</html>
