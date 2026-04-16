@@ -1,0 +1,50 @@
+---
+import BareLayout from "../../../layouts/BareLayout.astro";
+import BlockRenderer from "../../../components/blocks/BlockRenderer.astro";
+import { SAMPLE_BLOCK_DATA, SAMPLE_PRODUCT, SAMPLE_PRODUCTS } from "../../../lib/block-samples";
+import { BLOCK_TYPES, blockSchema, type BlockType } from "../../../lib/blocks";
+
+export const prerender = false;
+
+const user = Astro.locals.user;
+if (!user) return new Response("Unauthorized", { status: 401 });
+
+const typeParam = Astro.params.type as BlockType | undefined;
+if (!typeParam || !BLOCK_TYPES.some((bt) => bt.type === typeParam)) {
+  return new Response("Bloco desconhecido", { status: 404 });
+}
+
+const rawData = Astro.url.searchParams.get("data");
+let data: unknown = SAMPLE_BLOCK_DATA[typeParam];
+if (rawData) {
+  try {
+    const parsed = JSON.parse(decodeURIComponent(rawData));
+    const candidate = { id: "preview", type: typeParam, data: parsed };
+    const check = blockSchema.safeParse(candidate);
+    if (check.success) data = parsed;
+  } catch {
+    // fall through — keep sample
+  }
+}
+
+const block = { id: "preview", type: typeParam, data };
+
+const isProductContext =
+  typeParam === "product-gallery" ||
+  typeParam === "product-info" ||
+  typeParam === "product-long-description" ||
+  typeParam === "product-related";
+const isCatalogContext = typeParam === "catalog-grid-bound";
+---
+
+<BareLayout title={`Preview: ${typeParam}`}>
+  <BlockRenderer
+    block={block}
+    context={{
+      product: isProductContext ? SAMPLE_PRODUCT : undefined,
+      relatedProducts: isProductContext ? SAMPLE_PRODUCTS.slice(1) : undefined,
+      products: isCatalogContext ? SAMPLE_PRODUCTS : undefined,
+      activeCategory: undefined,
+    }}
+  />
+</BareLayout>
