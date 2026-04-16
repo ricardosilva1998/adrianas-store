@@ -1,0 +1,29 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import BlockRenderer from "../components/blocks/BlockRenderer.astro";
+import { getPublishedPage } from "../lib/queries";
+
+export const prerender = false;
+
+const slugParts = Astro.params.slug;
+const slug = slugParts || "home";
+
+// Don't catch routes that belong to other pages
+const reserved = ["catalogo", "carrinho", "checkout", "obrigado", "admin", "api"];
+if (reserved.some((r) => slug === r || slug.startsWith(r + "/"))) {
+  return new Response(null, { status: 404 });
+}
+
+const page = await getPublishedPage(slug);
+if (!page) {
+  return new Response(null, { status: 404 });
+}
+
+const blocks = (page.blocks ?? []) as Array<{ type: string; data: any }>;
+---
+
+<BaseLayout title={slug === "home" ? undefined : page.title}>
+  {blocks.map((block) => (
+    <BlockRenderer block={block} />
+  ))}
+</BaseLayout>

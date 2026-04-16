@@ -1,0 +1,25 @@
+---
+import HeroBlock from "./HeroBlock.astro";
+import TextBlock from "./TextBlock.astro";
+import ProductGridBlock from "./ProductGridBlock.astro";
+import CategoryGridBlock from "./CategoryGridBlock.astro";
+import ImageGalleryBlock from "./ImageGalleryBlock.astro";
+import CtaBannerBlock from "./CtaBannerBlock.astro";
+import FaqBlock from "./FaqBlock.astro";
+import ContactInfoBlock from "./ContactInfoBlock.astro";
+
+interface Props {
+  block: { type: string; data: any };
+}
+
+const { block } = Astro.props;
+---
+
+{block.type === "hero" && <HeroBlock data={block.data} />}
+{block.type === "text" && <TextBlock data={block.data} />}
+{block.type === "product-grid" && <ProductGridBlock data={block.data} />}
+{block.type === "category-grid" && <CategoryGridBlock data={block.data} />}
+{block.type === "image-gallery" && <ImageGalleryBlock data={block.data} />}
+{block.type === "cta-banner" && <CtaBannerBlock data={block.data} />}
+{block.type === "faq" && <FaqBlock data={block.data} />}
+{block.type === "contact-info" && <ContactInfoBlock data={block.data} />}

@@ -1,0 +1,57 @@
+---
+interface Props {
+  data: {
+    title: string;
+    subtitle: string;
+    buttonText: string;
+    buttonUrl: string;
+    imageUrl: string;
+  };
+}
+
+const { data } = Astro.props;
+---
+
+<section class="relative overflow-hidden bg-white">
+  <div class="absolute inset-0">
+    <div class="absolute -left-24 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-rosa-200 opacity-50 blur-3xl"></div>
+    <div class="absolute -right-32 top-16 h-96 w-96 rounded-full bg-rosa-100 opacity-60 blur-3xl"></div>
+  </div>
+
+  <div class="section relative grid gap-12 py-20 md:grid-cols-2 md:py-28 lg:py-32">
+    <div class="flex flex-col justify-center">
+      {data.title && (
+        <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl lg:text-6xl" set:html={data.title} />
+      )}
+
+      {data.subtitle && (
+        <p class="mt-6 max-w-lg text-base leading-relaxed text-ink-soft sm:text-lg">
+          {data.subtitle}
+        </p>
+      )}
+
+      {data.buttonText && data.buttonUrl && (
+        <div class="mt-10">
+          <a href={data.buttonUrl} class="btn-primary">
+            {data.buttonText}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      )}
+    </div>
+
+    {data.imageUrl && (
+      <div class="relative hidden md:block">
+        <div class="relative mx-auto aspect-[4/5] w-full max-w-lg">
+          <div class="absolute inset-0 rounded-[40px] bg-rosa-100"></div>
+          <div class="absolute inset-6 overflow-hidden rounded-[32px] border-8 border-white bg-white shadow-2xl">
+            <img src={data.imageUrl} alt={data.title} class="h-full w-full object-cover" />
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+</section>

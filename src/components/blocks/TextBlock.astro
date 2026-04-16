@@ -1,0 +1,18 @@
+---
+import { marked } from "marked";
+
+interface Props {
+  data: { markdown: string };
+}
+
+const { data } = Astro.props;
+const html = data.markdown ? (marked.parse(data.markdown, { async: false }) as string) : "";
+---
+
+{html && (
+  <section class="py-16">
+    <div class="section max-w-3xl">
+      <article class="prose prose-sm max-w-none text-ink-soft sm:prose-base" set:html={html} />
+    </div>
+  </section>
+)}
