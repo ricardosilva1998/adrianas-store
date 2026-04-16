@@ -1,0 +1,71 @@
+---
+import { marked } from "marked";
+
+interface Props {
+  data: {
+    imageUrl: string;
+    imageAlt: string;
+    title: string;
+    markdown: string;
+    layout: "image-left" | "image-right";
+  };
+}
+
+const { data } = Astro.props;
+const html = data.markdown ? (marked.parse(data.markdown, { async: false }) as string) : "";
+const imageFirst = data.layout !== "image-right";
+---
+
+<section class="py-16">
+  <div class="section">
+    <div class={`grid items-center gap-10 md:grid-cols-2`}>
+      {imageFirst ? (
+        <>
+          {data.imageUrl && (
+            <div class="overflow-hidden rounded-3xl">
+              <img
+                src={data.imageUrl}
+                alt={data.imageAlt || data.title}
+                class="h-full w-full object-cover"
+              />
+            </div>
+          )}
+          <div>
+            {data.title && (
+              <h2 class="text-2xl font-semibold text-ink sm:text-3xl">{data.title}</h2>
+            )}
+            {html && (
+              <article
+                class="prose prose-sm mt-4 max-w-none text-ink-soft sm:prose-base"
+                set:html={html}
+              />
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div>
+            {data.title && (
+              <h2 class="text-2xl font-semibold text-ink sm:text-3xl">{data.title}</h2>
+            )}
+            {html && (
+              <article
+                class="prose prose-sm mt-4 max-w-none text-ink-soft sm:prose-base"
+                set:html={html}
+              />
+            )}
+          </div>
+          {data.imageUrl && (
+            <div class="overflow-hidden rounded-3xl">
+              <img
+                src={data.imageUrl}
+                alt={data.imageAlt || data.title}
+                class="h-full w-full object-cover"
+              />
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  </div>
+</section>

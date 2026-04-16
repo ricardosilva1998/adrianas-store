@@ -1,0 +1,59 @@
+---
+interface TestimonialItem {
+  name: string;
+  quote: string;
+  avatarUrl: string;
+}
+
+interface Props {
+  data: {
+    title: string;
+    items: TestimonialItem[];
+  };
+}
+
+const { data } = Astro.props;
+const hasContent = data.items && data.items.length > 0;
+
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0] ?? "")
+    .join("")
+    .toUpperCase();
+}
+---
+
+{hasContent && (
+  <section class="py-16">
+    <div class="section">
+      {data.title && (
+        <h2 class="mb-10 text-center text-2xl font-semibold text-ink sm:text-3xl">
+          {data.title}
+        </h2>
+      )}
+      <div class="grid gap-6 md:grid-cols-2">
+        {data.items.map((item) => (
+          <div class="rounded-2xl border border-ink-line bg-white p-6">
+            <p class="text-sm leading-relaxed text-ink-soft">"{item.quote}"</p>
+            <div class="mt-5 flex items-center gap-3">
+              {item.avatarUrl ? (
+                <img
+                  src={item.avatarUrl}
+                  alt={item.name}
+                  class="h-12 w-12 rounded-full object-cover"
+                />
+              ) : (
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-rosa-100 text-sm font-semibold text-rosa-600">
+                  {initials(item.name)}
+                </div>
+              )}
+              <span class="text-sm font-semibold text-ink">{item.name}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

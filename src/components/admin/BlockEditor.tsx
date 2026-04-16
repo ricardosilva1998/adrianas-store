@@ -292,6 +292,16 @@ function BlockForm({ block, onChange }: { block: Block; onChange: (data: any) =>
       return <FaqForm data={block.data} onChange={onChange} />;
     case "contact-info":
       return <ContactInfoForm data={block.data} onChange={onChange} />;
+    case "testimonials":
+      return <TestimonialsForm data={block.data} onChange={onChange} />;
+    case "newsletter":
+      return <NewsletterForm data={block.data} onChange={onChange} />;
+    case "image-text-split":
+      return <ImageTextSplitForm data={block.data} onChange={onChange} />;
+    case "video-embed":
+      return <VideoEmbedForm data={block.data} onChange={onChange} />;
+    case "divider":
+      return <DividerForm data={block.data} onChange={onChange} />;
   }
 }
 
@@ -630,6 +640,236 @@ function ContactInfoForm({ data, onChange }: { data: any; onChange: (d: any) => 
       <div>
         <label className="field-label">Morada</label>
         <input value={data.address} onChange={(e) => onChange({ address: e.target.value })} className="field-input" />
+      </div>
+    </div>
+  );
+}
+
+function TestimonialsForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const items: Array<{ name: string; quote: string; avatarUrl: string }> = data.items ?? [];
+
+  const addItem = () => {
+    onChange({ items: [...items, { name: "", quote: "", avatarUrl: "" }] });
+  };
+
+  const removeItem = (idx: number) => {
+    onChange({ items: items.filter((_: any, i: number) => i !== idx) });
+  };
+
+  const updateItem = (idx: number, field: "name" | "quote" | "avatarUrl", value: string) => {
+    onChange({ items: items.map((item: any, i: number) => (i === idx ? { ...item, [field]: value } : item)) });
+  };
+
+  return (
+    <div className="grid gap-4">
+      <div>
+        <label className="field-label">Titulo</label>
+        <input value={data.title} onChange={(e) => onChange({ title: e.target.value })} className="field-input" />
+      </div>
+      <label className="field-label">Testemunhos</label>
+      {items.map((item: any, idx: number) => (
+        <div key={idx} className="grid gap-2 rounded-xl border border-ink-line bg-white p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">#{idx + 1}</span>
+            <button type="button" onClick={() => removeItem(idx)} className="text-xs text-ink-muted hover:text-red-500">Remover</button>
+          </div>
+          <input
+            value={item.name}
+            onChange={(e) => updateItem(idx, "name", e.target.value)}
+            placeholder="Nome"
+            className="field-input"
+          />
+          <textarea
+            value={item.quote}
+            onChange={(e) => updateItem(idx, "quote", e.target.value)}
+            placeholder="Citação"
+            rows={3}
+            className="field-input"
+          />
+          <input
+            value={item.avatarUrl}
+            onChange={(e) => updateItem(idx, "avatarUrl", e.target.value)}
+            placeholder="URL do avatar (opcional)"
+            className="field-input"
+          />
+        </div>
+      ))}
+      <button type="button" onClick={addItem} className="btn-secondary w-fit">
+        + Adicionar testemunho
+      </button>
+    </div>
+  );
+}
+
+function NewsletterForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  return (
+    <div className="grid gap-4">
+      <div>
+        <label className="field-label">Titulo</label>
+        <input value={data.title} onChange={(e) => onChange({ title: e.target.value })} className="field-input" />
+      </div>
+      <div>
+        <label className="field-label">Descrição</label>
+        <textarea value={data.description} onChange={(e) => onChange({ description: e.target.value })} rows={3} className="field-input" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label className="field-label">Texto do botão</label>
+          <input value={data.buttonText} onChange={(e) => onChange({ buttonText: e.target.value })} className="field-input" />
+        </div>
+        <div>
+          <label className="field-label">URL de destino</label>
+          <input value={data.actionUrl} onChange={(e) => onChange({ actionUrl: e.target.value })} placeholder="https:// ou mailto:" className="field-input" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const html = marked.parse(data.markdown || "", { async: false }) as string;
+  return (
+    <div className="grid gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label className="field-label">URL da imagem</label>
+          <input value={data.imageUrl} onChange={(e) => onChange({ imageUrl: e.target.value })} className="field-input" />
+        </div>
+        <div>
+          <label className="field-label">Texto alternativo da imagem</label>
+          <input value={data.imageAlt} onChange={(e) => onChange({ imageAlt: e.target.value })} className="field-input" />
+        </div>
+      </div>
+      <div>
+        <label className="field-label">Titulo</label>
+        <input value={data.title} onChange={(e) => onChange({ title: e.target.value })} className="field-input" />
+      </div>
+      <div>
+        <label className="field-label">Disposição</label>
+        <div className="mt-2 flex gap-3">
+          {(["image-left", "image-right"] as const).map((layout) => (
+            <label
+              key={layout}
+              className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
+                data.layout === layout
+                  ? "border-rosa-300 bg-rosa-100 text-rosa-600"
+                  : "border-ink-line bg-white text-ink-muted"
+              }`}
+            >
+              <input
+                type="radio"
+                name="layout"
+                value={layout}
+                checked={data.layout === layout}
+                onChange={() => onChange({ layout })}
+                className="sr-only"
+              />
+              {layout === "image-left" ? "Imagem à esquerda" : "Imagem à direita"}
+            </label>
+          ))}
+        </div>
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div>
+          <label className="field-label">Conteudo (Markdown)</label>
+          <textarea
+            value={data.markdown}
+            onChange={(e) => onChange({ markdown: e.target.value })}
+            rows={12}
+            className="mt-2 w-full resize-y rounded-xl border border-ink-line bg-white p-4 font-mono text-xs leading-relaxed"
+          />
+        </div>
+        <div>
+          <span className="field-label">Preview</span>
+          <article
+            className="prose prose-sm mt-2 max-w-none text-ink-soft"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VideoEmbedForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  return (
+    <div className="grid gap-4">
+      <div>
+        <label className="field-label">URL do vídeo</label>
+        <input value={data.url} onChange={(e) => onChange({ url: e.target.value })} placeholder="youtube.com/watch?v=... ou youtu.be/..." className="field-input" />
+      </div>
+      <div>
+        <label className="field-label">Titulo</label>
+        <input value={data.title} onChange={(e) => onChange({ title: e.target.value })} className="field-input" />
+      </div>
+      <div>
+        <label className="field-label">Legenda</label>
+        <textarea value={data.caption} onChange={(e) => onChange({ caption: e.target.value })} rows={2} className="field-input" />
+      </div>
+    </div>
+  );
+}
+
+function DividerForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  return (
+    <div className="grid gap-6 md:grid-cols-2">
+      <div>
+        <label className="field-label">Estilo</label>
+        <div className="mt-2 flex flex-col gap-2">
+          {([
+            { value: "line", label: "Linha" },
+            { value: "dots", label: "Pontos" },
+            { value: "wave", label: "Onda" },
+          ] as const).map(({ value, label }) => (
+            <label
+              key={value}
+              className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
+                data.style === value
+                  ? "border-rosa-300 bg-rosa-100 text-rosa-600"
+                  : "border-ink-line bg-white text-ink-muted"
+              }`}
+            >
+              <input
+                type="radio"
+                name="divider-style"
+                value={value}
+                checked={data.style === value}
+                onChange={() => onChange({ style: value })}
+                className="sr-only"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </div>
+      <div>
+        <label className="field-label">Espaçamento</label>
+        <div className="mt-2 flex flex-col gap-2">
+          {([
+            { value: "small", label: "Pequeno" },
+            { value: "medium", label: "Médio" },
+            { value: "large", label: "Grande" },
+          ] as const).map(({ value, label }) => (
+            <label
+              key={value}
+              className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
+                data.spacing === value
+                  ? "border-rosa-300 bg-rosa-100 text-rosa-600"
+                  : "border-ink-line bg-white text-ink-muted"
+              }`}
+            >
+              <input
+                type="radio"
+                name="divider-spacing"
+                value={value}
+                checked={data.spacing === value}
+                onChange={() => onChange({ spacing: value })}
+                className="sr-only"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
       </div>
     </div>
   );

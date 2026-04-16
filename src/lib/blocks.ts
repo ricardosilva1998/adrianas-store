@@ -57,6 +57,41 @@ const contactInfoDataSchema = z.object({
   address: z.string().default(""),
 });
 
+const testimonialsDataSchema = z.object({
+  title: z.string().default(""),
+  items: z.array(z.object({
+    name: z.string(),
+    quote: z.string(),
+    avatarUrl: z.string().default(""),
+  })).default([]),
+});
+
+const newsletterDataSchema = z.object({
+  title: z.string().default(""),
+  description: z.string().default(""),
+  buttonText: z.string().default("Subscrever"),
+  actionUrl: z.string().default(""),
+});
+
+const imageTextSplitDataSchema = z.object({
+  imageUrl: z.string().default(""),
+  imageAlt: z.string().default(""),
+  title: z.string().default(""),
+  markdown: z.string().default(""),
+  layout: z.enum(["image-left", "image-right"]).default("image-left"),
+});
+
+const videoEmbedDataSchema = z.object({
+  url: z.string().default(""),
+  title: z.string().default(""),
+  caption: z.string().default(""),
+});
+
+const dividerDataSchema = z.object({
+  style: z.enum(["line", "dots", "wave"]).default("line"),
+  spacing: z.enum(["small", "medium", "large"]).default("medium"),
+});
+
 // --- Block schema (discriminated union) ---
 
 const heroBlockSchema = z.object({
@@ -107,6 +142,36 @@ const contactInfoBlockSchema = z.object({
   data: contactInfoDataSchema,
 });
 
+const testimonialsBlockSchema = z.object({
+  id: z.string(),
+  type: z.literal("testimonials"),
+  data: testimonialsDataSchema,
+});
+
+const newsletterBlockSchema = z.object({
+  id: z.string(),
+  type: z.literal("newsletter"),
+  data: newsletterDataSchema,
+});
+
+const imageTextSplitBlockSchema = z.object({
+  id: z.string(),
+  type: z.literal("image-text-split"),
+  data: imageTextSplitDataSchema,
+});
+
+const videoEmbedBlockSchema = z.object({
+  id: z.string(),
+  type: z.literal("video-embed"),
+  data: videoEmbedDataSchema,
+});
+
+const dividerBlockSchema = z.object({
+  id: z.string(),
+  type: z.literal("divider"),
+  data: dividerDataSchema,
+});
+
 export const blockSchema = z.discriminatedUnion("type", [
   heroBlockSchema,
   textBlockSchema,
@@ -116,6 +181,11 @@ export const blockSchema = z.discriminatedUnion("type", [
   ctaBannerBlockSchema,
   faqBlockSchema,
   contactInfoBlockSchema,
+  testimonialsBlockSchema,
+  newsletterBlockSchema,
+  imageTextSplitBlockSchema,
+  videoEmbedBlockSchema,
+  dividerBlockSchema,
 ]);
 
 export const blocksArraySchema = z.array(blockSchema);
@@ -131,6 +201,11 @@ export type ImageGalleryData = z.infer<typeof imageGalleryDataSchema>;
 export type CtaBannerData = z.infer<typeof ctaBannerDataSchema>;
 export type FaqData = z.infer<typeof faqDataSchema>;
 export type ContactInfoData = z.infer<typeof contactInfoDataSchema>;
+export type TestimonialsData = z.infer<typeof testimonialsDataSchema>;
+export type NewsletterData = z.infer<typeof newsletterDataSchema>;
+export type ImageTextSplitData = z.infer<typeof imageTextSplitDataSchema>;
+export type VideoEmbedData = z.infer<typeof videoEmbedDataSchema>;
+export type DividerData = z.infer<typeof dividerDataSchema>;
 
 // --- Block metadata for the admin picker ---
 
@@ -143,6 +218,11 @@ export const BLOCK_TYPES: Array<{ type: BlockType; label: string; description: s
   { type: "cta-banner", label: "Banner CTA", description: "Seccao colorida com texto e botao" },
   { type: "faq", label: "FAQ", description: "Perguntas e respostas em acordeao" },
   { type: "contact-info", label: "Contacto", description: "Email, WhatsApp, Instagram, morada" },
+  { type: "testimonials", label: "Testemunhos", description: "Citações de clientes com nome e avatar" },
+  { type: "newsletter", label: "Newsletter", description: "Call-to-action para subscrição" },
+  { type: "image-text-split", label: "Imagem + Texto", description: "Imagem ao lado de texto em Markdown" },
+  { type: "video-embed", label: "Vídeo", description: "Embed de YouTube ou Vimeo" },
+  { type: "divider", label: "Separador", description: "Linha visual entre secções" },
 ];
 
 // --- Default data factories ---
@@ -166,5 +246,15 @@ export function createBlock(type: BlockType): Block {
       return { id, type, data: { title: "", items: [] } };
     case "contact-info":
       return { id, type, data: { email: "", whatsapp: "", instagram: "", address: "" } };
+    case "testimonials":
+      return { id, type, data: { title: "", items: [] } };
+    case "newsletter":
+      return { id, type, data: { title: "", description: "", buttonText: "Subscrever", actionUrl: "" } };
+    case "image-text-split":
+      return { id, type, data: { imageUrl: "", imageAlt: "", title: "", markdown: "", layout: "image-left" } };
+    case "video-embed":
+      return { id, type, data: { url: "", title: "", caption: "" } };
+    case "divider":
+      return { id, type, data: { style: "line", spacing: "medium" } };
   }
 }

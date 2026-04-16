@@ -7,6 +7,11 @@ import ImageGalleryBlock from "./ImageGalleryBlock.astro";
 import CtaBannerBlock from "./CtaBannerBlock.astro";
 import FaqBlock from "./FaqBlock.astro";
 import ContactInfoBlock from "./ContactInfoBlock.astro";
+import TestimonialsBlock from "./TestimonialsBlock.astro";
+import NewsletterBlock from "./NewsletterBlock.astro";
+import ImageTextSplitBlock from "./ImageTextSplitBlock.astro";
+import VideoEmbedBlock from "./VideoEmbedBlock.astro";
+import DividerBlock from "./DividerBlock.astro";
 
 interface Props {
   block: { type: string; data: any };
@@ -23,3 +28,8 @@ const { block } = Astro.props;
 {block.type === "cta-banner" && <CtaBannerBlock data={block.data} />}
 {block.type === "faq" && <FaqBlock data={block.data} />}
 {block.type === "contact-info" && <ContactInfoBlock data={block.data} />}
+{block.type === "testimonials" && <TestimonialsBlock data={block.data} />}
+{block.type === "newsletter" && <NewsletterBlock data={block.data} />}
+{block.type === "image-text-split" && <ImageTextSplitBlock data={block.data} />}
+{block.type === "video-embed" && <VideoEmbedBlock data={block.data} />}
+{block.type === "divider" && <DividerBlock data={block.data} />}

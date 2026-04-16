@@ -1,0 +1,41 @@
+---
+interface Props {
+  data: {
+    title: string;
+    description: string;
+    buttonText: string;
+    actionUrl: string;
+  };
+}
+
+const { data } = Astro.props;
+const hasContent = data.title || data.description;
+const href = data.actionUrl || "#";
+---
+
+{hasContent && (
+  <section class="py-16">
+    <div class="section max-w-2xl">
+      <div class="rounded-3xl bg-rosa-50 px-8 py-12 text-center">
+        {data.title && (
+          <h2 class="text-2xl font-semibold text-ink sm:text-3xl">
+            {data.title}
+          </h2>
+        )}
+        {data.description && (
+          <p class="mt-4 text-sm leading-relaxed text-ink-soft">
+            {data.description}
+          </p>
+        )}
+        {data.buttonText && (
+          <a
+            href={href}
+            class="mt-8 inline-flex items-center gap-2 rounded-full bg-rosa-500 px-6 py-3 text-sm font-medium text-white transition hover:bg-rosa-600"
+          >
+            {data.buttonText}
+          </a>
+        )}
+      </div>
+    </div>
+  </section>
+)}

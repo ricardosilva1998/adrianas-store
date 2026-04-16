@@ -1,0 +1,49 @@
+---
+interface Props {
+  data: {
+    style: "line" | "dots" | "wave";
+    spacing: "small" | "medium" | "large";
+  };
+}
+
+const { data } = Astro.props;
+
+const spacingClass = {
+  small: "my-6",
+  medium: "my-12",
+  large: "my-20",
+}[data.spacing] ?? "my-12";
+---
+
+<section class={spacingClass}>
+  <div class="section">
+    {data.style === "line" && (
+      <hr class="border-t border-rosa-200" />
+    )}
+
+    {data.style === "dots" && (
+      <div class="flex items-center justify-center gap-2">
+        <span class="h-2 w-2 rounded-full bg-rosa-300" />
+        <span class="h-2 w-2 rounded-full bg-rosa-300" />
+        <span class="h-2 w-2 rounded-full bg-rosa-300" />
+      </div>
+    )}
+
+    {data.style === "wave" && (
+      <svg
+        viewBox="0 0 200 20"
+        xmlns="http://www.w3.org/2000/svg"
+        class="mx-auto w-48"
+        aria-hidden="true"
+      >
+        <path
+          d="M0 10 C 25 0, 50 20, 75 10 S 125 0, 150 10 S 175 20, 200 10"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          class="text-rosa-300"
+        />
+      </svg>
+    )}
+  </div>
+</section>
