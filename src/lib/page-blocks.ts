@@ -31,6 +31,8 @@ export function removeBlockById(blocks: Block[], id: string): MutationResult {
 
 export function reorderBlocks(blocks: Block[], ids: string[]): MutationResult {
   if (ids.length !== blocks.length) return { ok: false, blocks };
+  const uniqueIds = new Set(ids);
+  if (uniqueIds.size !== ids.length) return { ok: false, blocks };
   const byId = new Map(blocks.map((b) => [b.id, b]));
   if (ids.some((id) => !byId.has(id))) return { ok: false, blocks };
   return { ok: true, blocks: ids.map((id) => byId.get(id)!) };

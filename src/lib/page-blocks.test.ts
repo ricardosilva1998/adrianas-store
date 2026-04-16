@@ -74,4 +74,9 @@ describe("reorderBlocks", () => {
     const out = reorderBlocks([hero, text, faq], ["a", "b"]);
     expect(out.ok).toBe(false);
   });
+
+  it("returns ok:false when ids contain duplicates", () => {
+    const out = reorderBlocks([hero, text], ["a", "a"]);
+    expect(out.ok).toBe(false);
+  });
 });
