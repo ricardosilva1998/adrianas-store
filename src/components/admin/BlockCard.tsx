@@ -35,6 +35,24 @@ export default function BlockCard({
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [savingPreset, setSavingPreset] = useState(false);
+
+  const saveAsPreset = async () => {
+    const name = window.prompt("Nome do bloco personalizado?");
+    if (!name || !name.trim()) return;
+    setSavingPreset(true);
+    try {
+      await fetch("/api/admin/block-presets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), type: block.type, data: block.data }),
+      });
+      setMenuOpen(false);
+    } finally {
+      setSavingPreset(false);
+    }
+  };
 
   const handleFormChange = (data: any) => {
     onChange({ ...block, data: { ...block.data, ...data } });
@@ -77,6 +95,29 @@ export default function BlockCard({
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
           <button type="button" onClick={onMoveUp} disabled={!canMoveUp} className="rounded-lg p-1.5 text-ink-muted hover:bg-rosa-50 hover:text-rosa-500 disabled:opacity-30">↑</button>
           <button type="button" onClick={onMoveDown} disabled={!canMoveDown} className="rounded-lg p-1.5 text-ink-muted hover:bg-rosa-50 hover:text-rosa-500 disabled:opacity-30">↓</button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="Mais opções"
+              className="rounded-lg p-1.5 text-ink-muted hover:bg-rosa-50 hover:text-rosa-500"
+            >
+              ⋯
+            </button>
+            {menuOpen && (
+              <div role="menu" className="absolute right-0 top-full z-10 mt-1 w-56 rounded-xl border border-ink-line bg-white p-1 shadow-lg">
+                <button
+                  role="menuitem"
+                  type="button"
+                  onClick={saveAsPreset}
+                  disabled={savingPreset}
+                  className="block w-full rounded-lg px-3 py-2 text-left text-xs text-ink-soft hover:bg-rosa-50 hover:text-rosa-500 disabled:opacity-40"
+                >
+                  {savingPreset ? "A guardar…" : "Guardar como bloco personalizado"}
+                </button>
+              </div>
+            )}
+          </div>
           <button type="button" onClick={onRemove} className="rounded-lg p-1.5 text-ink-muted hover:bg-red-50 hover:text-red-500">✕</button>
         </div>
       </div>

@@ -69,4 +69,31 @@ describe("BlockCard", () => {
     expect(await screen.findByText(/guardado/i)).toBeInTheDocument();
     expect(save).toBeDisabled();
   });
+
+  it("POSTs to /api/admin/block-presets when 'Guardar como bloco personalizado' is clicked", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "prompt").mockReturnValue("Hero home");
+    render(
+      <BlockCard
+        slug="home"
+        block={hero}
+        expanded
+        onChange={() => {}}
+        onMoveUp={() => {}}
+        onMoveDown={() => {}}
+        onRemove={() => {}}
+        onToggleExpand={() => {}}
+        canMoveUp
+        canMoveDown
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /mais opções/i }));
+    await user.click(screen.getByRole("menuitem", { name: /guardar como bloco personalizado/i }));
+    await waitFor(() =>
+      expect((globalThis.fetch as any)).toHaveBeenCalledWith(
+        "/api/admin/block-presets",
+        expect.objectContaining({ method: "POST" }),
+      ),
+    );
+  });
 });
