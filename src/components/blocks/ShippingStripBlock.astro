@@ -9,6 +9,7 @@ interface Props {
 }
 
 const { data } = Astro.props;
+const hasItems = data.items && data.items.length > 0;
 const cols = Math.min(Math.max(data.items.length, 1), 4);
 const desktopColsClass =
   cols === 1
@@ -20,18 +21,20 @@ const desktopColsClass =
         : "md:grid-cols-4";
 ---
 
-<section class="section py-8">
-  <div class={`grid grid-cols-2 gap-6 ${desktopColsClass}`}>
-    {data.items.map((item) => (
-      <div class="flex items-center gap-3">
-        <Icon name={item.icon} class="h-6 w-6 shrink-0 text-rosa-500" />
-        <div>
-          <p class="text-sm font-semibold text-ink">{item.title}</p>
-          {item.subtitle && (
-            <p class="text-xs text-ink-muted">{item.subtitle}</p>
-          )}
+{hasItems && (
+  <section class="section py-8">
+    <div class={`grid grid-cols-2 gap-6 ${desktopColsClass}`}>
+      {data.items.map((item) => (
+        <div class="flex items-center gap-3">
+          <Icon name={item.icon} class="h-6 w-6 shrink-0 text-rosa-500" />
+          <div>
+            <p class="text-sm font-semibold text-ink">{item.title}</p>
+            {item.subtitle && (
+              <p class="text-xs text-ink-muted">{item.subtitle}</p>
+            )}
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
-</section>
+      ))}
+    </div>
+  </section>
+)}

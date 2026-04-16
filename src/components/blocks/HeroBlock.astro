@@ -12,7 +12,9 @@ interface Props {
 }
 
 const { data } = Astro.props;
-const layout = data.layout ?? "image-right";
+const layout = (data.layout === "background-image" && !data.imageUrl)
+  ? "centered"
+  : (data.layout ?? "image-right");
 ---
 
 {layout === "background-image" ? (

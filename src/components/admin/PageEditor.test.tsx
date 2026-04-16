@@ -25,18 +25,19 @@ describe("PageEditor", () => {
     expect(screen.getByText(/hero/i)).toBeInTheDocument();
   });
 
-  it("Publicar calls PUT /api/admin/pages/home with saveAsDraft:false", async () => {
+  it("Publicar calls POST /api/admin/pages/home/publish with no body", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<PageEditor slug="home" title="Home" initialBlocks={[hero]} published hasDraft={false} />);
     await user.click(screen.getByRole("button", { name: /publicar/i }));
     await waitFor(() =>
       expect((globalThis.fetch as any)).toHaveBeenCalledWith(
-        "/api/admin/pages/home",
-        expect.objectContaining({ method: "PUT" }),
+        "/api/admin/pages/home/publish",
+        expect.objectContaining({ method: "POST" }),
       ),
     );
-    const lastCall = (globalThis.fetch as any).mock.calls.at(-1);
-    const body = JSON.parse(lastCall?.[1]?.body);
-    expect(body.saveAsDraft).toBe(false);
+    const publishCall = (globalThis.fetch as any).mock.calls.find(
+      (c: string[]) => c[0] === "/api/admin/pages/home/publish",
+    );
+    expect(publishCall?.[1]?.body).toBeUndefined();
   });
 });
