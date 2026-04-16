@@ -57,7 +57,7 @@ export default function GlobalsEditor({ initialConfig }: Props) {
             type="button"
             onClick={() => setTab(t.id)}
             className={`rounded-full px-3 py-1 text-xs font-medium ${
-              tab === t.id ? "bg-ink text-white" : "text-ink-soft hover:bg-rosa-50"
+              tab === t.id ? "bg-ink text-white" : "text-ink-soft hover:bg-rosa-50 dark:hover:bg-rosa-500/10"
             }`}
           >
             {t.label}
@@ -262,7 +262,7 @@ function BannerForm({ config, setGlobals }: FormProps) {
               type="button"
               onClick={() => patch({ bgColor: c })}
               className={`flex-1 rounded-lg border px-3 py-2 text-xs ${
-                banner.bgColor === c ? "border-rosa-400 bg-rosa-50" : "border-ink-line"
+                banner.bgColor === c ? "border-rosa-400 bg-rosa-50 dark:bg-rosa-500/15" : "border-ink-line"
               }`}
             >
               {c === "rosa" ? "Rosa" : "Escuro"}

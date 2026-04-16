@@ -74,7 +74,7 @@ export default function BlockPickerDialog({ open, context, onClose, onInsertBloc
                   <button
                     key={bt.type}
                     onClick={() => setSelectedType(bt.type)}
-                    className={`rounded-2xl border p-3 text-left transition ${selectedType === bt.type ? "border-rosa-400 bg-rosa-50" : "border-ink-line hover:border-rosa-300"}`}
+                    className={`rounded-2xl border p-3 text-left transition ${selectedType === bt.type ? "border-rosa-400 bg-rosa-50 dark:bg-rosa-500/15" : "border-ink-line hover:border-rosa-300"}`}
                   >
                     <div className="mb-2 aspect-[5/3] overflow-hidden rounded-xl bg-rosa-50/40">
                       <BlockIllustration type={bt.type} />
@@ -97,13 +97,13 @@ export default function BlockPickerDialog({ open, context, onClose, onInsertBloc
                     <button
                       key={p.id}
                       onClick={() => setSelectedPreset(p)}
-                      className={`rounded-2xl border p-3 text-left transition ${selectedPreset?.id === p.id ? "border-rosa-400 bg-rosa-50" : "border-ink-line hover:border-rosa-300"}`}
+                      className={`rounded-2xl border p-3 text-left transition ${selectedPreset?.id === p.id ? "border-rosa-400 bg-rosa-50 dark:bg-rosa-500/15" : "border-ink-line hover:border-rosa-300"}`}
                     >
                       <div className="mb-2 aspect-[5/3] overflow-hidden rounded-xl bg-rosa-50/40">
                         <BlockIllustration type={p.type} />
                       </div>
                       <div className="text-sm font-semibold text-ink">{p.name}</div>
-                      <div className="text-[10px] uppercase tracking-wide text-rosa-600">{p.type}</div>
+                      <div className="text-[10px] uppercase tracking-wide text-rosa-600 dark:text-rosa-300">{p.type}</div>
                     </button>
                   ))}
                 </div>
