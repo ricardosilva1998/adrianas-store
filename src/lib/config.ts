@@ -1,8 +1,10 @@
 import { z } from "zod";
-import { db, schema } from "../db/client";
-import { eq } from "drizzle-orm";
 import { FONT_NAMES } from "./fonts";
 import { deriveScale, isValidHex, SHADE_KEYS } from "./theme-colors";
+
+// This module is pure: no DB, no server-only imports. Safe to import from
+// React islands and client-side bundles. Server-only helpers (DB loader,
+// cache) live in `./config-server.ts`.
 
 // ---------- Zod schemas ----------
 
@@ -150,63 +152,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   },
 };
 
-// ---------- In-process cache ----------
-
-type CacheEntry = { value: SiteConfig; at: number };
-const CACHE_TTL_MS = 5 * 60 * 1000;
-let cache: CacheEntry | null = null;
-
-export function invalidateSiteConfigCache(): void {
-  cache = null;
-}
-
-async function readFromDb(): Promise<SiteConfig> {
-  const rows = await db
-    .select()
-    .from(schema.siteConfig)
-    .where(eq(schema.siteConfig.id, 1))
-    .limit(1);
-
-  if (rows.length === 0) {
-    console.warn("[site-config] no row found, returning DEFAULT_SITE_CONFIG");
-    return DEFAULT_SITE_CONFIG;
-  }
-
-  const parsed = siteConfigSchema.safeParse({
-    theme: rows[0].theme,
-    globals: rows[0].globals,
-  });
-  if (!parsed.success) {
-    console.error("[site-config] DB row failed schema validation:", parsed.error);
-    return DEFAULT_SITE_CONFIG;
-  }
-  return parsed.data;
-}
-
-/**
- * Loads the site config. If `previewConfig` is supplied (from middleware
- * when `?preview=<token>` is present + admin is authenticated), returns
- * the preview config directly and bypasses the cache.
- */
-export async function getSiteConfig(previewConfig?: SiteConfig): Promise<SiteConfig> {
-  if (previewConfig) return previewConfig;
-
-  const now = Date.now();
-  if (cache && now - cache.at < CACHE_TTL_MS) {
-    return cache.value;
-  }
-
-  try {
-    const value = await readFromDb();
-    cache = { value, at: now };
-    return value;
-  } catch (err) {
-    console.error("[site-config] DB read failed, falling back to default:", err);
-    return DEFAULT_SITE_CONFIG;
-  }
-}
-
-// ---------- CSS + fonts renderers ----------
+// ---------- CSS + fonts renderers (pure) ----------
 
 /**
  * Generates a CSS string that overrides the Tailwind @theme variables

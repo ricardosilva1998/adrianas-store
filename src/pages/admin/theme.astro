@@ -1,7 +1,7 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
 import ThemeEditor from "../../components/admin/ThemeEditor.tsx";
-import { getSiteConfig } from "../../lib/config";
+import { getSiteConfig } from "../../lib/config-server";
 
 const user = Astro.locals.user;
 if (!user) return Astro.redirect("/admin/login");

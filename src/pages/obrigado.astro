@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getSiteConfig } from "../lib/config";
+import { getSiteConfig } from "../lib/config-server";
 
 const config = await getSiteConfig(Astro.locals.previewConfig);
 const { identity, payments } = config.globals;

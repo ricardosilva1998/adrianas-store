@@ -1,11 +1,8 @@
 import type { APIRoute } from "astro";
 import { eq } from "drizzle-orm";
 import { db, schema } from "../../../db/client";
-import {
-  getSiteConfig,
-  invalidateSiteConfigCache,
-  siteConfigSchema,
-} from "../../../lib/config";
+import { siteConfigSchema } from "../../../lib/config";
+import { getSiteConfig, invalidateSiteConfigCache } from "../../../lib/config-server";
 
 export const GET: APIRoute = async () => {
   const config = await getSiteConfig();
