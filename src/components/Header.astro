@@ -1,20 +1,44 @@
 ---
 import CartIcon from "./islands/CartIcon.tsx";
-import { navLinks, site } from "../lib/site";
+import type { SiteConfig } from "../lib/config";
+
+interface Props {
+  config: SiteConfig;
+}
+
+const { config } = Astro.props;
+const { identity, nav, banner } = config.globals;
+const { logo } = config.theme;
 
 const currentPath = Astro.url.pathname;
 const isActive = (href: string) =>
   href === "/" ? currentPath === "/" : currentPath.startsWith(href);
+
+const bannerBg = banner.bgColor === "rosa" ? "bg-rosa-400 text-white" : "bg-ink text-white";
 ---
+
+{banner.enabled && banner.text && (
+  <div class={`${bannerBg} text-center text-xs font-medium px-4 py-2`}>
+    {banner.linkUrl ? (
+      <a href={banner.linkUrl} class="underline underline-offset-2">{banner.text}</a>
+    ) : (
+      <span>{banner.text}</span>
+    )}
+  </div>
+)}
 
 <header class="sticky top-0 z-40 border-b border-ink-line bg-white/95 backdrop-blur">
   <div class="section flex h-20 items-center justify-between gap-6">
-    <a href="/" class="flex items-center gap-3" aria-label={site.name}>
-      <img src="/logo.svg" alt={site.name} class="h-10 w-auto" />
+    <a href="/" class="flex items-center gap-3" aria-label={identity.name}>
+      {logo.url ? (
+        <img src={logo.url} alt={logo.alt} class="h-10 w-auto" />
+      ) : (
+        <span class="text-xl font-semibold tracking-tight text-ink">{identity.name}</span>
+      )}
     </a>
 
     <nav class="hidden items-center gap-1 md:flex" aria-label="Navegação principal">
-      {navLinks.map((link) => (
+      {nav.map((link) => (
         <a
           href={link.href}
           class={`rounded-full px-4 py-2 text-sm font-medium transition ${
@@ -41,7 +65,7 @@ const isActive = (href: string) =>
 
   <div class="md:hidden">
     <nav class="section flex items-center gap-1 overflow-x-auto pb-3 pt-1" aria-label="Navegação mobile">
-      {navLinks.map((link) => (
+      {nav.map((link) => (
         <a
           href={link.href}
           class={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${

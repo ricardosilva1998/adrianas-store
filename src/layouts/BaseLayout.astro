@@ -2,15 +2,22 @@
 import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import { site } from "../lib/site";
+import { getSiteConfig, renderThemeCSS, renderGoogleFontsHref } from "../lib/config";
 
 interface Props {
   title?: string;
   description?: string;
 }
 
-const { title, description = site.description } = Astro.props;
-const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
+const config = await getSiteConfig(Astro.locals.previewConfig);
+const { identity } = config.globals;
+
+const { title, description = identity.description } = Astro.props;
+const pageTitle = title ? `${title} — ${identity.name}` : `${identity.name} — ${identity.tagline}`;
+
+const themeCSS = renderThemeCSS(config.theme);
+const fontsHref = renderGoogleFontsHref(config.theme.fonts);
+const isPreview = Astro.url.searchParams.has("preview");
 ---
 
 <!doctype html>
@@ -22,30 +29,52 @@ const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#F691B4" />
+    <meta name="theme-color" content={config.theme.colors.primary} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com"
-    />
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href={fontsHref} rel="stylesheet" />
+    <style set:html={themeCSS}></style>
     <title>{pageTitle}</title>
   </head>
   <body class="flex min-h-dvh flex-col bg-white text-ink antialiased">
-    <Header />
+    <Header config={config} />
     <main class="flex-1">
       <slot />
     </main>
-    <Footer />
+    <Footer config={config} />
+
+    {isPreview && (
+      <script is:inline>
+        // Live preview listener: parent admin editor can postMessage CSS/font
+        // updates so color changes feel instant without iframe reload.
+        window.addEventListener("message", (ev) => {
+          if (!ev.data || ev.data.kind !== "preview-theme-css") return;
+          const style = document.getElementById("preview-theme-css") ||
+            (() => {
+              const s = document.createElement("style");
+              s.id = "preview-theme-css";
+              document.head.appendChild(s);
+              return s;
+            })();
+          style.textContent = ev.data.css;
+
+          if (ev.data.fontsHref) {
+            const link = document.getElementById("preview-fonts-link");
+            if (link) {
+              link.setAttribute("href", ev.data.fontsHref);
+            } else {
+              const l = document.createElement("link");
+              l.id = "preview-fonts-link";
+              l.rel = "stylesheet";
+              l.href = ev.data.fontsHref;
+              document.head.appendChild(l);
+            }
+          }
+        });
+      </script>
+    )}
   </body>
 </html>

@@ -1,6 +1,9 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { paymentMethods, site } from "../lib/site";
+import { getSiteConfig } from "../lib/config";
+
+const config = await getSiteConfig(Astro.locals.previewConfig);
+const { identity, payments } = config.globals;
 
 const url = new URL(Astro.request.url);
 const orderNumber = url.searchParams.get("num");
@@ -24,7 +27,7 @@ const orderNumber = url.searchParams.get("num");
         <p class="mt-3 text-sm leading-relaxed text-ink-soft sm:text-base">
           Recebemos a tua encomenda e vamos responder-te por email nas próximas horas para
           confirmar os detalhes. Se não receberes nada em 24 horas, verifica a pasta de spam
-          ou contacta-nos em <a class="text-rosa-500 underline" href={`mailto:${site.email}`}>{site.email}</a>.
+          ou contacta-nos em <a class="text-rosa-500 underline" href={`mailto:${identity.email}`}>{identity.email}</a>.
         </p>
       </div>
 
@@ -36,7 +39,7 @@ const orderNumber = url.searchParams.get("num");
         </p>
 
         <div class="mt-6 grid gap-4">
-          {paymentMethods.map((m) => (
+          {payments.map((m) => (
             <details class="rounded-3xl border border-ink-line bg-white p-6" open={m.id === "mbway"}>
               <summary class="flex cursor-pointer items-center justify-between text-left text-lg font-semibold text-ink">
                 {m.label}
@@ -55,8 +58,8 @@ const orderNumber = url.searchParams.get("num");
         <ul class="mt-2 space-y-1 text-xs">
           <li>• Efetua o pagamento com o método escolhido</li>
           <li>• Envia-nos o comprovativo por email (transferência) ou aguarda confirmação automática (MB Way/PayPal)</li>
-          <li>• Preparamos a tua encomenda em {site.preparationDays}</li>
-          <li>• Recebes o código de tracking {site.shippingProvider} por email assim que a encomenda sair do atelier</li>
+          <li>• Preparamos a tua encomenda em {identity.preparationDays}</li>
+          <li>• Recebes o código de tracking {identity.shippingProvider} por email assim que a encomenda sair do atelier</li>
         </ul>
       </div>
 
