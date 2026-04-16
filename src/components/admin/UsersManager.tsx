@@ -84,7 +84,7 @@ export default function UsersManager({ users: initial, currentUserId }: Props) {
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase ${
                       u.role === "admin"
-                        ? "bg-rosa-100 text-rosa-500"
+                        ? "bg-rosa-100 text-rosa-500 dark:bg-rosa-500/15 dark:text-rosa-200"
                         : "bg-blue-100 text-blue-600"
                     }`}
                   >
@@ -148,7 +148,7 @@ export default function UsersManager({ users: initial, currentUserId }: Props) {
           </div>
 
           {error && (
-            <div className="rounded-2xl border border-rosa-300 bg-rosa-50 p-3 text-xs text-rosa-700">
+            <div className="rounded-2xl border border-rosa-300 bg-rosa-50 p-3 text-xs text-rosa-700 dark:bg-rosa-500/15 dark:text-rosa-200">
               {error}
             </div>
           )}

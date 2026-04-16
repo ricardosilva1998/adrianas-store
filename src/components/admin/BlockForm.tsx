@@ -175,7 +175,7 @@ function CategoryGridForm({ data, onChange }: { data: any; onChange: (d: any) =>
               key={c.value}
               className={`cursor-pointer rounded-full border px-3 py-1.5 text-xs font-medium transition ${
                 (data.categories ?? []).includes(c.value)
-                  ? "border-rosa-300 bg-rosa-100 text-rosa-600"
+                  ? "border-rosa-300 bg-rosa-100 text-rosa-600 dark:bg-rosa-500/15 dark:text-rosa-200"
                   : "border-ink-line bg-surface text-ink-muted hover:border-rosa-200"
               }`}
             >
@@ -284,7 +284,7 @@ function CtaBannerForm({ data, onChange }: { data: any; onChange: (d: any) => vo
               key={color}
               className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
                 data.bgColor === color
-                  ? "border-rosa-300 bg-rosa-100 text-rosa-600"
+                  ? "border-rosa-300 bg-rosa-100 text-rosa-600 dark:bg-rosa-500/15 dark:text-rosa-200"
                   : "border-ink-line bg-surface text-ink-muted"
               }`}
             >
@@ -485,7 +485,7 @@ function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) 
               key={layout}
               className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
                 data.layout === layout
-                  ? "border-rosa-300 bg-rosa-100 text-rosa-600"
+                  ? "border-rosa-300 bg-rosa-100 text-rosa-600 dark:bg-rosa-500/15 dark:text-rosa-200"
                   : "border-ink-line bg-surface text-ink-muted"
               }`}
             >
@@ -558,7 +558,7 @@ function DividerForm({ data, onChange }: { data: any; onChange: (d: any) => void
               key={value}
               className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
                 data.style === value
-                  ? "border-rosa-300 bg-rosa-100 text-rosa-600"
+                  ? "border-rosa-300 bg-rosa-100 text-rosa-600 dark:bg-rosa-500/15 dark:text-rosa-200"
                   : "border-ink-line bg-surface text-ink-muted"
               }`}
             >
@@ -587,7 +587,7 @@ function DividerForm({ data, onChange }: { data: any; onChange: (d: any) => void
               key={value}
               className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
                 data.spacing === value
-                  ? "border-rosa-300 bg-rosa-100 text-rosa-600"
+                  ? "border-rosa-300 bg-rosa-100 text-rosa-600 dark:bg-rosa-500/15 dark:text-rosa-200"
                   : "border-ink-line bg-surface text-ink-muted"
               }`}
             >
@@ -730,7 +730,7 @@ function CatalogGridBoundForm({ data, onChange }: { data: any; onChange: (d: any
               type="button"
               onClick={() => onChange({ columns: c })}
               className={`flex-1 rounded-lg border px-3 py-2 text-xs ${
-                data.columns === c ? "border-rosa-400 bg-rosa-50 text-rosa-600" : "border-ink-line text-ink-soft"
+                data.columns === c ? "border-rosa-400 bg-rosa-50 text-rosa-600 dark:bg-rosa-500/15 dark:text-rosa-200" : "border-ink-line text-ink-soft"
               }`}
             >
               {c} col

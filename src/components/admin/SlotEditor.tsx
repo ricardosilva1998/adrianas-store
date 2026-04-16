@@ -76,7 +76,7 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
         </p>
         <h2 className="mt-1 text-lg font-semibold text-ink">{label}</h2>
         <p className="mt-1 text-xs text-ink-muted">
-          Identificador: <code className="rounded bg-rosa-50 px-1">{name}</code>
+          Identificador: <code className="rounded bg-rosa-50 px-1 dark:bg-rosa-500/15 dark:text-rosa-200">{name}</code>
         </p>
       </div>
 
@@ -90,7 +90,7 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
               }
             >
               <div className="flex items-center gap-3">
-                <span className="rounded-full bg-rosa-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-rosa-600">
+                <span className="rounded-full bg-rosa-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-rosa-600 dark:bg-rosa-500/15 dark:text-rosa-200">
                   {blockLabel(block.type)}
                 </span>
                 <span className="text-xs text-ink-muted">
