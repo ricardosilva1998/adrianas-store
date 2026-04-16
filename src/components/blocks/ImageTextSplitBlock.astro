@@ -7,65 +7,126 @@ interface Props {
     imageAlt: string;
     title: string;
     markdown: string;
-    layout: "image-left" | "image-right";
+    layout: "image-left" | "image-right" | "image-top" | "image-bottom";
+    imageAspect?: "square" | "landscape" | "portrait";
   };
 }
 
 const { data } = Astro.props;
 const html = data.markdown ? (marked.parse(data.markdown, { async: false }) as string) : "";
-const imageFirst = data.layout !== "image-right";
+const isStacked = data.layout === "image-top" || data.layout === "image-bottom";
+const imageFirst = data.layout !== "image-right" && data.layout !== "image-bottom";
+
+const aspectClass =
+  data.imageAspect === "square"
+    ? "aspect-square"
+    : data.imageAspect === "portrait"
+      ? "aspect-[3/4]"
+      : "aspect-[4/3]";
 ---
 
 <section class="py-16">
   <div class="section">
-    <div class={`grid items-center gap-10 md:grid-cols-2`}>
-      {imageFirst ? (
-        <>
-          {data.imageUrl && (
-            <div class="overflow-hidden rounded-3xl">
-              <img
-                src={data.imageUrl}
-                alt={data.imageAlt || data.title}
-                class="h-full w-full object-cover"
-              />
+    {isStacked ? (
+      <div class="flex flex-col gap-10">
+        {data.layout === "image-top" ? (
+          <>
+            {data.imageUrl && (
+              <div class={`w-full overflow-hidden rounded-3xl ${aspectClass}`}>
+                <img
+                  src={data.imageUrl}
+                  alt={data.imageAlt || data.title}
+                  class="h-full w-full object-cover"
+                />
+              </div>
+            )}
+            <div>
+              {data.title && (
+                <h2 class="text-2xl font-semibold text-ink sm:text-3xl">{data.title}</h2>
+              )}
+              {html && (
+                <article
+                  class="prose prose-sm mt-4 max-w-none text-ink-soft sm:prose-base"
+                  set:html={html}
+                />
+              )}
             </div>
-          )}
-          <div>
-            {data.title && (
-              <h2 class="text-2xl font-semibold text-ink sm:text-3xl">{data.title}</h2>
-            )}
-            {html && (
-              <article
-                class="prose prose-sm mt-4 max-w-none text-ink-soft sm:prose-base"
-                set:html={html}
-              />
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          <div>
-            {data.title && (
-              <h2 class="text-2xl font-semibold text-ink sm:text-3xl">{data.title}</h2>
-            )}
-            {html && (
-              <article
-                class="prose prose-sm mt-4 max-w-none text-ink-soft sm:prose-base"
-                set:html={html}
-              />
-            )}
-          </div>
-          {data.imageUrl && (
-            <div class="overflow-hidden rounded-3xl">
-              <img
-                src={data.imageUrl}
-                alt={data.imageAlt || data.title}
-                class="h-full w-full object-cover"
-              />
+          </>
+        ) : (
+          <>
+            <div>
+              {data.title && (
+                <h2 class="text-2xl font-semibold text-ink sm:text-3xl">{data.title}</h2>
+              )}
+              {html && (
+                <article
+                  class="prose prose-sm mt-4 max-w-none text-ink-soft sm:prose-base"
+                  set:html={html}
+                />
+              )}
             </div>
-          )}
-        </>
-      )}
-    </div>
+            {data.imageUrl && (
+              <div class={`w-full overflow-hidden rounded-3xl ${aspectClass}`}>
+                <img
+                  src={data.imageUrl}
+                  alt={data.imageAlt || data.title}
+                  class="h-full w-full object-cover"
+                />
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    ) : (
+      <div class="grid items-center gap-10 md:grid-cols-2">
+        {imageFirst ? (
+          <>
+            {data.imageUrl && (
+              <div class={`overflow-hidden rounded-3xl ${aspectClass}`}>
+                <img
+                  src={data.imageUrl}
+                  alt={data.imageAlt || data.title}
+                  class="h-full w-full object-cover"
+                />
+              </div>
+            )}
+            <div>
+              {data.title && (
+                <h2 class="text-2xl font-semibold text-ink sm:text-3xl">{data.title}</h2>
+              )}
+              {html && (
+                <article
+                  class="prose prose-sm mt-4 max-w-none text-ink-soft sm:prose-base"
+                  set:html={html}
+                />
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              {data.title && (
+                <h2 class="text-2xl font-semibold text-ink sm:text-3xl">{data.title}</h2>
+              )}
+              {html && (
+                <article
+                  class="prose prose-sm mt-4 max-w-none text-ink-soft sm:prose-base"
+                  set:html={html}
+                />
+              )}
+            </div>
+            {data.imageUrl && (
+              <div class={`overflow-hidden rounded-3xl ${aspectClass}`}>
+                <img
+                  src={data.imageUrl}
+                  alt={data.imageAlt || data.title}
+                  class="h-full w-full object-cover"
+                />
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    )}
   </div>
 </section>

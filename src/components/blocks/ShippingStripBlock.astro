@@ -1,0 +1,37 @@
+---
+import Icon from "./Icon.astro";
+import type { IconName } from "./Icon.astro";
+
+interface Props {
+  data: {
+    items: Array<{ icon: IconName; title: string; subtitle?: string }>;
+  };
+}
+
+const { data } = Astro.props;
+const cols = Math.min(Math.max(data.items.length, 1), 4);
+const desktopColsClass =
+  cols === 1
+    ? "md:grid-cols-1"
+    : cols === 2
+      ? "md:grid-cols-2"
+      : cols === 3
+        ? "md:grid-cols-3"
+        : "md:grid-cols-4";
+---
+
+<section class="section py-8">
+  <div class={`grid grid-cols-2 gap-6 ${desktopColsClass}`}>
+    {data.items.map((item) => (
+      <div class="flex items-center gap-3">
+        <Icon name={item.icon} class="h-6 w-6 shrink-0 text-rosa-500" />
+        <div>
+          <p class="text-sm font-semibold text-ink">{item.title}</p>
+          {item.subtitle && (
+            <p class="text-xs text-ink-muted">{item.subtitle}</p>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
