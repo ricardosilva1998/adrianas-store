@@ -146,6 +146,33 @@ export const getPage = async (slug: string) => {
   return page ?? null;
 };
 
+export const getPublishedPage = async (slug: string) => {
+  const [page] = await db
+    .select()
+    .from(schema.pages)
+    .where(and(eq(schema.pages.slug, slug), eq(schema.pages.published, true)))
+    .limit(1);
+  return page ?? null;
+};
+
+export const getProductsByCategory = async (
+  category: string,
+  limit = 8,
+): Promise<ProductWithExtras[]> => {
+  const rows = await db
+    .select()
+    .from(schema.products)
+    .where(
+      and(
+        eq(schema.products.category, category as ProductCategorySlug),
+        eq(schema.products.active, true),
+      ),
+    )
+    .orderBy(asc(schema.products.sortOrder))
+    .limit(limit);
+  return attachExtras(rows);
+};
+
 export const isAvailable = (p: ProductWithExtras): boolean =>
   p.active && (p.unlimitedStock || p.stock > 0);
 
