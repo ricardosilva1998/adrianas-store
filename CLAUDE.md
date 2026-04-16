@@ -27,9 +27,11 @@ No test framework is configured.
 
 **Astro SSR + React Islands**: Pages are Astro components with server-side rendering. Interactive UI (cart, checkout, personalization modal) uses React islands hydrated client-side via `client:load`/`client:only`. Non-interactive pages stay as Astro components.
 
-**Routing**: File-based via Astro. Pages live in `src/pages/`, API routes in `src/pages/api/`. Admin routes (`/admin/*`, `/api/admin/*`) are JWT-protected via Astro middleware (`src/middleware.ts`).
+**Routing**: File-based via Astro. API routes in `src/pages/api/`. Admin routes (`/admin/*`, `/api/admin/*`) are JWT-protected via Astro middleware (`src/middleware.ts`). Storefront CMS pages use a catch-all route `src/pages/[...slug].astro` that fetches pages from the database by slug (empty slug = "home"). Reserved routes (`catalogo`, `carrinho`, `checkout`, `obrigado`, `admin`, `api`) are excluded from the catch-all.
 
 **Database**: PostgreSQL with Drizzle ORM. Schema defined in `src/db/schema.ts` (8 tables, 4 enums). Connection in `src/db/client.ts`. Order creation uses transactions. Migrations auto-run on container startup.
+
+**Block-based CMS**: All pages (homepage, institutional, custom) use a block editor. Blocks are stored as a JSONB array on the `pages` table. 8 block types: hero, text, product-grid, category-grid, image-gallery, cta-banner, faq, contact-info. Block type definitions, Zod schemas, and factories in `src/lib/blocks.ts`. Admin block editor in `src/components/admin/BlockEditor.tsx`. Storefront block renderers in `src/components/blocks/`.
 
 **Auth**: JWT tokens in HTTP-only cookies (7-day TTL), bcrypt password hashing. Two roles: `admin` (full access) and `editor` (limited). Public routes: `/admin/login` and `/api/admin/login`.
 
@@ -43,15 +45,16 @@ No test framework is configured.
 ## Key Directories
 
 - `src/components/islands/` — React islands (Cart, Checkout, PersonalizeModal)
-- `src/components/admin/` — Admin dashboard React components
-- `src/lib/` — Business logic: auth, queries, orders, email, R2 uploads, site config
+- `src/components/admin/` — Admin dashboard React components (BlockEditor, ProductForm, etc.)
+- `src/components/blocks/` — Storefront block renderer Astro components (HeroBlock, TextBlock, etc.)
+- `src/lib/` — Business logic: auth, queries, orders, email, R2 uploads, site config, block types
 - `src/db/` — Drizzle schema, client, migrations
 
 ## Conventions
 
 - **Language**: UI text and content are in Portuguese (pt-PT)
 - **Styling**: Tailwind CSS with custom `rosa` (pink) and `ink` (dark) color palettes. Utility classes: `.btn-primary`, `.btn-secondary`, `.card`, `.field-label`, `.field-input`, `.pill`
-- **Validation**: Zod schemas on API endpoints (orders, products, checkout)
+- **Validation**: Zod schemas on API endpoints (orders, products, checkout, page blocks)
 - **Order flow**: `new → paid → preparing → shipped → delivered` (or `cancelled`). All transitions logged in `order_events` audit trail
 - **Products**: Support optional personalization (phrase + color choices), stored as JSONB in order items
 - **Node version**: >= 22.12.0
