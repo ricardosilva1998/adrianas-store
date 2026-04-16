@@ -1,0 +1,24 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import BlockEditor from "../../../components/admin/BlockEditor.tsx";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+---
+
+<AdminLayout title="Nova Pagina" user={user}>
+  <div class="mb-6">
+    <a href="/admin/pages" class="text-xs text-ink-muted hover:text-rosa-500">
+      ← Todas as paginas
+    </a>
+  </div>
+
+  <BlockEditor
+    client:load
+    slug=""
+    title=""
+    blocks={[]}
+    published={false}
+    mode="create"
+  />
+</AdminLayout>

@@ -1,6 +1,6 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import PageEditor from "../../../components/admin/PageEditor.tsx";
+import BlockEditor from "../../../components/admin/BlockEditor.tsx";
 import { getPage } from "../../../lib/queries";
 
 const user = Astro.locals.user;
@@ -11,17 +11,19 @@ if (!slug) return Astro.redirect("/admin/pages");
 
 const page = await getPage(slug);
 if (!page) {
-  return new Response("Página não encontrada", { status: 404 });
+  return new Response("Pagina nao encontrada", { status: 404 });
 }
+
+const blocks = (page.blocks ?? []) as any[];
 ---
 
 <AdminLayout title={`Editar: ${page.title}`} user={user}>
   <div class="mb-6 flex items-center justify-between">
     <a href="/admin/pages" class="text-xs text-ink-muted hover:text-rosa-500">
-      ← Todas as páginas
+      ← Todas as paginas
     </a>
     <a
-      href={`/${slug}`}
+      href={`/${slug === "home" ? "" : slug}`}
       target="_blank"
       rel="noopener"
       class="text-xs text-ink-muted hover:text-rosa-500"
@@ -30,5 +32,12 @@ if (!page) {
     </a>
   </div>
 
-  <PageEditor client:load slug={slug} title={page.title} body={page.body} />
+  <BlockEditor
+    client:load
+    slug={slug}
+    title={page.title}
+    blocks={blocks}
+    published={page.published}
+    mode="edit"
+  />
 </AdminLayout>

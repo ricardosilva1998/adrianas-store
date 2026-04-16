@@ -8,10 +8,13 @@ if (!user) return Astro.redirect("/admin/login");
 const allPages = await db.select().from(schema.pages);
 ---
 
-<AdminLayout title="Páginas" user={user}>
-  <p class="text-sm text-ink-soft">
-    Edita o conteúdo das páginas institucionais (Sobre Nós, Como Encomendar, T&C).
-  </p>
+<AdminLayout title="Paginas" user={user}>
+  <div class="flex items-center justify-between">
+    <p class="text-sm text-ink-soft">
+      Gere as paginas do site. Adiciona blocos, edita conteudo, publica ou despublica.
+    </p>
+    <a href="/admin/pages/new" class="btn-primary">+ Nova pagina</a>
+  </div>
 
   <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
     {allPages.map((p) => (
@@ -19,14 +22,19 @@ const allPages = await db.select().from(schema.pages);
         href={`/admin/pages/${p.slug}`}
         class="group rounded-3xl border border-ink-line bg-white p-6 transition hover:-translate-y-0.5 hover:border-rosa-300"
       >
-        <span class="text-[10px] font-semibold uppercase tracking-wide text-rosa-500">
-          /{p.slug}
-        </span>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-semibold uppercase tracking-wide text-rosa-500">
+            /{p.slug}
+          </span>
+          <span class={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${p.published ? "bg-emerald-100 text-emerald-700" : "bg-ink-line text-ink-muted"}`}>
+            {p.published ? "Publicado" : "Rascunho"}
+          </span>
+        </div>
         <h3 class="mt-2 text-lg font-semibold text-ink group-hover:text-rosa-500">
           {p.title}
         </h3>
         <p class="mt-2 text-xs text-ink-muted">
-          Última edição: {new Date(p.updatedAt).toLocaleDateString("pt-PT")}
+          {(p.blocks as any[])?.length ?? 0} blocos · Ultima edicao: {new Date(p.updatedAt).toLocaleDateString("pt-PT")}
         </p>
       </a>
     ))}
