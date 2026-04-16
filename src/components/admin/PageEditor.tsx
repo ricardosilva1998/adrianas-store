@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import type { Block, BlockType } from "../../lib/blocks";
-import { createBlock } from "../../lib/blocks";
+import { createBlock, instantiatePreset } from "../../lib/blocks";
 import PagePreviewShell, { PreviewIframeContext } from "./PagePreviewShell";
 import BlockCard from "./BlockCard";
 import BlockPickerDialog from "./BlockPickerDialog";
@@ -94,7 +94,7 @@ function PageEditorContent({
           setShowPicker(false);
         }}
         onInsertPreset={async (preset) => {
-          const block = { id: crypto.randomUUID().slice(0, 10), type: preset.type, data: preset.data } as any;
+          const block = instantiatePreset(preset);
           setBlocks((prev) => [...prev, block]);
           setExpanded(block.id);
           await fetch(`/api/admin/pages/${slug}/blocks`, {

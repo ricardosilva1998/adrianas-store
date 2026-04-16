@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Block, BlockType } from "../../lib/blocks";
-import { BLOCK_TYPES, createBlock } from "../../lib/blocks";
+import { BLOCK_TYPES, createBlock, instantiatePreset } from "../../lib/blocks";
 import BlockPickerDialog from "./BlockPickerDialog";
 
 interface Props {
@@ -144,7 +144,7 @@ export default function SlotEditor({ name, label, page, blocks: initialBlocks }:
         onClose={() => setShowPicker(false)}
         onInsertBlockType={(type) => { addBlock(type); setShowPicker(false); }}
         onInsertPreset={(preset) => {
-          const block = { id: crypto.randomUUID().slice(0, 10), type: preset.type, data: preset.data } as any;
+          const block = instantiatePreset(preset);
           setBlocks((prev) => [...prev, block]);
           setShowPicker(false);
         }}
