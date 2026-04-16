@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Block, BlockType } from "../../lib/blocks";
 import { blocksAllowedIn, createBlock, instantiatePreset } from "../../lib/blocks";
+import BlockForm from "./BlockForm";
 import BlockPickerDialog from "./BlockPickerDialog";
 
 interface Props {
@@ -157,7 +158,7 @@ export default function TemplateEditor({
             </div>
             {expandedBlock === block.id && (
               <div className="border-t border-ink-line px-6 py-5">
-                <InlineBlockForm block={block} onChange={(data) => updateBlock(block.id, data)} />
+                <BlockForm block={block} onChange={(data) => updateBlock(block.id, data)} />
               </div>
             )}
           </div>
@@ -198,29 +199,6 @@ export default function TemplateEditor({
           {saving ? "A guardar..." : "Guardar"}
         </button>
       </div>
-    </div>
-  );
-}
-
-function InlineBlockForm({ block, onChange }: { block: Block; onChange: (data: any) => void }) {
-  return (
-    <div>
-      <p className="mb-2 text-xs text-ink-muted">
-        Tipo: <strong>{block.type}</strong>. Edita os campos JSON abaixo (cuidado com a sintaxe).
-      </p>
-      <textarea
-        value={JSON.stringify(block.data, null, 2)}
-        onChange={(e) => {
-          try {
-            const parsed = JSON.parse(e.target.value);
-            onChange(parsed);
-          } catch {
-            // ignore invalid JSON; admin is mid-typing
-          }
-        }}
-        rows={10}
-        className="w-full resize-y rounded-xl border border-ink-line bg-surface p-4 font-mono text-xs leading-relaxed"
-      />
     </div>
   );
 }
