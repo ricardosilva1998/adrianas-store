@@ -126,6 +126,22 @@ export const pages = pgTable("pages", {
     .defaultNow(),
 });
 
+export const siteConfig = pgTable(
+  "site_config",
+  {
+    id: integer("id").primaryKey().default(1),
+    theme: jsonb("theme").notNull(),
+    globals: jsonb("globals").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    // Singleton: only id=1 is allowed.
+    // Drizzle doesn't model CHECK constraints directly — we add it in the generated SQL.
+  ],
+);
+
 export const orders = pgTable(
   "orders",
   {
@@ -252,6 +268,7 @@ export type Product = typeof products.$inferSelect;
 export type ProductImage = typeof productImages.$inferSelect;
 export type ProductColor = typeof productColors.$inferSelect;
 export type Page = typeof pages.$inferSelect;
+export type SiteConfigRow = typeof siteConfig.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type OrderEvent = typeof orderEvents.$inferSelect;
