@@ -7,7 +7,7 @@ import type { Block } from "../../lib/blocks";
 const hero: Block = {
   id: "h1",
   type: "hero",
-  data: { title: "Olá", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "" },
+  data: { title: "Olá", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", layout: "image-right" as const },
 };
 
 describe("PageEditor", () => {

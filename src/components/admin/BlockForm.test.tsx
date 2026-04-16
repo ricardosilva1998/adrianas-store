@@ -11,7 +11,7 @@ describe("BlockForm(hero)", () => {
     const block: Block = {
       id: "a",
       type: "hero",
-      data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "" },
+      data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", layout: "image-right" as const },
     };
     render(<BlockForm block={block} onChange={onChange} />);
     const titleInput = screen.getAllByRole("textbox")[0];
