@@ -33,6 +33,8 @@ No test framework is configured.
 
 **Block-based CMS**: All pages (homepage, institutional, custom) use a block editor. Blocks are stored as a JSONB array on the `pages` table. 8 block types: hero, text, product-grid, category-grid, image-gallery, cta-banner, faq, contact-info. Block type definitions, Zod schemas, and factories in `src/lib/blocks.ts`. Admin block editor in `src/components/admin/BlockEditor.tsx`. Storefront block renderers in `src/components/blocks/`.
 
+**Site config (theme + globals)**: A singleton row in the `site_config` table stores the live `theme` (colors, fonts, logo, radius) and `globals` (nav, footer, banner, identity, payments). Storefront SSR reads it via `getSiteConfig()` in `src/lib/config.ts` (5-min in-process cache, invalidated on save). Tailwind v4's `@theme` CSS variables are overridden at runtime by a `<style>` block injected in `BaseLayout.astro`. Admin editors at `/admin/theme` and `/admin/globals` use a shared `PreviewShell` with an iframe + preview token (`?preview=<token>`) honoured by the middleware for logged-in admins. Phase 1 roadmap in `docs/superpowers/specs/2026-04-16-low-code-admin-builder-design.md`.
+
 **Auth**: JWT tokens in HTTP-only cookies (7-day TTL), bcrypt password hashing. Two roles: `admin` (full access) and `editor` (limited). Public routes: `/admin/login` and `/api/admin/login`.
 
 **Client state**: Nanostores with persistent localStorage (`adriana-cart` key) for the shopping cart. No server-side cache layer.
@@ -45,9 +47,13 @@ No test framework is configured.
 ## Key Directories
 
 - `src/components/islands/` — React islands (Cart, Checkout, PersonalizeModal)
-- `src/components/admin/` — Admin dashboard React components (BlockEditor, ProductForm, etc.)
+- `src/components/admin/` — Admin dashboard React components (BlockEditor, ProductForm, ThemeEditor, GlobalsEditor, PreviewShell, DragList, ColorPicker, FontPicker, etc.)
 - `src/components/blocks/` — Storefront block renderer Astro components (HeroBlock, TextBlock, etc.)
-- `src/lib/` — Business logic: auth, queries, orders, email, R2 uploads, site config, block types
+- `src/lib/config.ts` — site config types, Zod schemas, loader, theme CSS renderer
+- `src/lib/theme-colors.ts` — hex → 50/.../700 shade derivation
+- `src/lib/fonts.ts` — curated Google Fonts list
+- `src/lib/preview-store.ts` — in-memory preview token map
+- `src/lib/` — Business logic: auth, queries, orders, email, R2 uploads, block types
 - `src/db/` — Drizzle schema, client, migrations
 
 ## Conventions
@@ -57,4 +63,5 @@ No test framework is configured.
 - **Validation**: Zod schemas on API endpoints (orders, products, checkout, page blocks)
 - **Order flow**: `new → paid → preparing → shipped → delivered` (or `cancelled`). All transitions logged in `order_events` audit trail
 - **Products**: Support optional personalization (phrase + color choices), stored as JSONB in order items
+- **Site identity / theme**: edited in-admin via `/admin/theme` and `/admin/globals`. Do NOT add hardcoded nav/footer/identity strings — they belong in `site_config.globals`. `src/lib/site.ts` keeps only the category enum and `formatEuro`.
 - **Node version**: >= 22.12.0
