@@ -162,6 +162,19 @@ export const slots = pgTable("slots", {
 
 export type SlotRow = typeof slots.$inferSelect;
 
+export const mediaLibrary = pgTable("media_library", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull(),
+  alt: text("alt").notNull().default(""),
+  tags: text("tags").notNull().default(""),
+  isPlaceholder: boolean("is_placeholder").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type MediaRow = typeof mediaLibrary.$inferSelect;
+
 export const siteConfig = pgTable(
   "site_config",
   {

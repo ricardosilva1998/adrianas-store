@@ -43,6 +43,13 @@
       "when": 1776360941402,
       "tag": "0005_late_kingpin",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776362172170,
+      "tag": "0006_little_paper_doll",
+      "breakpoints": true
     }
   ]
 }

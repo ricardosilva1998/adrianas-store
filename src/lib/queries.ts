@@ -221,6 +221,13 @@ export const listSlots = async () => {
   return db.select().from(schema.slots).orderBy(asc(schema.slots.page), asc(schema.slots.name));
 };
 
+export const listMedia = async () => {
+  return db
+    .select()
+    .from(schema.mediaLibrary)
+    .orderBy(desc(schema.mediaLibrary.createdAt));
+};
+
 export const isAvailable = (p: ProductWithExtras): boolean =>
   p.active && (p.unlimitedStock || p.stock > 0);
 

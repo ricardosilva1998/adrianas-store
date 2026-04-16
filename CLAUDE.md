@@ -39,6 +39,8 @@ No test framework is configured.
 
 **Named slots**: `src/pages/carrinho.astro`, `src/pages/checkout.astro`, and `src/pages/obrigado.astro` embed `<Slot name="..." />` components that render blocks from the `slots` table. Admin fills each slot at `/admin/slots` with content blocks (no data-binding blocks — cart/checkout/thank-you have no product context). Five named slots are seeded on startup.
 
+**Media library**: `media_library` table plus `/admin/media` gallery where admins paste image URLs, upload to R2, and copy URLs for use in blocks/products. 15 Lorem Picsum placeholder URLs are seeded on first run (`isPlaceholder=true`) so the site has visual content out of the gate. Admin can delete placeholders when replacing with real photos.
+
 **Auth**: JWT tokens in HTTP-only cookies (7-day TTL), bcrypt password hashing. Two roles: `admin` (full access) and `editor` (limited). Public routes: `/admin/login` and `/api/admin/login`.
 
 **Client state**: Nanostores with persistent localStorage (`adriana-cart` key) for the shopping cart. No server-side cache layer.

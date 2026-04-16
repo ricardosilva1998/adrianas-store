@@ -1,0 +1,24 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import MediaGallery from "../../../components/admin/MediaGallery.tsx";
+import { listMedia } from "../../../lib/queries";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+
+const items = await listMedia();
+---
+
+<AdminLayout title="Galeria" user={user}>
+  <MediaGallery
+    client:only="react"
+    initial={items.map((m) => ({
+      id: m.id,
+      url: m.url,
+      alt: m.alt,
+      tags: m.tags,
+      isPlaceholder: m.isPlaceholder,
+      createdAt: m.createdAt.toISOString(),
+    }))}
+  />
+</AdminLayout>

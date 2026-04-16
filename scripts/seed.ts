@@ -339,6 +339,53 @@ const seedSlots = async () => {
   }
 };
 
+const PLACEHOLDER_MEDIA: Array<{ url: string; alt: string; tags: string }> = [
+  // Hero / banner shots (wide)
+  { url: "https://picsum.photos/seed/hero-rosa/1600/900", alt: "Flores cor-de-rosa em fundo suave", tags: "hero,rosa,flores" },
+  { url: "https://picsum.photos/seed/hero-craft/1600/900", alt: "Materiais de artesanato numa mesa", tags: "hero,artesanal" },
+  { url: "https://picsum.photos/seed/hero-minimal/1600/900", alt: "Composição minimalista em tons neutros", tags: "hero,minimal" },
+
+  // Product-like (squarish/portrait)
+  { url: "https://picsum.photos/seed/tote-linho/800/1000", alt: "Tote bag em linho natural", tags: "tote,produto" },
+  { url: "https://picsum.photos/seed/tote-frase/800/1000", alt: "Tote bag com frase personalizada", tags: "tote,produto,personalizado" },
+  { url: "https://picsum.photos/seed/tshirt-01/800/1000", alt: "T-shirt personalizada", tags: "tshirt,produto" },
+  { url: "https://picsum.photos/seed/tshirt-02/800/1000", alt: "T-shirt branca com estampagem", tags: "tshirt,produto" },
+  { url: "https://picsum.photos/seed/necessaire/800/800", alt: "Bolsa necessaire em tecido", tags: "necessaire,produto" },
+  { url: "https://picsum.photos/seed/portajoias/800/800", alt: "Porta-joias artesanal", tags: "porta-joias,produto" },
+
+  // Lifestyle / process
+  { url: "https://picsum.photos/seed/sewing/800/1000", alt: "Costura à mão em detalhe", tags: "processo,artesanal" },
+  { url: "https://picsum.photos/seed/workspace/800/1000", alt: "Mesa de trabalho com materiais", tags: "lifestyle,workspace" },
+  { url: "https://picsum.photos/seed/gift/800/1000", alt: "Embrulho para oferta", tags: "lifestyle,presente" },
+
+  // Textures / backgrounds (wide)
+  { url: "https://picsum.photos/seed/linen-tex/1600/600", alt: "Textura de linho", tags: "fundo,textura" },
+  { url: "https://picsum.photos/seed/paper-tex/1600/600", alt: "Textura de papel em tom cru", tags: "fundo,textura" },
+  { url: "https://picsum.photos/seed/rosa-gradient/1600/600", alt: "Gradiente rosa suave", tags: "fundo,rosa" },
+];
+
+const seedMediaLibrary = async () => {
+  console.log("🖼️  A semear media_library com placeholders...");
+  // Only seed if the library is empty AND there's no prior placeholder row.
+  const existing = await db
+    .select()
+    .from(schema.mediaLibrary)
+    .limit(1);
+  if (existing.length > 0) {
+    console.log("  · media_library tem entradas, skip");
+    return;
+  }
+  for (const item of PLACEHOLDER_MEDIA) {
+    await db.insert(schema.mediaLibrary).values({
+      url: item.url,
+      alt: item.alt,
+      tags: item.tags,
+      isPlaceholder: true,
+    });
+  }
+  console.log(`  ✔ ${PLACEHOLDER_MEDIA.length} placeholders inseridos`);
+};
+
 const main = async () => {
   try {
     await seedProducts();
@@ -346,6 +393,7 @@ const main = async () => {
     await seedAdminUser();
     await seedSiteConfig();
     await seedSlots();
+    await seedMediaLibrary();
     console.log("✅ Seed concluído.");
   } finally {
     await client.end();
