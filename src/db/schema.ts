@@ -125,6 +125,7 @@ export const pages = pgTable("pages", {
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+  draftBlocks: jsonb("draft_blocks"),
 });
 
 export const siteConfig = pgTable(

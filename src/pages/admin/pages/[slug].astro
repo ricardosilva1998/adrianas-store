@@ -14,7 +14,8 @@ if (!page) {
   return new Response("Pagina nao encontrada", { status: 404 });
 }
 
-const blocks = (page.blocks ?? []) as any[];
+const editableBlocks = (page.draftBlocks ?? page.blocks ?? []) as any[];
+const hasDraft = page.draftBlocks !== null;
 ---
 
 <AdminLayout title={`Editar: ${page.title}`} user={user}>
@@ -36,8 +37,9 @@ const blocks = (page.blocks ?? []) as any[];
     client:load
     slug={slug}
     title={page.title}
-    blocks={blocks}
+    blocks={editableBlocks}
     published={page.published}
     mode="edit"
+    hasDraft={hasDraft}
   />
 </AdminLayout>

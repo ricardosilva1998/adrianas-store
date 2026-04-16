@@ -22,6 +22,13 @@
       "when": 1776357428017,
       "tag": "0002_damp_speed",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1776359828569,
+      "tag": "0003_handy_molten_man",
+      "breakpoints": true
     }
   ]
 }

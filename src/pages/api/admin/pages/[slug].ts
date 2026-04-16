@@ -10,6 +10,7 @@ const UpdateSchema = z.object({
   title: z.string().min(1).max(200),
   blocks: blocksArraySchema,
   published: z.boolean(),
+  saveAsDraft: z.boolean().optional().default(false),
 });
 
 export const PUT: APIRoute = async ({ params, request, locals }) => {
@@ -32,14 +33,24 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   }
 
   try {
+    const updates: Record<string, unknown> = {
+      title: parsed.data.title,
+      published: parsed.data.published,
+      updatedAt: new Date(),
+    };
+
+    if (parsed.data.saveAsDraft) {
+      // Save as draft: write blocks into draft_blocks, leave live blocks unchanged
+      updates.draftBlocks = parsed.data.blocks;
+    } else {
+      // Publish: write blocks into live column, clear any pending draft
+      updates.blocks = parsed.data.blocks;
+      updates.draftBlocks = null;
+    }
+
     await db
       .update(schema.pages)
-      .set({
-        title: parsed.data.title,
-        blocks: parsed.data.blocks,
-        published: parsed.data.published,
-        updatedAt: new Date(),
-      })
+      .set(updates)
       .where(eq(schema.pages.slug, slug));
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });

@@ -30,8 +30,13 @@ const allPages = await db.select().from(schema.pages);
             {p.published ? "Publicado" : "Rascunho"}
           </span>
         </div>
-        <h3 class="mt-2 text-lg font-semibold text-ink group-hover:text-rosa-500">
+        <h3 class="mt-2 flex items-center gap-2 text-lg font-semibold text-ink group-hover:text-rosa-500">
           {p.title}
+          {p.draftBlocks !== null && (
+            <span class="bg-yellow-100 text-yellow-800 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full">
+              Rascunho
+            </span>
+          )}
         </h3>
         <p class="mt-2 text-xs text-ink-muted">
           {(p.blocks as any[])?.length ?? 0} blocos · Ultima edicao: {new Date(p.updatedAt).toLocaleDateString("pt-PT")}

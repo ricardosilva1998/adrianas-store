@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import BlockRenderer from "../components/blocks/BlockRenderer.astro";
-import { getPublishedPage } from "../lib/queries";
+import { getPublishedPage, getDraftPage } from "../lib/queries";
 
 export const prerender = false;
 
@@ -14,16 +14,31 @@ if (reserved.some((r) => slug === r || slug.startsWith(r + "/"))) {
   return new Response(null, { status: 404 });
 }
 
-const page = await getPublishedPage(slug);
+const isDraftPreview =
+  Astro.url.searchParams.get("draft") === "1" && !!Astro.locals.user;
+
+const page = isDraftPreview
+  ? await getDraftPage(slug)
+  : await getPublishedPage(slug);
+
 if (!page) {
   return new Response(null, { status: 404 });
 }
 
-const blocks = (page.blocks ?? []) as Array<{ type: string; data: any }>;
+const blocks = (
+  isDraftPreview && page.draftBlocks
+    ? page.draftBlocks
+    : page.blocks
+) as Array<{ type: string; data: any }>;
 ---
 
 <BaseLayout title={slug === "home" ? undefined : page.title}>
-  {blocks.map((block) => (
+  {isDraftPreview && page.draftBlocks && (
+    <div class="bg-yellow-50 border-b border-yellow-300 text-yellow-900 text-xs text-center py-2">
+      A mostrar rascunho (não publicado) · <a href={`/${slug === "home" ? "" : slug}`} class="underline">ver versão pública</a>
+    </div>
+  )}
+  {(blocks ?? []).map((block) => (
     <BlockRenderer block={block} />
   ))}
 </BaseLayout>

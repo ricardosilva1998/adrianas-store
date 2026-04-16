@@ -26,10 +26,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
 
+  // Populate admin user on storefront routes when drafting or previewing.
+  const wantsAdminContext =
+    context.url.searchParams.has("preview") ||
+    context.url.searchParams.get("draft") === "1";
+  if (wantsAdminContext) {
+    const user = await getSessionUser(context.cookies);
+    if (user) context.locals.user = user;
+  }
+
   // Storefront preview: only effective for authenticated admins.
   const previewToken = context.url.searchParams.get("preview");
   if (previewToken) {
-    const user = await getSessionUser(context.cookies);
+    const user = context.locals.user ?? (await getSessionUser(context.cookies));
     if (user) {
       const pending = getPreview(previewToken);
       if (pending) {

@@ -155,6 +155,15 @@ export const getPublishedPage = async (slug: string) => {
   return page ?? null;
 };
 
+export const getDraftPage = async (slug: string) => {
+  const [page] = await db
+    .select()
+    .from(schema.pages)
+    .where(eq(schema.pages.slug, slug))
+    .limit(1);
+  return page ?? null;
+};
+
 export const getProductsByCategory = async (
   category: string,
   limit = 8,

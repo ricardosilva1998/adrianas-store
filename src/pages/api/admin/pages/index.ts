@@ -33,6 +33,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       body: "",
       blocks: parsed.data.blocks,
       published: parsed.data.published,
+      draftBlocks: null,
     });
 
     return new Response(JSON.stringify({ success: true, slug: parsed.data.slug }), { status: 201 });

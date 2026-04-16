@@ -9,6 +9,7 @@ interface Props {
   blocks: Block[];
   published: boolean;
   mode: "create" | "edit";
+  hasDraft?: boolean;
 }
 
 export default function BlockEditor({
@@ -17,6 +18,7 @@ export default function BlockEditor({
   blocks: initialBlocks,
   published: initialPublished,
   mode,
+  hasDraft: initialHasDraft = false,
 }: Props) {
   const [title, setTitle] = useState(initialTitle);
   const [slug, setSlug] = useState(initialSlug);
@@ -25,6 +27,7 @@ export default function BlockEditor({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [hasDraft, setHasDraft] = useState<boolean>(initialHasDraft);
   const [expandedBlock, setExpandedBlock] = useState<string | null>(
     initialBlocks[0]?.id ?? null,
   );
@@ -75,7 +78,7 @@ export default function BlockEditor({
     }
   };
 
-  const handleSave = async () => {
+  const makeSave = (saveAsDraft: boolean) => async () => {
     setSaving(true);
     setError(null);
     setSuccess(false);
@@ -85,6 +88,7 @@ export default function BlockEditor({
       const method = mode === "create" ? "POST" : "PUT";
       const payload: any = { title, blocks, published };
       if (mode === "create") payload.slug = slug;
+      if (mode === "edit") payload.saveAsDraft = saveAsDraft;
 
       const res = await fetch(url, {
         method,
@@ -105,6 +109,7 @@ export default function BlockEditor({
 
       setSuccess(true);
       setTimeout(() => setSuccess(false), 2500);
+      setHasDraft(saveAsDraft);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao guardar");
     } finally {
@@ -255,18 +260,40 @@ export default function BlockEditor({
 
       {/* Save bar */}
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-3">
           {error && <p className="text-xs text-rosa-600">{error}</p>}
           {success && <p className="text-xs text-emerald-600">Guardado!</p>}
+          {mode === "edit" && hasDraft && (
+            <a
+              href={`/${initialSlug === "home" ? "" : initialSlug}?draft=1`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs font-medium text-rosa-500 hover:underline"
+            >
+              Pré-visualizar rascunho ↗
+            </a>
+          )}
         </div>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={saving}
-          className="btn-primary"
-        >
-          {saving ? "A guardar..." : mode === "create" ? "Criar pagina" : "Guardar alteracoes"}
-        </button>
+        <div className="flex gap-2">
+          {mode === "edit" && (
+            <button
+              type="button"
+              onClick={makeSave(true)}
+              disabled={saving}
+              className="rounded-full border border-ink-line px-5 py-2 text-sm font-medium text-ink-soft hover:border-rosa-300 hover:text-rosa-500 disabled:opacity-50"
+            >
+              {saving ? "A guardar..." : "Guardar rascunho"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={makeSave(false)}
+            disabled={saving}
+            className="btn-primary"
+          >
+            {saving ? "A guardar..." : mode === "create" ? "Criar pagina" : "Publicar"}
+          </button>
+        </div>
       </div>
     </div>
   );
