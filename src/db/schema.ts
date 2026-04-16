@@ -9,8 +9,9 @@ import {
   pgEnum,
   uniqueIndex,
   index,
+  check,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export const orderStatus = pgEnum("order_status", [
   "new",
@@ -136,10 +137,7 @@ export const siteConfig = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (t) => [
-    // Singleton: only id=1 is allowed.
-    // Drizzle doesn't model CHECK constraints directly — we add it in the generated SQL.
-  ],
+  (t) => [check("site_config_singleton_ck", sql`${t.id} = 1`)],
 );
 
 export const orders = pgTable(

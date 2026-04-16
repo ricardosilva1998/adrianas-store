@@ -1,5 +1,5 @@
 {
-  "id": "288a09ad-d5b0-400a-af99-8a58ee58479a",
+  "id": "3a239990-8b70-425e-91a9-0f7a8c0f4669",
   "prevId": "c68a8c67-b952-40ff-bc7f-14d674fb3bd6",
   "version": "7",
   "dialect": "postgresql",
@@ -756,7 +756,12 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "site_config_singleton_ck": {
+          "name": "site_config_singleton_ck",
+          "value": "\"site_config\".\"id\" = 1"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.users": {
