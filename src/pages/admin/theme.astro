@@ -1,0 +1,14 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import ThemeEditor from "../../components/admin/ThemeEditor.tsx";
+import { getSiteConfig } from "../../lib/config";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+
+const config = await getSiteConfig();
+---
+
+<AdminLayout title="Tema" user={user} hideLayoutPadding>
+  <ThemeEditor client:only="react" initialConfig={config} />
+</AdminLayout>
