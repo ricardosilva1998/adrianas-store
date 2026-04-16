@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import type { Block, BlockType } from "../../lib/blocks";
 import { createBlock } from "../../lib/blocks";
-import PagePreviewShell from "./PagePreviewShell";
+import PagePreviewShell, { PreviewIframeContext } from "./PagePreviewShell";
 import BlockCard from "./BlockCard";
 import BlockPickerDialog from "./BlockPickerDialog";
 
@@ -11,6 +11,100 @@ interface Props {
   initialBlocks: Block[];
   published: boolean;
   hasDraft: boolean;
+}
+
+interface ContentProps {
+  slug: string;
+  title: string;
+  setTitle: (t: string) => void;
+  blocks: Block[];
+  expanded: string | null;
+  setExpanded: (id: string | null) => void;
+  showPicker: boolean;
+  setShowPicker: (v: boolean) => void;
+  upsertBlock: (b: Block) => void;
+  moveBlock: (id: string, dir: "up" | "down") => Promise<void>;
+  removeBlock: (id: string) => Promise<void>;
+  addBlock: (type: BlockType) => Promise<void>;
+  setBlocks: Dispatch<SetStateAction<Block[]>>;
+  setHasDraft: (v: boolean) => void;
+}
+
+function PageEditorContent({
+  slug,
+  title,
+  setTitle,
+  blocks,
+  expanded,
+  setExpanded,
+  showPicker,
+  setShowPicker,
+  upsertBlock,
+  moveBlock,
+  removeBlock,
+  addBlock,
+  setBlocks,
+  setHasDraft,
+}: ContentProps) {
+  const iframeApi = useContext(PreviewIframeContext);
+
+  return (
+    <div className="grid gap-4">
+      <div className="rounded-3xl border border-ink-line bg-surface p-6">
+        <label className="field-label" htmlFor="title">Título</label>
+        <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="field-input" />
+      </div>
+
+      {blocks.map((block, idx) => (
+        <BlockCard
+          key={block.id}
+          slug={slug}
+          block={block}
+          expanded={expanded === block.id}
+          canMoveUp={idx > 0}
+          canMoveDown={idx < blocks.length - 1}
+          onChange={upsertBlock}
+          onMoveUp={() => moveBlock(block.id, "up")}
+          onMoveDown={() => moveBlock(block.id, "down")}
+          onRemove={() => removeBlock(block.id)}
+          onToggleExpand={() => {
+            const nextId = expanded === block.id ? null : block.id;
+            setExpanded(nextId);
+            if (nextId) iframeApi?.postMessage({ kind: "scroll-to-block", id: nextId });
+          }}
+        />
+      ))}
+
+      <button
+        type="button"
+        onClick={() => setShowPicker(true)}
+        className="w-full rounded-3xl border border-dashed border-ink-line p-4 text-sm text-ink-muted hover:border-rosa-300 hover:text-rosa-500"
+      >
+        + Adicionar bloco
+      </button>
+      <BlockPickerDialog
+        open={showPicker}
+        context="page"
+        onClose={() => setShowPicker(false)}
+        onInsertBlockType={async (type) => {
+          await addBlock(type);
+          setShowPicker(false);
+        }}
+        onInsertPreset={async (preset) => {
+          const block = { id: crypto.randomUUID().slice(0, 10), type: preset.type, data: preset.data } as any;
+          setBlocks((prev) => [...prev, block]);
+          setExpanded(block.id);
+          await fetch(`/api/admin/pages/${slug}/blocks`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ block }),
+          });
+          setHasDraft(true);
+          setShowPicker(false);
+        }}
+      />
+    </div>
+  );
 }
 
 export default function PageEditor({ slug, title: initialTitle, initialBlocks, published, hasDraft: initialHasDraft }: Props) {
@@ -108,57 +202,22 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
       onPublish={handlePublish}
       onDiscardDraft={handleDiscardDraft}
     >
-      <div className="grid gap-4">
-        <div className="rounded-3xl border border-ink-line bg-surface p-6">
-          <label className="field-label" htmlFor="title">Título</label>
-          <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="field-input" />
-        </div>
-
-        {blocks.map((block, idx) => (
-          <BlockCard
-            key={block.id}
-            slug={slug}
-            block={block}
-            expanded={expanded === block.id}
-            canMoveUp={idx > 0}
-            canMoveDown={idx < blocks.length - 1}
-            onChange={upsertBlock}
-            onMoveUp={() => moveBlock(block.id, "up")}
-            onMoveDown={() => moveBlock(block.id, "down")}
-            onRemove={() => removeBlock(block.id)}
-            onToggleExpand={() => setExpanded(expanded === block.id ? null : block.id)}
-          />
-        ))}
-
-        <button
-          type="button"
-          onClick={() => setShowPicker(true)}
-          className="w-full rounded-3xl border border-dashed border-ink-line p-4 text-sm text-ink-muted hover:border-rosa-300 hover:text-rosa-500"
-        >
-          + Adicionar bloco
-        </button>
-        <BlockPickerDialog
-          open={showPicker}
-          context="page"
-          onClose={() => setShowPicker(false)}
-          onInsertBlockType={async (type) => {
-            await addBlock(type);
-            setShowPicker(false);
-          }}
-          onInsertPreset={async (preset) => {
-            const block = { id: crypto.randomUUID().slice(0, 10), type: preset.type, data: preset.data } as any;
-            setBlocks((prev) => [...prev, block]);
-            setExpanded(block.id);
-            await fetch(`/api/admin/pages/${slug}/blocks`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ block }),
-            });
-            setHasDraft(true);
-            setShowPicker(false);
-          }}
-        />
-      </div>
+      <PageEditorContent
+        slug={slug}
+        title={title}
+        setTitle={setTitle}
+        blocks={blocks}
+        expanded={expanded}
+        setExpanded={setExpanded}
+        showPicker={showPicker}
+        setShowPicker={setShowPicker}
+        upsertBlock={upsertBlock}
+        moveBlock={moveBlock}
+        removeBlock={removeBlock}
+        addBlock={addBlock}
+        setBlocks={setBlocks}
+        setHasDraft={setHasDraft}
+      />
     </PagePreviewShell>
   );
 }

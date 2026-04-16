@@ -1,5 +1,8 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Block } from "../../lib/blocks";
+
+type IframeApi = { postMessage: (msg: unknown) => void };
+export const PreviewIframeContext = createContext<IframeApi | null>(null);
 
 interface Props {
   slug: string;
@@ -30,6 +33,10 @@ export default function PagePreviewShell({
   const [token, setToken] = useState<string | null>(null);
   const debounceRef = useRef<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  const api = useMemo<IframeApi>(() => ({
+    postMessage: (msg) => iframeRef.current?.contentWindow?.postMessage(msg, "*"),
+  }), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,7 +100,9 @@ export default function PagePreviewShell({
 
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-[460px] shrink-0 overflow-y-auto border-r border-ink-line bg-surface p-6">
-          {children}
+          <PreviewIframeContext.Provider value={api}>
+            {children}
+          </PreviewIframeContext.Provider>
         </aside>
         <div className="flex-1 overflow-hidden bg-ink-line/40 p-4">
           <div className="mx-auto h-full overflow-hidden rounded-2xl border border-ink-line bg-white shadow-sm" style={{ maxWidth: device === "mobile" ? 390 : "100%" }}>

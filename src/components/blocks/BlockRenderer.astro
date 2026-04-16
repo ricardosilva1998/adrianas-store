@@ -32,8 +32,9 @@ interface Props {
 }
 
 const { block, context } = Astro.props;
+const attrs = block.id ? { "data-block-id": block.id } : {};
 ---
-<div data-block-id={block.id}>
+<div {...attrs}>
   {block.type === "hero" && <HeroBlock data={block.data} />}
   {block.type === "text" && <TextBlock data={block.data} />}
   {block.type === "product-grid" && <ProductGridBlock data={block.data} />}
