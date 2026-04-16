@@ -1,0 +1,30 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import TemplateEditor from "../../../components/admin/TemplateEditor.tsx";
+import { getTemplateById } from "../../../lib/queries";
+import type { Block } from "../../../lib/blocks";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+
+const id = Number(Astro.params.id);
+if (!Number.isInteger(id)) {
+  return new Response("Not found", { status: 404 });
+}
+
+const template = await getTemplateById(id);
+if (!template) {
+  return new Response("Not found", { status: 404 });
+}
+---
+
+<AdminLayout title={`Template — ${template.name}`} user={user}>
+  <TemplateEditor
+    client:only="react"
+    id={template.id}
+    kind={template.kind}
+    name={template.name}
+    blocks={(template.blocks ?? []) as Block[]}
+    active={template.active}
+  />
+</AdminLayout>

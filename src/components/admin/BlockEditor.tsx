@@ -329,6 +329,16 @@ function BlockForm({ block, onChange }: { block: Block; onChange: (data: any) =>
       return <VideoEmbedForm data={block.data} onChange={onChange} />;
     case "divider":
       return <DividerForm data={block.data} onChange={onChange} />;
+    case "product-gallery":
+      return <ProductGalleryForm data={block.data} onChange={onChange} />;
+    case "product-info":
+      return <ProductInfoForm data={block.data} onChange={onChange} />;
+    case "product-long-description":
+      return <ProductLongDescriptionForm data={block.data} onChange={onChange} />;
+    case "product-related":
+      return <ProductRelatedForm data={block.data} onChange={onChange} />;
+    case "catalog-grid-bound":
+      return <CatalogGridBoundForm data={block.data} onChange={onChange} />;
   }
 }
 
@@ -895,6 +905,140 @@ function DividerForm({ data, onChange }: { data: any; onChange: (d: any) => void
               />
               {label}
             </label>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductGalleryForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  return (
+    <div className="grid gap-4">
+      <label className="flex items-center gap-2 text-sm text-ink-soft">
+        <input
+          type="checkbox"
+          checked={data.showThumbs}
+          onChange={(e) => onChange({ showThumbs: e.target.checked })}
+        />
+        Mostrar thumbnails
+      </label>
+      <label className="flex items-center gap-2 text-sm text-ink-soft">
+        <input
+          type="checkbox"
+          checked={data.showBadges}
+          onChange={(e) => onChange({ showBadges: e.target.checked })}
+        />
+        Mostrar badges (mais vendido, esgotado)
+      </label>
+    </div>
+  );
+}
+
+function ProductInfoForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  return (
+    <div className="grid gap-4">
+      <label className="flex items-center gap-2 text-sm text-ink-soft">
+        <input
+          type="checkbox"
+          checked={data.showBreadcrumbs}
+          onChange={(e) => onChange({ showBreadcrumbs: e.target.checked })}
+        />
+        Mostrar breadcrumbs
+      </label>
+      <div>
+        <label className="field-label">Info de envio (uma linha por item)</label>
+        <textarea
+          value={data.shippingInfo}
+          onChange={(e) => onChange({ shippingInfo: e.target.value })}
+          rows={4}
+          className="field-input resize-y"
+        />
+      </div>
+    </div>
+  );
+}
+
+function ProductLongDescriptionForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  return (
+    <div>
+      <label className="field-label">Título (opcional)</label>
+      <input
+        value={data.title}
+        onChange={(e) => onChange({ title: e.target.value })}
+        className="field-input"
+      />
+    </div>
+  );
+}
+
+function ProductRelatedForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  return (
+    <div className="grid gap-4">
+      <div>
+        <label className="field-label">Título da secção</label>
+        <input
+          value={data.title}
+          onChange={(e) => onChange({ title: e.target.value })}
+          className="field-input"
+        />
+      </div>
+      <div>
+        <label className="field-label">Nº máximo de produtos</label>
+        <input
+          type="number"
+          min={1}
+          max={12}
+          value={data.limit}
+          onChange={(e) => onChange({ limit: Number(e.target.value) })}
+          className="field-input"
+        />
+      </div>
+    </div>
+  );
+}
+
+function CatalogGridBoundForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  return (
+    <div className="grid gap-4">
+      <div>
+        <label className="field-label">Título</label>
+        <input
+          value={data.title}
+          onChange={(e) => onChange({ title: e.target.value })}
+          className="field-input"
+        />
+      </div>
+      <div>
+        <label className="field-label">Subtítulo</label>
+        <input
+          value={data.subtitle}
+          onChange={(e) => onChange({ subtitle: e.target.value })}
+          className="field-input"
+        />
+      </div>
+      <label className="flex items-center gap-2 text-sm text-ink-soft">
+        <input
+          type="checkbox"
+          checked={data.showCategoryFilter}
+          onChange={(e) => onChange({ showCategoryFilter: e.target.checked })}
+        />
+        Mostrar filtro de categorias
+      </label>
+      <div>
+        <label className="field-label">Colunas</label>
+        <div className="mt-1 flex gap-2">
+          {(["2", "3", "4"] as const).map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => onChange({ columns: c })}
+              className={`flex-1 rounded-lg border px-3 py-2 text-xs ${
+                data.columns === c ? "border-rosa-400 bg-rosa-50 text-rosa-600" : "border-ink-line text-ink-soft"
+              }`}
+            >
+              {c} col
+            </button>
           ))}
         </div>
       </div>

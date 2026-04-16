@@ -1,0 +1,81 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { listTemplates } from "../../../lib/queries";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+
+const catalog = await listTemplates("catalog");
+const productDetail = await listTemplates("product-detail");
+
+const groups = [
+  { kind: "catalog", label: "Template de Catálogo", list: catalog },
+  { kind: "product-detail", label: "Template de Página de Produto", list: productDetail },
+];
+---
+
+<AdminLayout title="Templates" user={user}>
+  <div class="grid gap-10">
+    {groups.map((g) => (
+      <section>
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-ink">{g.label}</h2>
+          <button
+            type="button"
+            data-kind={g.kind}
+            class="new-tpl-btn btn-secondary text-xs"
+          >
+            Novo template
+          </button>
+        </div>
+
+        {g.list.length === 0 ? (
+          <p class="rounded-3xl border border-dashed border-ink-line bg-rosa-50/30 p-8 text-center text-sm text-ink-muted">
+            Sem templates. Cria o primeiro para começar a personalizar esta página.
+          </p>
+        ) : (
+          <ul class="grid gap-3">
+            {g.list.map((t) => (
+              <li class="flex items-center justify-between rounded-2xl border border-ink-line bg-white px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <a href={`/admin/templates/${t.id}`} class="text-sm font-medium text-ink hover:text-rosa-500">
+                    {t.name}
+                  </a>
+                  {t.active && (
+                    <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+                      Ativo
+                    </span>
+                  )}
+                </div>
+                <div class="text-xs text-ink-muted">
+                  {new Date(t.updatedAt).toLocaleDateString("pt-PT")}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    ))}
+  </div>
+
+  <script is:inline>
+    document.querySelectorAll(".new-tpl-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const kind = btn.getAttribute("data-kind");
+        const name = prompt("Nome do novo template:", "Sem nome");
+        if (!name) return;
+        const res = await fetch("/api/admin/templates", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind, name, blocks: [] }),
+        });
+        if (!res.ok) {
+          alert("Erro ao criar template");
+          return;
+        }
+        const row = await res.json();
+        window.location.href = `/admin/templates/${row.id}`;
+      });
+    });
+  </script>
+</AdminLayout>

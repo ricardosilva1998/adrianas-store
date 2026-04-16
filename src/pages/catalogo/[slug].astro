@@ -2,7 +2,8 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProductActions from "../../components/islands/ProductActions.tsx";
 import ProductCard from "../../components/ProductCard.astro";
-import { getProductBySlug, getRelatedProducts, formatEuro, isAvailable } from "../../lib/queries";
+import BlockRenderer from "../../components/blocks/BlockRenderer.astro";
+import { getProductBySlug, getRelatedProducts, formatEuro, isAvailable, getActiveTemplate } from "../../lib/queries";
 import { categoryLabel } from "../../lib/site";
 import { marked } from "marked";
 
@@ -19,161 +20,174 @@ const available = isAvailable(product);
 const longContent = product.longDescription
   ? marked.parse(product.longDescription, { async: false })
   : "";
+const template = await getActiveTemplate("product-detail");
+const templateBlocks: Array<{ type: string; data: any }> =
+  template && Array.isArray(template.blocks) && template.blocks.length > 0
+    ? (template.blocks as Array<{ type: string; data: any }>)
+    : [];
 ---
 
 <BaseLayout title={product.name} description={product.description}>
-  <section class="border-b border-ink-line py-6">
-    <div class="section">
-      <nav class="text-xs text-ink-muted" aria-label="Breadcrumbs">
-        <a href="/" class="hover:text-rosa-500">Início</a>
-        <span class="mx-2">/</span>
-        <a href="/catalogo" class="hover:text-rosa-500">Catálogo</a>
-        <span class="mx-2">/</span>
-        <a
-          href={`/catalogo?categoria=${product.category}`}
-          class="hover:text-rosa-500"
-        >
-          {categoryLabel(product.category)}
-        </a>
-        <span class="mx-2">/</span>
-        <span class="text-ink">{product.name}</span>
-      </nav>
-    </div>
-  </section>
-
-  <section class="py-12">
-    <div class="section grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-      <div class="flex flex-col gap-4">
-        <div class="relative aspect-square overflow-hidden rounded-3xl border border-ink-line bg-rosa-50">
-          <img
-            id="hero-image"
-            src={product.images[0]?.url ?? "/placeholders/product.svg"}
-            alt={product.images[0]?.alt || product.name}
-            class="h-full w-full object-cover"
-          />
-          {product.bestseller && (
-            <span class="absolute left-5 top-5 inline-flex items-center rounded-full bg-rosa-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-              Mais vendido
-            </span>
-          )}
-          {!available && (
-            <span class="absolute right-5 top-5 inline-flex items-center rounded-full bg-ink px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-              Esgotado
-            </span>
-          )}
+  {templateBlocks.length > 0 ? (
+    templateBlocks.map((block) => (
+      <BlockRenderer block={block} context={{ product, relatedProducts: related }} />
+    ))
+  ) : (
+    <>
+      <section class="border-b border-ink-line py-6">
+        <div class="section">
+          <nav class="text-xs text-ink-muted" aria-label="Breadcrumbs">
+            <a href="/" class="hover:text-rosa-500">Início</a>
+            <span class="mx-2">/</span>
+            <a href="/catalogo" class="hover:text-rosa-500">Catálogo</a>
+            <span class="mx-2">/</span>
+            <a
+              href={`/catalogo?categoria=${product.category}`}
+              class="hover:text-rosa-500"
+            >
+              {categoryLabel(product.category)}
+            </a>
+            <span class="mx-2">/</span>
+            <span class="text-ink">{product.name}</span>
+          </nav>
         </div>
+      </section>
 
-        {product.images.length > 1 && (
-          <div class="grid grid-cols-4 gap-3">
-            {product.images.map((img, i) => (
-              <button
-                type="button"
-                class="thumb aspect-square overflow-hidden rounded-xl border border-ink-line bg-rosa-50 transition hover:border-rosa-400"
-                data-src={img.url}
-                data-index={i}
-                aria-label={`Imagem ${i + 1}`}
-              >
-                <img src={img.url} alt={img.alt} class="h-full w-full object-cover" />
-              </button>
-            ))}
-          </div>
-        )}
+      <section class="py-12">
+        <div class="section grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+          <div class="flex flex-col gap-4">
+            <div class="relative aspect-square overflow-hidden rounded-3xl border border-ink-line bg-rosa-50">
+              <img
+                id="hero-image"
+                src={product.images[0]?.url ?? "/placeholders/product.svg"}
+                alt={product.images[0]?.alt || product.name}
+                class="h-full w-full object-cover"
+              />
+              {product.bestseller && (
+                <span class="absolute left-5 top-5 inline-flex items-center rounded-full bg-rosa-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                  Mais vendido
+                </span>
+              )}
+              {!available && (
+                <span class="absolute right-5 top-5 inline-flex items-center rounded-full bg-ink px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                  Esgotado
+                </span>
+              )}
+            </div>
 
-        <p class="mt-2 text-xs text-ink-muted">
-          As imagens mostram exemplos reais de encomendas anteriores, para ilustrar possíveis
-          estampas e designs.
-        </p>
-      </div>
+            {product.images.length > 1 && (
+              <div class="grid grid-cols-4 gap-3">
+                {product.images.map((img, i) => (
+                  <button
+                    type="button"
+                    class="thumb aspect-square overflow-hidden rounded-xl border border-ink-line bg-rosa-50 transition hover:border-rosa-400"
+                    data-src={img.url}
+                    data-index={i}
+                    aria-label={`Imagem ${i + 1}`}
+                  >
+                    <img src={img.url} alt={img.alt} class="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
 
-      <div class="flex flex-col gap-6">
-        <div>
-          <span class="text-xs font-medium uppercase tracking-wide text-rosa-500">
-            {categoryLabel(product.category)}
-          </span>
-          <h1 class="mt-2 text-3xl font-semibold text-ink sm:text-4xl">
-            {product.name}
-          </h1>
-          <p class="mt-3 text-2xl font-semibold text-ink">
-            {formatEuro(product.priceCents)}
-          </p>
-        </div>
-
-        <p class="text-sm leading-relaxed text-ink-soft sm:text-base">
-          {product.description}
-        </p>
-
-        {available ? (
-          <ProductActions
-            client:load
-            product={{
-              slug: product.slug,
-              name: product.name,
-              price: product.priceCents / 100,
-              image: product.images[0]?.url ?? "/placeholders/product.svg",
-              category: product.category,
-              personalizable: product.personalizable,
-              availableColors: product.colors.map((c) => ({ name: c.name, hex: c.hex })),
-            }}
-          />
-        ) : (
-          <div class="rounded-2xl border border-ink-line bg-rosa-50 p-5 text-sm text-ink-soft">
-            <p class="font-semibold text-ink">Esgotado temporariamente</p>
-            <p class="mt-1 text-xs">
-              Contacta-nos por email ou Instagram se quiseres saber quando volta a ficar disponível.
+            <p class="mt-2 text-xs text-ink-muted">
+              As imagens mostram exemplos reais de encomendas anteriores, para ilustrar possíveis
+              estampas e designs.
             </p>
           </div>
-        )}
 
-        <div class="rounded-2xl border border-ink-line bg-rosa-50/60 p-5 text-sm text-ink-soft">
-          <p class="font-semibold text-ink">Informações de envio</p>
-          <ul class="mt-2 space-y-1 text-xs">
-            <li>• Preparação: 3 a 5 dias úteis</li>
-            <li>• Envios via CTT para Portugal Continental e Ilhas</li>
-            <li>• Pagamento via MB Way, transferência bancária ou PayPal</li>
-          </ul>
+          <div class="flex flex-col gap-6">
+            <div>
+              <span class="text-xs font-medium uppercase tracking-wide text-rosa-500">
+                {categoryLabel(product.category)}
+              </span>
+              <h1 class="mt-2 text-3xl font-semibold text-ink sm:text-4xl">
+                {product.name}
+              </h1>
+              <p class="mt-3 text-2xl font-semibold text-ink">
+                {formatEuro(product.priceCents)}
+              </p>
+            </div>
+
+            <p class="text-sm leading-relaxed text-ink-soft sm:text-base">
+              {product.description}
+            </p>
+
+            {available ? (
+              <ProductActions
+                client:load
+                product={{
+                  slug: product.slug,
+                  name: product.name,
+                  price: product.priceCents / 100,
+                  image: product.images[0]?.url ?? "/placeholders/product.svg",
+                  category: product.category,
+                  personalizable: product.personalizable,
+                  availableColors: product.colors.map((c) => ({ name: c.name, hex: c.hex })),
+                }}
+              />
+            ) : (
+              <div class="rounded-2xl border border-ink-line bg-rosa-50 p-5 text-sm text-ink-soft">
+                <p class="font-semibold text-ink">Esgotado temporariamente</p>
+                <p class="mt-1 text-xs">
+                  Contacta-nos por email ou Instagram se quiseres saber quando volta a ficar disponível.
+                </p>
+              </div>
+            )}
+
+            <div class="rounded-2xl border border-ink-line bg-rosa-50/60 p-5 text-sm text-ink-soft">
+              <p class="font-semibold text-ink">Informações de envio</p>
+              <ul class="mt-2 space-y-1 text-xs">
+                <li>• Preparação: 3 a 5 dias úteis</li>
+                <li>• Envios via CTT para Portugal Continental e Ilhas</li>
+                <li>• Pagamento via MB Way, transferência bancária ou PayPal</li>
+              </ul>
+            </div>
+
+            {longContent && (
+              <article class="prose prose-sm max-w-none text-ink-soft" set:html={longContent} />
+            )}
+          </div>
         </div>
+      </section>
 
-        {longContent && (
-          <article class="prose prose-sm max-w-none text-ink-soft" set:html={longContent} />
-        )}
-      </div>
-    </div>
-  </section>
+      {related.length > 0 && (
+        <section class="border-t border-ink-line bg-rosa-50/40 py-20">
+          <div class="section">
+            <h2 class="text-2xl font-semibold text-ink sm:text-3xl">
+              Talvez também gostes
+            </h2>
+            <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {related.map((p) => (
+                <ProductCard
+                  slug={p.slug}
+                  name={p.name}
+                  price={p.priceCents / 100}
+                  image={p.images[0]?.url ?? "/placeholders/product.svg"}
+                  category={p.category}
+                  bestseller={p.bestseller}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-  {related.length > 0 && (
-    <section class="border-t border-ink-line bg-rosa-50/40 py-20">
-      <div class="section">
-        <h2 class="text-2xl font-semibold text-ink sm:text-3xl">
-          Talvez também gostes
-        </h2>
-        <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {related.map((p) => (
-            <ProductCard
-              slug={p.slug}
-              name={p.name}
-              price={p.priceCents / 100}
-              image={p.images[0]?.url ?? "/placeholders/product.svg"}
-              category={p.category}
-              bestseller={p.bestseller}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
+      <script is:inline>
+        (function () {
+          const hero = document.getElementById("hero-image");
+          const thumbs = document.querySelectorAll(".thumb");
+          thumbs.forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const src = btn.getAttribute("data-src");
+              if (hero && src) hero.setAttribute("src", src);
+              thumbs.forEach((b) => b.classList.remove("ring-2", "ring-rosa-400"));
+              btn.classList.add("ring-2", "ring-rosa-400");
+            });
+          });
+        })();
+      </script>
+    </>
   )}
-
-  <script is:inline>
-    (function () {
-      const hero = document.getElementById("hero-image");
-      const thumbs = document.querySelectorAll(".thumb");
-      thumbs.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const src = btn.getAttribute("data-src");
-          if (hero && src) hero.setAttribute("src", src);
-          thumbs.forEach((b) => b.classList.remove("ring-2", "ring-rosa-400"));
-          btn.classList.add("ring-2", "ring-rosa-400");
-        });
-      });
-    })();
-  </script>
 </BaseLayout>

@@ -2,7 +2,8 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProductCard from "../../components/ProductCard.astro";
 import CategoryPills from "../../components/CategoryPills.astro";
-import { getActiveProducts } from "../../lib/queries";
+import BlockRenderer from "../../components/blocks/BlockRenderer.astro";
+import { getActiveProducts, getActiveTemplate } from "../../lib/queries";
 import type { CategorySlug } from "../../lib/site";
 
 const url = new URL(Astro.request.url);
@@ -12,48 +13,65 @@ const allProducts = await getActiveProducts();
 const filtered = active
   ? allProducts.filter((p) => p.category === active)
   : allProducts;
+
+const template = await getActiveTemplate("catalog");
+const templateBlocks: Array<{ type: string; data: any }> =
+  template && Array.isArray(template.blocks) && template.blocks.length > 0
+    ? (template.blocks as Array<{ type: string; data: any }>)
+    : [];
 ---
 
 <BaseLayout title="Catálogo">
-  <section class="border-b border-ink-line bg-rosa-50/40 py-16">
-    <div class="section">
-      <span class="text-xs font-medium uppercase tracking-wide text-rosa-500">
-        Catálogo
-      </span>
-      <h1 class="mt-2 text-4xl font-semibold text-ink sm:text-5xl">
-        Todas as peças
-      </h1>
-      <p class="mt-3 max-w-2xl text-sm text-ink-soft sm:text-base">
-        Explora as nossas categorias. Cada produto pode ser personalizado com a tua frase,
-        cores e desenhos à tua escolha.
-      </p>
-    </div>
-  </section>
+  {templateBlocks.length > 0 ? (
+    templateBlocks.map((block) => (
+      <BlockRenderer
+        block={block}
+        context={{ products: filtered, activeCategory: active }}
+      />
+    ))
+  ) : (
+    <>
+      <section class="border-b border-ink-line bg-rosa-50/40 py-16">
+        <div class="section">
+          <span class="text-xs font-medium uppercase tracking-wide text-rosa-500">
+            Catálogo
+          </span>
+          <h1 class="mt-2 text-4xl font-semibold text-ink sm:text-5xl">
+            Todas as peças
+          </h1>
+          <p class="mt-3 max-w-2xl text-sm text-ink-soft sm:text-base">
+            Explora as nossas categorias. Cada produto pode ser personalizado com a tua frase,
+            cores e desenhos à tua escolha.
+          </p>
+        </div>
+      </section>
 
-  <section class="py-12">
-    <div class="section">
-      <CategoryPills active={active as CategorySlug | undefined} />
+      <section class="py-12">
+        <div class="section">
+          <CategoryPills active={active as CategorySlug | undefined} />
 
-      <div class="mt-10">
-        {filtered.length === 0 ? (
-          <div class="rounded-3xl border border-dashed border-ink-line bg-rosa-50 p-12 text-center text-sm text-ink-soft">
-            Ainda não há produtos nesta categoria. <a class="text-rosa-500 underline" href="/catalogo">Ver todas</a>
+          <div class="mt-10">
+            {filtered.length === 0 ? (
+              <div class="rounded-3xl border border-dashed border-ink-line bg-rosa-50 p-12 text-center text-sm text-ink-soft">
+                Ainda não há produtos nesta categoria. <a class="text-rosa-500 underline" href="/catalogo">Ver todas</a>
+              </div>
+            ) : (
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filtered.map((p) => (
+                  <ProductCard
+                    slug={p.slug}
+                    name={p.name}
+                    price={p.priceCents / 100}
+                    image={p.images[0]?.url ?? "/placeholders/product.svg"}
+                    category={p.category}
+                    bestseller={p.bestseller}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((p) => (
-              <ProductCard
-                slug={p.slug}
-                name={p.name}
-                price={p.priceCents / 100}
-                image={p.images[0]?.url ?? "/placeholders/product.svg"}
-                category={p.category}
-                bestseller={p.bestseller}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  </section>
+        </div>
+      </section>
+    </>
+  )}
 </BaseLayout>
