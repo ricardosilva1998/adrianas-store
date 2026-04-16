@@ -20,7 +20,7 @@ export const FONT_FAMILIES: FontFamily[] = [
   { name: "Caveat", fallback: "cursive", category: "handwriting", weights: [400, 600, 700] },
 ];
 
-export const FONT_NAMES: string[] = FONT_FAMILIES.map((f) => f.name);
+export const FONT_NAMES = FONT_FAMILIES.map((f) => f.name) as [string, ...string[]];
 
 export function getFont(name: string): FontFamily | undefined {
   return FONT_FAMILIES.find((f) => f.name === name);

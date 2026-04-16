@@ -1,7 +1,10 @@
 // HSL-based shade derivation.
 // Given a single base hex, produce a full 50→700 scale.
-// The lightness/saturation curve is tuned so the default primary (#F691B4)
-// yields shades close to the current rosa-* palette.
+// The curve preserves the input hue and remaps lightness/saturation across
+// the 50→700 scale. Using #F691B4 as input yields the same hue family as
+// the existing rosa palette but NOT the exact Tailwind Pink values in
+// global.css (those were hand-picked). Achromatic inputs (s=0) collapse to
+// a neutral gray ramp regardless of input lightness.
 
 const SHADE_LIGHTNESS: Record<string, number> = {
   "50": 0.97,
