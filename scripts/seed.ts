@@ -252,39 +252,45 @@ Estes Termos e Condições são regidos pela lei portuguesa.`,
 };
 
 const seedAdminUser = async () => {
-  console.log("👤 A criar utilizador admin inicial...");
+  console.log("👤 A criar utilizadores admin iniciais...");
 
-  const email = (process.env.ADMIN_SEED_EMAIL ?? "").trim().toLowerCase();
-  const password = process.env.ADMIN_SEED_PASSWORD ?? "";
-  const name = process.env.ADMIN_SEED_NAME ?? "Admin";
+  const admins = [
+    {
+      email: (process.env.ADMIN_SEED_EMAIL ?? "").trim().toLowerCase(),
+      password: process.env.ADMIN_SEED_PASSWORD ?? "",
+      name: process.env.ADMIN_SEED_NAME ?? "Admin",
+    },
+    {
+      email: (process.env.ADMIN_SEED_EMAIL_2 ?? "").trim().toLowerCase(),
+      password: process.env.ADMIN_SEED_PASSWORD_2 ?? "",
+      name: process.env.ADMIN_SEED_NAME_2 ?? "Admin",
+    },
+  ];
 
-  if (!email || !password) {
-    console.log(
-      "  · ADMIN_SEED_EMAIL ou ADMIN_SEED_PASSWORD não definido — skip",
-    );
-    return;
+  for (const { email, password, name } of admins) {
+    if (!email || !password) continue;
+
+    const existing = await db
+      .select()
+      .from(schema.users)
+      .where(drizzleSql`${schema.users.email} = ${email}`)
+      .limit(1);
+
+    if (existing.length > 0) {
+      console.log(`  · ${email} já existe`);
+      continue;
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    await db.insert(schema.users).values({
+      email,
+      name,
+      passwordHash,
+      role: "admin",
+    });
+
+    console.log(`  ✔ ${email} (admin)`);
   }
-
-  const existing = await db
-    .select()
-    .from(schema.users)
-    .where(drizzleSql`${schema.users.email} = ${email}`)
-    .limit(1);
-
-  if (existing.length > 0) {
-    console.log(`  · ${email} já existe`);
-    return;
-  }
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  await db.insert(schema.users).values({
-    email,
-    name,
-    passwordHash,
-    role: "admin",
-  });
-
-  console.log(`  ✔ ${email} (admin)`);
 };
 
 const main = async () => {
