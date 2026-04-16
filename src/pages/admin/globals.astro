@@ -1,0 +1,14 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import GlobalsEditor from "../../components/admin/GlobalsEditor.tsx";
+import { getSiteConfig } from "../../lib/config";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+
+const config = await getSiteConfig();
+---
+
+<AdminLayout title="Globais" user={user} hideLayoutPadding>
+  <GlobalsEditor client:only="react" initialConfig={config} />
+</AdminLayout>
