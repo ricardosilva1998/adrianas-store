@@ -18,6 +18,9 @@ import ProductInfo from "./product-info";
 import ProductLongDescription from "./product-long-description";
 import ProductRelated from "./product-related";
 import CatalogGridBound from "./catalog-grid-bound";
+import Stats from "./stats";
+import ShippingStrip from "./shipping-strip";
+import FeatureList from "./feature-list";
 
 const MAP: Record<BlockType, React.ComponentType> = {
   hero: Hero,
@@ -33,6 +36,9 @@ const MAP: Record<BlockType, React.ComponentType> = {
   "image-text-split": ImageTextSplit,
   "video-embed": VideoEmbed,
   divider: Divider,
+  stats: Stats,
+  "shipping-strip": ShippingStrip,
+  "feature-list": FeatureList,
   "product-gallery": ProductGallery,
   "product-info": ProductInfo,
   "product-long-description": ProductLongDescription,

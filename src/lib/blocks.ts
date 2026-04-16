@@ -10,6 +10,7 @@ const heroDataSchema = z.object({
   buttonText: z.string().default(""),
   buttonUrl: z.string().default(""),
   imageUrl: z.string().default(""),
+  layout: z.enum(["image-right", "image-left", "background-image", "centered"]).default("image-right"),
 });
 
 const textDataSchema = z.object({
@@ -20,6 +21,8 @@ const productGridDataSchema = z.object({
   title: z.string().default(""),
   subtitle: z.string().default(""),
   filter: z.string().default("bestsellers"),
+  columns: z.enum(["2", "3", "4"]).default("4"),
+  layout: z.enum(["grid", "carousel"]).default("grid"),
 });
 
 const categoryGridDataSchema = z.object({
@@ -41,6 +44,8 @@ const ctaBannerDataSchema = z.object({
   buttonText: z.string().default(""),
   buttonUrl: z.string().default(""),
   bgColor: z.enum(["rosa", "ink"]).default("ink"),
+  backgroundImage: z.string().default(""),
+  align: z.enum(["left", "center"]).default("left"),
 });
 
 const faqDataSchema = z.object({
@@ -79,7 +84,8 @@ const imageTextSplitDataSchema = z.object({
   imageAlt: z.string().default(""),
   title: z.string().default(""),
   markdown: z.string().default(""),
-  layout: z.enum(["image-left", "image-right"]).default("image-left"),
+  layout: z.enum(["image-left", "image-right", "image-top", "image-bottom"]).default("image-left"),
+  imageAspect: z.enum(["square", "landscape", "portrait"]).default("landscape"),
 });
 
 const videoEmbedDataSchema = z.object({
@@ -120,6 +126,39 @@ const catalogGridBoundDataSchema = z.object({
   showCategoryFilter: z.boolean().default(true),
   columns: z.enum(["2", "3", "4"]).default("4"),
 });
+
+const iconSchema = z.enum(["truck", "lock", "return", "flag", "heart", "star", "shield", "sparkle"]);
+export type Icon = z.infer<typeof iconSchema>;
+
+const statsDataSchema = z.object({
+  title: z.string().default(""),
+  items: z.array(z.object({
+    value: z.string().default(""),
+    label: z.string().default(""),
+  })).max(4).default([]),
+});
+
+const shippingStripDataSchema = z.object({
+  items: z.array(z.object({
+    icon: iconSchema.default("truck"),
+    title: z.string().default(""),
+    subtitle: z.string().default(""),
+  })).max(4).default([]),
+});
+
+const featureListDataSchema = z.object({
+  title: z.string().default(""),
+  subtitle: z.string().default(""),
+  items: z.array(z.object({
+    icon: iconSchema.default("star"),
+    title: z.string().default(""),
+    description: z.string().default(""),
+  })).max(6).default([]),
+});
+
+const statsBlockSchema = z.object({ id: z.string(), type: z.literal("stats"), data: statsDataSchema });
+const shippingStripBlockSchema = z.object({ id: z.string(), type: z.literal("shipping-strip"), data: shippingStripDataSchema });
+const featureListBlockSchema = z.object({ id: z.string(), type: z.literal("feature-list"), data: featureListDataSchema });
 
 // --- Block schema (discriminated union) ---
 
@@ -221,6 +260,9 @@ export const blockSchema = z.discriminatedUnion("type", [
   imageTextSplitBlockSchema,
   videoEmbedBlockSchema,
   dividerBlockSchema,
+  statsBlockSchema,
+  shippingStripBlockSchema,
+  featureListBlockSchema,
   productGalleryBlockSchema,
   productInfoBlockSchema,
   productLongDescriptionBlockSchema,
@@ -251,6 +293,9 @@ export type ProductInfoData = z.infer<typeof productInfoDataSchema>;
 export type ProductLongDescriptionData = z.infer<typeof productLongDescriptionDataSchema>;
 export type ProductRelatedData = z.infer<typeof productRelatedDataSchema>;
 export type CatalogGridBoundData = z.infer<typeof catalogGridBoundDataSchema>;
+export type StatsData = z.infer<typeof statsDataSchema>;
+export type ShippingStripData = z.infer<typeof shippingStripDataSchema>;
+export type FeatureListData = z.infer<typeof featureListDataSchema>;
 
 // --- Block metadata for the admin picker ---
 
@@ -273,6 +318,9 @@ export const BLOCK_TYPES: Array<{
   { type: "image-text-split", label: "Imagem + Texto", description: "Imagem ao lado de texto em Markdown" },
   { type: "video-embed", label: "Vídeo", description: "Embed de YouTube ou Vimeo" },
   { type: "divider", label: "Separador", description: "Linha visual entre secções" },
+  { type: "stats", label: "Estatísticas", description: "Fila de números grandes com legendas" },
+  { type: "shipping-strip", label: "Garantias", description: "Icones com texto curto (envios, pagamentos, etc.)" },
+  { type: "feature-list", label: "Destaques", description: "Grelha de 3 colunas com icone, título e descrição" },
   { type: "product-gallery", label: "Galeria do Produto", description: "Imagens do produto com thumbs", allowedIn: ["template-product-detail"] },
   { type: "product-info", label: "Info do Produto", description: "Nome, preço, descrição, botões", allowedIn: ["template-product-detail"] },
   { type: "product-long-description", label: "Descrição Longa", description: "Conteúdo em Markdown do produto", allowedIn: ["template-product-detail"] },
@@ -304,17 +352,17 @@ export function createBlock(type: BlockType): Block {
   const id = nanoid(10);
   switch (type) {
     case "hero":
-      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "" } };
+      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", layout: "image-right" } };
     case "text":
       return { id, type, data: { markdown: "" } };
     case "product-grid":
-      return { id, type, data: { title: "", subtitle: "", filter: "bestsellers" } };
+      return { id, type, data: { title: "", subtitle: "", filter: "bestsellers", columns: "4", layout: "grid" } };
     case "category-grid":
       return { id, type, data: { title: "", subtitle: "", categories: [] } };
     case "image-gallery":
       return { id, type, data: { images: [] } };
     case "cta-banner":
-      return { id, type, data: { title: "", subtitle: "", buttonText: "", buttonUrl: "", bgColor: "ink" } };
+      return { id, type, data: { title: "", subtitle: "", buttonText: "", buttonUrl: "", bgColor: "ink", backgroundImage: "", align: "left" } };
     case "faq":
       return { id, type, data: { title: "", items: [] } };
     case "contact-info":
@@ -324,11 +372,17 @@ export function createBlock(type: BlockType): Block {
     case "newsletter":
       return { id, type, data: { title: "", description: "", buttonText: "Subscrever", actionUrl: "" } };
     case "image-text-split":
-      return { id, type, data: { imageUrl: "", imageAlt: "", title: "", markdown: "", layout: "image-left" } };
+      return { id, type, data: { imageUrl: "", imageAlt: "", title: "", markdown: "", layout: "image-left", imageAspect: "landscape" } };
     case "video-embed":
       return { id, type, data: { url: "", title: "", caption: "" } };
     case "divider":
       return { id, type, data: { style: "line", spacing: "medium" } };
+    case "stats":
+      return { id, type, data: { title: "", items: [] } };
+    case "shipping-strip":
+      return { id, type, data: { items: [] } };
+    case "feature-list":
+      return { id, type, data: { title: "", subtitle: "", items: [] } };
     case "product-gallery":
       return { id, type, data: { showThumbs: true, showBadges: true } };
     case "product-info":

@@ -7,34 +7,33 @@ interface Props {
     buttonText: string;
     buttonUrl: string;
     imageUrl: string;
+    layout?: "image-right" | "image-left" | "background-image" | "centered";
   };
 }
 
 const { data } = Astro.props;
+const layout = data.layout ?? "image-right";
 ---
 
-<section class="relative overflow-hidden bg-white">
-  <div class="absolute inset-0">
-    <div class="absolute -left-24 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-rosa-200 opacity-50 blur-3xl"></div>
-    <div class="absolute -right-32 top-16 h-96 w-96 rounded-full bg-rosa-100 opacity-60 blur-3xl"></div>
-  </div>
-
-  <div class="section relative grid gap-12 py-20 md:grid-cols-2 md:py-28 lg:py-32">
-    <div class="flex flex-col justify-center">
+{layout === "background-image" ? (
+  <section
+    class="relative overflow-hidden bg-cover bg-center"
+    style={`background-image:url('${data.imageUrl}')`}
+  >
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="section relative py-28 text-center text-white md:py-36 lg:py-44">
       {(data.title || data.titleAccent) && (
-        <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl lg:text-6xl">
+        <h1 class="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
           {data.title && <span>{data.title}</span>}
           {data.title && data.titleAccent && <br />}
-          {data.titleAccent && <span class="text-rosa-500">{data.titleAccent}</span>}
+          {data.titleAccent && <span class="text-rosa-300">{data.titleAccent}</span>}
         </h1>
       )}
-
       {data.subtitle && (
-        <p class="mt-6 max-w-lg text-base leading-relaxed text-ink-soft sm:text-lg">
+        <p class="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg">
           {data.subtitle}
         </p>
       )}
-
       {data.buttonText && data.buttonUrl && (
         <div class="mt-10">
           <a href={data.buttonUrl} class="btn-primary">
@@ -47,16 +46,126 @@ const { data } = Astro.props;
         </div>
       )}
     </div>
-
-    {data.imageUrl && (
-      <div class="relative hidden md:block">
-        <div class="relative mx-auto aspect-[4/5] w-full max-w-lg">
-          <div class="absolute inset-0 rounded-[40px] bg-rosa-100"></div>
-          <div class="absolute inset-6 overflow-hidden rounded-[32px] border-8 border-white bg-white shadow-2xl">
-            <img src={data.imageUrl} alt={data.title || data.titleAccent} class="h-full w-full object-cover" />
+  </section>
+) : layout === "centered" ? (
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0">
+      <div class="absolute -left-24 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-rosa-200 opacity-50 blur-3xl"></div>
+      <div class="absolute -right-32 top-16 h-96 w-96 rounded-full bg-rosa-100 opacity-60 blur-3xl"></div>
+    </div>
+    <div class="section relative py-20 md:py-28 lg:py-32">
+      <div class="max-w-2xl mx-auto text-center">
+        {(data.title || data.titleAccent) && (
+          <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl lg:text-6xl">
+            {data.title && <span>{data.title}</span>}
+            {data.title && data.titleAccent && <br />}
+            {data.titleAccent && <span class="text-rosa-500">{data.titleAccent}</span>}
+          </h1>
+        )}
+        {data.subtitle && (
+          <p class="mt-6 text-base leading-relaxed text-ink-soft sm:text-lg">
+            {data.subtitle}
+          </p>
+        )}
+        {data.buttonText && data.buttonUrl && (
+          <div class="mt-10">
+            <a href={data.buttonUrl} class="btn-primary">
+              {data.buttonText}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
           </div>
-        </div>
+        )}
       </div>
-    )}
-  </div>
-</section>
+    </div>
+  </section>
+) : (
+  <section class="relative overflow-hidden bg-white">
+    <div class="absolute inset-0">
+      <div class="absolute -left-24 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-rosa-200 opacity-50 blur-3xl"></div>
+      <div class="absolute -right-32 top-16 h-96 w-96 rounded-full bg-rosa-100 opacity-60 blur-3xl"></div>
+    </div>
+
+    <div class="section relative grid gap-12 py-20 md:grid-cols-2 md:py-28 lg:py-32">
+      {layout === "image-left" ? (
+        <>
+          {data.imageUrl && (
+            <div class="relative hidden md:block">
+              <div class="relative mx-auto aspect-[4/5] w-full max-w-lg">
+                <div class="absolute inset-0 rounded-[40px] bg-rosa-100"></div>
+                <div class="absolute inset-6 overflow-hidden rounded-[32px] border-8 border-white bg-white shadow-2xl">
+                  <img src={data.imageUrl} alt={data.title || data.titleAccent} class="h-full w-full object-cover" />
+                </div>
+              </div>
+            </div>
+          )}
+          <div class="flex flex-col justify-center">
+            {(data.title || data.titleAccent) && (
+              <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl lg:text-6xl">
+                {data.title && <span>{data.title}</span>}
+                {data.title && data.titleAccent && <br />}
+                {data.titleAccent && <span class="text-rosa-500">{data.titleAccent}</span>}
+              </h1>
+            )}
+            {data.subtitle && (
+              <p class="mt-6 max-w-lg text-base leading-relaxed text-ink-soft sm:text-lg">
+                {data.subtitle}
+              </p>
+            )}
+            {data.buttonText && data.buttonUrl && (
+              <div class="mt-10">
+                <a href={data.buttonUrl} class="btn-primary">
+                  {data.buttonText}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div class="flex flex-col justify-center">
+            {(data.title || data.titleAccent) && (
+              <h1 class="text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl lg:text-6xl">
+                {data.title && <span>{data.title}</span>}
+                {data.title && data.titleAccent && <br />}
+                {data.titleAccent && <span class="text-rosa-500">{data.titleAccent}</span>}
+              </h1>
+            )}
+            {data.subtitle && (
+              <p class="mt-6 max-w-lg text-base leading-relaxed text-ink-soft sm:text-lg">
+                {data.subtitle}
+              </p>
+            )}
+            {data.buttonText && data.buttonUrl && (
+              <div class="mt-10">
+                <a href={data.buttonUrl} class="btn-primary">
+                  {data.buttonText}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+            )}
+          </div>
+          {data.imageUrl && (
+            <div class="relative hidden md:block">
+              <div class="relative mx-auto aspect-[4/5] w-full max-w-lg">
+                <div class="absolute inset-0 rounded-[40px] bg-rosa-100"></div>
+                <div class="absolute inset-6 overflow-hidden rounded-[32px] border-8 border-white bg-white shadow-2xl">
+                  <img src={data.imageUrl} alt={data.title || data.titleAccent} class="h-full w-full object-cover" />
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  </section>
+)}

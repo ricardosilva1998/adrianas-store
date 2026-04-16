@@ -40,9 +40,10 @@ export const SAMPLE_BLOCK_DATA: Record<BlockType, any> = {
     buttonText: "Ver catálogo",
     buttonUrl: "/catalogo",
     imageUrl: "https://picsum.photos/seed/hero/1200/600",
+    layout: "image-right",
   },
   text: { markdown: "## Sobre\n\nPeças **feitas à mão** em Portugal." },
-  "product-grid": { title: "Mais vendidos", subtitle: "Os favoritos desta semana", filter: "bestsellers" },
+  "product-grid": { title: "Mais vendidos", subtitle: "Os favoritos desta semana", filter: "bestsellers", columns: "4", layout: "grid" },
   "category-grid": { title: "Categorias", subtitle: "", categories: ["tote-bags", "t-shirts", "necessaire"] },
   "image-gallery": {
     images: [
@@ -51,7 +52,7 @@ export const SAMPLE_BLOCK_DATA: Record<BlockType, any> = {
       { url: "https://picsum.photos/seed/g3/600/600", alt: "" },
     ],
   },
-  "cta-banner": { title: "Pronta para encomendar?", subtitle: "Envios para Portugal Continental e Ilhas.", buttonText: "Encomendar", buttonUrl: "/catalogo", bgColor: "ink" },
+  "cta-banner": { title: "Pronta para encomendar?", subtitle: "Envios para Portugal Continental e Ilhas.", buttonText: "Encomendar", buttonUrl: "/catalogo", bgColor: "ink", backgroundImage: "", align: "left" },
   faq: {
     title: "Perguntas frequentes",
     items: [
@@ -74,6 +75,7 @@ export const SAMPLE_BLOCK_DATA: Record<BlockType, any> = {
     title: "Feito por mãos portuguesas",
     markdown: "Cada peça é **bordada à mão** no nosso atelier.",
     layout: "image-left",
+    imageAspect: "landscape",
   },
   "video-embed": { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", title: "Bastidores", caption: "Como bordamos cada peça." },
   divider: { style: "line", spacing: "medium" },
@@ -82,4 +84,30 @@ export const SAMPLE_BLOCK_DATA: Record<BlockType, any> = {
   "product-long-description": { title: "" },
   "product-related": { title: "Talvez também gostes", limit: 4 },
   "catalog-grid-bound": { title: "Catálogo", subtitle: "Todas as peças", showCategoryFilter: true, columns: "4" },
+  stats: {
+    title: "Peças feitas à mão",
+    items: [
+      { value: "500+", label: "peças vendidas" },
+      { value: "1.2k", label: "clientes felizes" },
+      { value: "5", label: "anos a bordar" },
+      { value: "100%", label: "feitas em Portugal" },
+    ],
+  },
+  "shipping-strip": {
+    items: [
+      { icon: "truck", title: "Envios rápidos", subtitle: "3-5 dias úteis" },
+      { icon: "lock", title: "Pagamento seguro", subtitle: "MB Way, transferência, PayPal" },
+      { icon: "return", title: "Devoluções", subtitle: "até 14 dias" },
+      { icon: "flag", title: "Feito em Portugal", subtitle: "bordado à mão" },
+    ],
+  },
+  "feature-list": {
+    title: "Porquê escolher-nos",
+    subtitle: "Cada peça é única, feita para durar.",
+    items: [
+      { icon: "heart", title: "Personalização", description: "Escolhe frase, cor e tipografia." },
+      { icon: "sparkle", title: "Feito à mão", description: "Bordado artesanal em Portugal." },
+      { icon: "shield", title: "Qualidade", description: "Materiais selecionados à mão." },
+    ],
+  },
 };

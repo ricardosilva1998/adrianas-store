@@ -3,7 +3,13 @@ import ProductCard from "../ProductCard.astro";
 import { getBestsellers, getActiveProducts, getProductsByCategory } from "../../lib/queries";
 
 interface Props {
-  data: { title: string; subtitle: string; filter: string };
+  data: {
+    title: string;
+    subtitle: string;
+    filter: string;
+    columns?: "2" | "3" | "4";
+    layout?: "grid" | "carousel";
+  };
 }
 
 const { data } = Astro.props;
@@ -19,6 +25,15 @@ if (data.filter === "bestsellers") {
 } else {
   products = await getBestsellers(8);
 }
+
+const isCarousel = data.layout === "carousel";
+
+const gridColsClass =
+  data.columns === "2"
+    ? "grid-cols-2"
+    : data.columns === "3"
+      ? "grid-cols-2 md:grid-cols-3"
+      : "grid-cols-2 md:grid-cols-4";
 ---
 
 <section class="py-20">
@@ -34,8 +49,23 @@ if (data.filter === "bestsellers") {
       <div class="rounded-3xl border border-dashed border-ink-line bg-rosa-50/60 p-10 text-center text-sm text-ink-soft">
         Sem produtos para mostrar.
       </div>
+    ) : isCarousel ? (
+      <div class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4">
+        {products.map((p) => (
+          <div class="snap-start shrink-0 w-64">
+            <ProductCard
+              slug={p.slug}
+              name={p.name}
+              price={p.priceCents / 100}
+              image={p.images[0]?.url ?? "/placeholders/product.svg"}
+              category={p.category}
+              bestseller={p.bestseller}
+            />
+          </div>
+        ))}
+      </div>
     ) : (
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div class={`grid gap-6 ${gridColsClass}`}>
         {products.map((p) => (
           <ProductCard
             slug={p.slug}

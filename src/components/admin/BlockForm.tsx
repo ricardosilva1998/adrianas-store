@@ -1,6 +1,7 @@
 import { marked } from "marked";
-import type { Block } from "../../lib/blocks";
+import type { Block, Icon } from "../../lib/blocks";
 import ImagePicker from "./ImagePicker";
+import IconPreview from "./IconPreview";
 
 export default function BlockForm({ block, onChange }: { block: Block; onChange: (data: any) => void }) {
   switch (block.type) {
@@ -40,12 +41,41 @@ export default function BlockForm({ block, onChange }: { block: Block; onChange:
       return <ProductRelatedForm data={block.data} onChange={onChange} />;
     case "catalog-grid-bound":
       return <CatalogGridBoundForm data={block.data} onChange={onChange} />;
+    case "stats":
+      return <StatsForm data={block.data} onChange={onChange} />;
+    case "shipping-strip":
+      return <ShippingStripForm data={block.data} onChange={onChange} />;
+    case "feature-list":
+      return <FeatureListForm data={block.data} onChange={onChange} />;
   }
 }
 
 function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
   return (
     <div className="grid gap-4">
+      <div>
+        <label className="field-label">Layout</label>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {([
+            { value: "image-right", label: "Imagem à direita" },
+            { value: "image-left", label: "Imagem à esquerda" },
+            { value: "background-image", label: "Imagem de fundo" },
+            { value: "centered", label: "Apenas texto" },
+          ] as const).map(({ value, label }) => (
+            <label
+              key={value}
+              className={`flex cursor-pointer items-center justify-center rounded-full border px-3 py-2 text-xs font-medium transition ${
+                data.layout === value
+                  ? "border-rosa-400 bg-rosa-500 text-white"
+                  : "border-ink-line bg-surface text-ink-soft"
+              }`}
+            >
+              <input type="radio" name="hero-layout" value={value} checked={data.layout === value} onChange={() => onChange({ layout: value })} className="sr-only" />
+              {label}
+            </label>
+          ))}
+        </div>
+      </div>
       <div>
         <label className="field-label">Titulo</label>
         <input value={data.title} onChange={(e) => onChange({ title: e.target.value })} className="field-input" />
@@ -143,6 +173,42 @@ function ProductGridForm({ data, onChange }: { data: any; onChange: (d: any) => 
             </option>
           ))}
         </select>
+      </div>
+      <div>
+        <label className="field-label">Colunas</label>
+        <div className="mt-2 flex gap-2">
+          {(["2", "3", "4"] as const).map((c) => (
+            <label
+              key={c}
+              className={`flex-1 cursor-pointer rounded-full border px-3 py-2 text-center text-xs font-medium transition ${
+                data.columns === c
+                  ? "border-rosa-400 bg-rosa-500 text-white"
+                  : "border-ink-line bg-surface text-ink-soft"
+              }`}
+            >
+              <input type="radio" name="pg-cols" value={c} checked={data.columns === c} onChange={() => onChange({ columns: c })} className="sr-only" />
+              {c} colunas
+            </label>
+          ))}
+        </div>
+      </div>
+      <div>
+        <label className="field-label">Estilo</label>
+        <div className="mt-2 flex gap-2">
+          {(["grid", "carousel"] as const).map((v) => (
+            <label
+              key={v}
+              className={`flex-1 cursor-pointer rounded-full border px-3 py-2 text-center text-xs font-medium transition ${
+                data.layout === v
+                  ? "border-rosa-400 bg-rosa-500 text-white"
+                  : "border-ink-line bg-surface text-ink-soft"
+              }`}
+            >
+              <input type="radio" name="pg-layout" value={v} checked={data.layout === v} onChange={() => onChange({ layout: v })} className="sr-only" />
+              {v === "grid" ? "Grelha" : "Carrossel"}
+            </label>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -274,6 +340,29 @@ function CtaBannerForm({ data, onChange }: { data: any; onChange: (d: any) => vo
         <div>
           <label className="field-label">URL do botao</label>
           <input value={data.buttonUrl} onChange={(e) => onChange({ buttonUrl: e.target.value })} className="field-input" />
+        </div>
+      </div>
+      <ImagePicker
+        label="Imagem de fundo (opcional — substitui a cor)"
+        value={data.backgroundImage ?? ""}
+        onChange={(backgroundImage) => onChange({ backgroundImage })}
+      />
+      <div>
+        <label className="field-label">Alinhamento</label>
+        <div className="mt-2 flex gap-3">
+          {(["left", "center"] as const).map((align) => (
+            <label
+              key={align}
+              className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
+                data.align === align
+                  ? "border-rosa-400 bg-rosa-500 text-white"
+                  : "border-ink-line bg-surface text-ink-soft"
+              }`}
+            >
+              <input type="radio" name="cta-align" value={align} checked={data.align === align} onChange={() => onChange({ align })} className="sr-only" />
+              {align === "left" ? "Esquerda" : "Centrado"}
+            </label>
+          ))}
         </div>
       </div>
       <div>
@@ -479,25 +568,45 @@ function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) 
       </div>
       <div>
         <label className="field-label">Disposição</label>
-        <div className="mt-2 flex gap-3">
-          {(["image-left", "image-right"] as const).map((layout) => (
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {([
+            { value: "image-left", label: "Imagem à esquerda" },
+            { value: "image-right", label: "Imagem à direita" },
+            { value: "image-top", label: "Imagem em cima" },
+            { value: "image-bottom", label: "Imagem em baixo" },
+          ] as const).map(({ value, label }) => (
             <label
-              key={layout}
-              className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition ${
-                data.layout === layout
-                  ? "border-rosa-300 bg-rosa-100 text-rosa-700 dark:bg-rosa-500/15 dark:text-rosa-200"
-                  : "border-ink-line bg-surface text-ink-muted"
+              key={value}
+              className={`flex cursor-pointer items-center justify-center rounded-full border px-3 py-2 text-xs font-medium transition ${
+                data.layout === value
+                  ? "border-rosa-400 bg-rosa-500 text-white"
+                  : "border-ink-line bg-surface text-ink-soft"
               }`}
             >
-              <input
-                type="radio"
-                name="layout"
-                value={layout}
-                checked={data.layout === layout}
-                onChange={() => onChange({ layout })}
-                className="sr-only"
-              />
-              {layout === "image-left" ? "Imagem à esquerda" : "Imagem à direita"}
+              <input type="radio" name="its-layout" value={value} checked={data.layout === value} onChange={() => onChange({ layout: value })} className="sr-only" />
+              {label}
+            </label>
+          ))}
+        </div>
+      </div>
+      <div>
+        <label className="field-label">Proporção da imagem</label>
+        <div className="mt-2 flex gap-2">
+          {([
+            { value: "square", label: "Quadrado" },
+            { value: "landscape", label: "Paisagem" },
+            { value: "portrait", label: "Retrato" },
+          ] as const).map(({ value, label }) => (
+            <label
+              key={value}
+              className={`flex-1 cursor-pointer rounded-full border px-3 py-2 text-center text-xs font-medium transition ${
+                data.imageAspect === value
+                  ? "border-rosa-400 bg-rosa-500 text-white"
+                  : "border-ink-line bg-surface text-ink-soft"
+              }`}
+            >
+              <input type="radio" name="its-aspect" value={value} checked={data.imageAspect === value} onChange={() => onChange({ imageAspect: value })} className="sr-only" />
+              {label}
             </label>
           ))}
         </div>
@@ -738,6 +847,126 @@ function CatalogGridBoundForm({ data, onChange }: { data: any; onChange: (d: any
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Icon picker helper ────────────────────────────────────────────────────────
+
+const ICONS: Icon[] = ["truck", "lock", "return", "flag", "heart", "star", "shield", "sparkle"];
+
+function IconPicker({ value, onChange }: { value: Icon; onChange: (next: Icon) => void }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {ICONS.map((icon) => (
+        <button
+          key={icon}
+          type="button"
+          onClick={() => onChange(icon)}
+          aria-label={icon}
+          className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${
+            value === icon ? "border-rosa-400 bg-rosa-500 text-white" : "border-ink-line bg-surface text-ink-soft hover:border-rosa-300"
+          }`}
+        >
+          <IconPreview name={icon} className="h-5 w-5" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── New block forms ───────────────────────────────────────────────────────────
+
+function StatsForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const items: Array<{ value: string; label: string }> = data.items ?? [];
+  const addItem = () => items.length < 4 && onChange({ items: [...items, { value: "", label: "" }] });
+  const removeItem = (idx: number) => onChange({ items: items.filter((_, i) => i !== idx) });
+  const updateItem = (idx: number, field: "value" | "label", v: string) =>
+    onChange({ items: items.map((it, i) => (i === idx ? { ...it, [field]: v } : it)) });
+
+  return (
+    <div className="grid gap-4">
+      <div>
+        <label className="field-label">Título (opcional)</label>
+        <input value={data.title ?? ""} onChange={(e) => onChange({ title: e.target.value })} className="field-input" />
+      </div>
+      <label className="field-label">Itens (até 4)</label>
+      {items.map((it, i) => (
+        <div key={i} className="grid grid-cols-[1fr,2fr,auto] gap-2 rounded-xl border border-ink-line bg-surface p-3">
+          <input value={it.value} onChange={(e) => updateItem(i, "value", e.target.value)} placeholder="500+" className="field-input" />
+          <input value={it.label} onChange={(e) => updateItem(i, "label", e.target.value)} placeholder="peças vendidas" className="field-input" />
+          <button type="button" onClick={() => removeItem(i)} className="text-ink-muted hover:text-red-500">✕</button>
+        </div>
+      ))}
+      {items.length < 4 && (
+        <button type="button" onClick={addItem} className="btn-secondary w-fit">+ Adicionar item</button>
+      )}
+    </div>
+  );
+}
+
+function ShippingStripForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const items: Array<{ icon: Icon; title: string; subtitle: string }> = data.items ?? [];
+  const addItem = () =>
+    items.length < 4 && onChange({ items: [...items, { icon: "truck" as Icon, title: "", subtitle: "" }] });
+  const removeItem = (idx: number) => onChange({ items: items.filter((_, i) => i !== idx) });
+  const updateItem = (idx: number, patch: Partial<{ icon: Icon; title: string; subtitle: string }>) =>
+    onChange({ items: items.map((it, i) => (i === idx ? { ...it, ...patch } : it)) });
+
+  return (
+    <div className="grid gap-4">
+      <label className="field-label">Itens (até 4)</label>
+      {items.map((it, i) => (
+        <div key={i} className="grid gap-2 rounded-xl border border-ink-line bg-surface p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">#{i + 1}</span>
+            <button type="button" onClick={() => removeItem(i)} className="text-xs text-ink-muted hover:text-red-500">Remover</button>
+          </div>
+          <IconPicker value={it.icon} onChange={(icon) => updateItem(i, { icon })} />
+          <input value={it.title} onChange={(e) => updateItem(i, { title: e.target.value })} placeholder="Envios rápidos" className="field-input" />
+          <input value={it.subtitle} onChange={(e) => updateItem(i, { subtitle: e.target.value })} placeholder="3-5 dias úteis (opcional)" className="field-input" />
+        </div>
+      ))}
+      {items.length < 4 && (
+        <button type="button" onClick={addItem} className="btn-secondary w-fit">+ Adicionar item</button>
+      )}
+    </div>
+  );
+}
+
+function FeatureListForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const items: Array<{ icon: Icon; title: string; description: string }> = data.items ?? [];
+  const addItem = () =>
+    items.length < 6 && onChange({ items: [...items, { icon: "star" as Icon, title: "", description: "" }] });
+  const removeItem = (idx: number) => onChange({ items: items.filter((_, i) => i !== idx) });
+  const updateItem = (idx: number, patch: Partial<{ icon: Icon; title: string; description: string }>) =>
+    onChange({ items: items.map((it, i) => (i === idx ? { ...it, ...patch } : it)) });
+
+  return (
+    <div className="grid gap-4">
+      <div>
+        <label className="field-label">Título</label>
+        <input value={data.title ?? ""} onChange={(e) => onChange({ title: e.target.value })} className="field-input" />
+      </div>
+      <div>
+        <label className="field-label">Subtítulo</label>
+        <input value={data.subtitle ?? ""} onChange={(e) => onChange({ subtitle: e.target.value })} className="field-input" />
+      </div>
+      <label className="field-label">Itens (até 6)</label>
+      {items.map((it, i) => (
+        <div key={i} className="grid gap-2 rounded-xl border border-ink-line bg-surface p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">#{i + 1}</span>
+            <button type="button" onClick={() => removeItem(i)} className="text-xs text-ink-muted hover:text-red-500">Remover</button>
+          </div>
+          <IconPicker value={it.icon} onChange={(icon) => updateItem(i, { icon })} />
+          <input value={it.title} onChange={(e) => updateItem(i, { title: e.target.value })} placeholder="Título" className="field-input" />
+          <textarea value={it.description} onChange={(e) => updateItem(i, { description: e.target.value })} placeholder="Descrição" rows={2} className="field-input" />
+        </div>
+      ))}
+      {items.length < 6 && (
+        <button type="button" onClick={addItem} className="btn-secondary w-fit">+ Adicionar item</button>
+      )}
     </div>
   );
 }
