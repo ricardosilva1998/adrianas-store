@@ -17,6 +17,7 @@ interface ContentProps {
   slug: string;
   title: string;
   setTitle: (t: string) => void;
+  onTitleBlur: () => void;
   blocks: Block[];
   expanded: string | null;
   setExpanded: (id: string | null) => void;
@@ -35,6 +36,7 @@ function PageEditorContent({
   slug,
   title,
   setTitle,
+  onTitleBlur,
   blocks,
   expanded,
   setExpanded,
@@ -54,7 +56,7 @@ function PageEditorContent({
     <div className="grid gap-4">
       <div className="rounded-3xl border border-ink-line bg-surface p-6">
         <label className="field-label" htmlFor="title">Título</label>
-        <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="field-input" />
+        <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} onBlur={onTitleBlur} className="field-input" />
       </div>
 
       {blocks.map((block, idx) => (
@@ -118,6 +120,7 @@ function PageEditorContent({
 
 export default function PageEditor({ slug, title: initialTitle, initialBlocks, published, hasDraft: initialHasDraft }: Props) {
   const [title, setTitle] = useState(initialTitle);
+  const [savedTitle, setSavedTitle] = useState(initialTitle);
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
   const [expanded, setExpanded] = useState<string | null>(initialBlocks[0]?.id ?? null);
   const [showPicker, setShowPicker] = useState(false);
@@ -135,16 +138,34 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
     });
   }, []);
 
+  const saveTitle = useCallback(async () => {
+    const trimmed = title.trim();
+    if (!trimmed || trimmed === savedTitle) return;
+    const prev = savedTitle;
+    setSavedTitle(trimmed);
+    try {
+      const res = await fetch(`/api/admin/pages/${slug}/title`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: trimmed }),
+      });
+      if (!res.ok) throw new Error(`Erro ${res.status}`);
+    } catch {
+      setSavedTitle(prev);
+      alert("Erro ao guardar título.");
+    }
+  }, [title, savedTitle, slug]);
+
   useEffect(() => {
     const onBeforeUnload = (ev: BeforeUnloadEvent) => {
-      if (dirtyBlockIds.size > 0) {
+      if (dirtyBlockIds.size > 0 || title.trim() !== savedTitle) {
         ev.preventDefault();
         ev.returnValue = "";
       }
     };
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [dirtyBlockIds]);
+  }, [dirtyBlockIds, title, savedTitle]);
 
   const upsertBlock = (updated: Block) => {
     setBlocks((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
@@ -232,6 +253,9 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
     }
   };
 
+  const titleDirty = title.trim() !== savedTitle;
+  const publishBlocked = dirtyBlockIds.size > 0 || titleDirty;
+
   return (
     <PagePreviewShell
       slug={slug}
@@ -240,7 +264,7 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
       publishing={publishing}
       discarding={discarding}
       hasDraft={hasDraft}
-      publishBlocked={dirtyBlockIds.size > 0}
+      publishBlocked={publishBlocked}
       onPublish={handlePublish}
       onDiscardDraft={handleDiscardDraft}
     >
@@ -248,6 +272,7 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
         slug={slug}
         title={title}
         setTitle={setTitle}
+        onTitleBlur={saveTitle}
         blocks={blocks}
         expanded={expanded}
         setExpanded={setExpanded}
