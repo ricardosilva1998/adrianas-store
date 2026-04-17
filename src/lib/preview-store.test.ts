@@ -4,6 +4,9 @@ import {
   upsertPagePreview,
   getPagePreview,
   clearPagePreview,
+  putBlockPreview,
+  getBlockPreview,
+  clearBlockPreview,
 } from "./preview-store";
 
 const makePayload = (slug = "home") => ({
@@ -54,5 +57,37 @@ describe("page preview store", () => {
     const token = putPagePreview(makePayload());
     vi.advanceTimersByTime(11 * 60 * 1000);
     expect(getPagePreview(token)).toBeNull();
+  });
+});
+
+describe("block preview store", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("putBlockPreview returns a unique string token", () => {
+    const a = putBlockPreview({ type: "hero", data: {} });
+    const b = putBlockPreview({ type: "hero", data: {} });
+    expect(a).not.toBe(b);
+  });
+
+  it("getBlockPreview retrieves stored value", () => {
+    const t = putBlockPreview({ type: "faq", data: { title: "x" } });
+    expect(getBlockPreview(t)?.type).toBe("faq");
+  });
+
+  it("clearBlockPreview removes the entry", () => {
+    const t = putBlockPreview({ type: "hero", data: {} });
+    clearBlockPreview(t);
+    expect(getBlockPreview(t)).toBeNull();
+  });
+
+  it("expires after TTL", () => {
+    const t = putBlockPreview({ type: "hero", data: {} });
+    vi.advanceTimersByTime(11 * 60 * 1000);
+    expect(getBlockPreview(t)).toBeNull();
   });
 });

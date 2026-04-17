@@ -59,7 +59,7 @@ export default function PagePreviewShell({
     return () => {
       cancelled = true;
       if (tokenRef.current) {
-        fetch(`/api/admin/pages/${slug}/preview?token=${tokenRef.current}`, { method: "DELETE" });
+        fetch(`/api/admin/pages/${slug}/preview?token=${tokenRef.current}`, { method: "DELETE" }).catch(() => {});
       }
       if (popupRef.current && !popupRef.current.closed) {
         popupRef.current.close();

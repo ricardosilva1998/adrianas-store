@@ -3,6 +3,7 @@ import BareLayout from "../../../layouts/BareLayout.astro";
 import BlockRenderer from "../../../components/blocks/BlockRenderer.astro";
 import { SAMPLE_BLOCK_DATA, SAMPLE_PRODUCT, SAMPLE_PRODUCTS } from "../../../lib/block-samples";
 import { BLOCK_TYPES, blockSchema, type BlockType } from "../../../lib/blocks";
+import { getBlockPreview } from "../../../lib/preview-store";
 
 export const prerender = false;
 
@@ -14,9 +15,17 @@ if (!typeParam || !BLOCK_TYPES.some((bt) => bt.type === typeParam)) {
   return new Response("Bloco desconhecido", { status: 404 });
 }
 
-const rawData = Astro.url.searchParams.get("data");
+const previewToken = Astro.url.searchParams.get("previewToken");
 let data: unknown = SAMPLE_BLOCK_DATA[typeParam];
-if (rawData) {
+if (previewToken) {
+  const stored = getBlockPreview(previewToken);
+  if (stored && stored.type === typeParam) {
+    data = stored.data;
+  }
+}
+
+const rawData = Astro.url.searchParams.get("data");
+if (!previewToken && rawData) {
   try {
     const parsed = JSON.parse(decodeURIComponent(rawData));
     const candidate = { id: "preview", type: typeParam, data: parsed };

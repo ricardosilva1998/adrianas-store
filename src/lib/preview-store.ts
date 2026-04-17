@@ -75,3 +75,34 @@ export function getPagePreview(token: string): PagePreviewValue | null {
 export function clearPagePreview(token: string): void {
   pageStore.delete(token);
 }
+
+export type BlockPreviewValue = {
+  type: string;
+  data: Record<string, unknown>;
+};
+
+type BlockPreviewEntry = { value: BlockPreviewValue; expiresAt: number };
+const blockPreviewStore = new Map<string, BlockPreviewEntry>();
+
+function blockPreviewGc() {
+  const now = Date.now();
+  for (const [token, entry] of blockPreviewStore) {
+    if (entry.expiresAt <= now) blockPreviewStore.delete(token);
+  }
+}
+
+export function putBlockPreview(value: BlockPreviewValue): string {
+  blockPreviewGc();
+  const token = nanoid(16);
+  blockPreviewStore.set(token, { value, expiresAt: Date.now() + TTL_MS });
+  return token;
+}
+
+export function getBlockPreview(token: string): BlockPreviewValue | null {
+  blockPreviewGc();
+  return blockPreviewStore.get(token)?.value ?? null;
+}
+
+export function clearBlockPreview(token: string): void {
+  blockPreviewStore.delete(token);
+}

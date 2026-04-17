@@ -55,7 +55,7 @@ export default function PreviewShell({
     return () => {
       cancelled = true;
       if (tokenRef.current) {
-        fetch(`/api/admin/site-config/preview?token=${tokenRef.current}`, { method: "DELETE" });
+        fetch(`/api/admin/site-config/preview?token=${tokenRef.current}`, { method: "DELETE" }).catch(() => {});
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -163,15 +163,15 @@ export default function PreviewShell({
             }}
           >
             <iframe
-              ref={(el) => {
-                iframeRef.current = el;
-                if (el && onIframeReady && el.contentWindow) {
-                  onIframeReady(el.contentWindow);
-                }
-              }}
+              ref={iframeRef}
               src={iframeSrc}
               className="h-full w-full border-0"
               title="Preview"
+              onLoad={(e) => {
+                if (onIframeReady && (e.currentTarget as HTMLIFrameElement).contentWindow) {
+                  onIframeReady((e.currentTarget as HTMLIFrameElement).contentWindow!);
+                }
+              }}
             />
           </div>
         </div>

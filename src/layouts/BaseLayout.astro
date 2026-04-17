@@ -52,6 +52,8 @@ const isPreview = Astro.url.searchParams.has("preview");
         // Live preview listener: parent admin editor can postMessage CSS/font
         // updates so color changes feel instant without iframe reload.
         window.addEventListener("message", (ev) => {
+          // Only accept messages from same-origin senders. The preview-theme-css branch
+          // writes into <style>.textContent, so allowing cross-origin here would be XSS.
           if (ev.origin !== window.location.origin) return;
           if (!ev?.data?.kind) return;
 
@@ -81,9 +83,10 @@ const isPreview = Astro.url.searchParams.has("preview");
             const el = document.querySelector(`[data-block-id="${CSS.escape(ev.data.id)}"]`);
             if (el) {
               el.scrollIntoView({ behavior: "smooth", block: "start" });
+              const accent = getComputedStyle(document.documentElement).getPropertyValue("--color-primary").trim() || "#ED7396";
               el.animate(
                 [
-                  { outline: "2px solid #ED7396", outlineOffset: "4px" },
+                  { outline: `2px solid ${accent}`, outlineOffset: "4px" },
                   { outline: "2px solid transparent", outlineOffset: "4px" }
                 ],
                 { duration: 800 }

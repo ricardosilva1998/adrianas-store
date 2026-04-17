@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { marked } from "marked";
 import type { Block, Icon } from "../../lib/blocks";
 import ImagePicker from "./ImagePicker";
@@ -113,7 +114,10 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
 }
 
 function TextForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
-  const html = marked.parse(data.markdown || "", { async: false }) as string;
+  const html = useMemo(
+    () => marked.parse(data.markdown || "", { async: false }) as string,
+    [data.markdown],
+  );
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div>
@@ -550,7 +554,10 @@ function NewsletterForm({ data, onChange }: { data: any; onChange: (d: any) => v
 }
 
 function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
-  const html = marked.parse(data.markdown || "", { async: false }) as string;
+  const html = useMemo(
+    () => marked.parse(data.markdown || "", { async: false }) as string,
+    [data.markdown],
+  );
   return (
     <div className="grid gap-4">
       <ImagePicker

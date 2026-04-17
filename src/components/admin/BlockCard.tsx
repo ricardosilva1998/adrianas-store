@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Block, BlockType } from "../../lib/blocks";
 import { BLOCK_TYPES } from "../../lib/blocks";
 import BlockForm from "./BlockForm";
@@ -39,6 +39,25 @@ export default function BlockCard({
   const [error, setError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [savingPreset, setSavingPreset] = useState(false);
+  const menuWrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDocMouseDown = (e: MouseEvent) => {
+      if (menuWrapperRef.current && !menuWrapperRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onDocMouseDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocMouseDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
 
   const saveAsPreset = async () => {
     const name = window.prompt("Nome do bloco personalizado?");
@@ -108,17 +127,20 @@ export default function BlockCard({
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
           <button type="button" onClick={onMoveUp} disabled={!canMoveUp} className="rounded-lg p-1.5 text-ink-muted hover:bg-rosa-50 hover:text-rosa-500 disabled:opacity-30">↑</button>
           <button type="button" onClick={onMoveDown} disabled={!canMoveDown} className="rounded-lg p-1.5 text-ink-muted hover:bg-rosa-50 hover:text-rosa-500 disabled:opacity-30">↓</button>
-          <div className="relative">
+          <div className="relative" ref={menuWrapperRef}>
             <button
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
               aria-label="Mais opções"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              aria-controls="block-card-menu"
               className="rounded-lg p-1.5 text-ink-muted hover:bg-rosa-50 hover:text-rosa-500"
             >
               ⋯
             </button>
             {menuOpen && (
-              <div role="menu" className="absolute right-0 top-full z-10 mt-1 w-56 rounded-xl border border-ink-line bg-surface p-1 shadow-lg">
+              <div role="menu" id="block-card-menu" className="absolute right-0 top-full z-10 mt-1 w-56 rounded-xl border border-ink-line bg-surface p-1 shadow-lg">
                 <button
                   role="menuitem"
                   type="button"
