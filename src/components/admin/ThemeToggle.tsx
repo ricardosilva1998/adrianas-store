@@ -2,11 +2,6 @@ import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
-function readInitial(): Theme {
-  if (typeof document === "undefined") return "light";
-  return document.documentElement.classList.contains("dark") ? "dark" : "light";
-}
-
 function persist(theme: Theme) {
   try {
     localStorage.setItem("adriana-admin-theme", theme);
@@ -17,10 +12,13 @@ function persist(theme: Theme) {
 }
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(readInitial);
+  // Start as null so SSR and first client render produce identical HTML —
+  // React 19 is strict about hydration mismatches. The real theme is read
+  // from the DOM in the first effect (runs after hydration completes).
+  const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
-    setTheme(readInitial());
+    setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
   }, []);
 
   const toggle = () => {
@@ -30,7 +28,12 @@ export default function ThemeToggle() {
     persist(next);
   };
 
-  const label = theme === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro";
+  const label =
+    theme === null
+      ? "Alternar tema"
+      : theme === "dark"
+        ? "Mudar para modo claro"
+        : "Mudar para modo escuro";
   const icon = theme === "dark" ? "☀" : "◐";
 
   return (
@@ -39,7 +42,8 @@ export default function ThemeToggle() {
       onClick={toggle}
       aria-label={label}
       title={label}
-      className="flex h-8 w-8 items-center justify-center rounded-full border border-ink-line text-sm text-ink-soft hover:border-rosa-300 hover:text-rosa-500"
+      disabled={theme === null}
+      className="flex h-8 w-8 items-center justify-center rounded-full border border-ink-line text-sm text-ink-soft hover:border-rosa-300 hover:text-rosa-500 disabled:opacity-40"
     >
       {icon}
     </button>
