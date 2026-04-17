@@ -20,6 +20,7 @@ export default function BlockPickerDialog({ open, context, onClose, onInsertBloc
   const [selectedPreset, setSelectedPreset] = useState<Preset | null>(null);
   const [presets, setPresets] = useState<Preset[]>([]);
   const [loadingPresets, setLoadingPresets] = useState(false);
+  const [presetToken, setPresetToken] = useState<string | null>(null);
 
   const allowed = useMemo(() => blocksAllowedIn(context), [context]);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -81,10 +82,31 @@ export default function BlockPickerDialog({ open, context, onClose, onInsertBloc
     };
   }, [open, tab, context]);
 
+  useEffect(() => {
+    if (!selectedPreset) {
+      setPresetToken(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const res = await fetch("/api/admin/block-preset-preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: selectedPreset.type, data: selectedPreset.data }),
+      });
+      if (!res.ok) return;
+      const d = (await res.json()) as { token: string };
+      if (!cancelled) setPresetToken(d.token);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPreset]);
+
   if (!open) return null;
 
   const previewSrc = selectedPreset
-    ? `/admin/block-preview/${selectedPreset.type}?data=${encodeURIComponent(JSON.stringify(selectedPreset.data))}`
+    ? (presetToken ? `/admin/block-preview/${selectedPreset.type}?previewToken=${presetToken}` : "")
     : selectedType
       ? `/admin/block-preview/${selectedType}`
       : "";
