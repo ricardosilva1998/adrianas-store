@@ -24,6 +24,10 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
   const asArr = blocksArraySchema.safeParse(current);
   const baseBlocks: Block[] = asArr.success ? asArr.data : [];
 
+  if (baseBlocks.some((b) => b.id === parsed.data.block.id)) {
+    return new Response(JSON.stringify({ error: "Id de bloco já existe" }), { status: 409 });
+  }
+
   const out = appendBlock(baseBlocks, parsed.data.block);
   if (!out.ok) return new Response(JSON.stringify({ error: "Bloco invalido" }), { status: 400 });
 

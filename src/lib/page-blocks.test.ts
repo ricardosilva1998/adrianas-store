@@ -43,6 +43,11 @@ describe("appendBlock", () => {
     const out = appendBlock([], bad);
     expect(out.ok).toBe(false);
   });
+
+  it("appendBlock accepts a block with a new id but a caller is responsible for uniqueness", () => {
+    const out = appendBlock([hero], text); // different ids: "a" vs "b"
+    expect(out.ok).toBe(true);
+  });
 });
 
 describe("removeBlockById", () => {

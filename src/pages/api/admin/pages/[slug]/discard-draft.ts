@@ -9,6 +9,9 @@ export const POST: APIRoute = async ({ params, locals }) => {
   const slug = params.slug;
   if (!slug) return new Response(JSON.stringify({ error: "Slug em falta" }), { status: 400 });
 
+  const [row] = await db.select().from(schema.pages).where(eq(schema.pages.slug, slug)).limit(1);
+  if (!row) return new Response(JSON.stringify({ error: "Pagina nao encontrada" }), { status: 404 });
+
   await db
     .update(schema.pages)
     .set({ draftBlocks: null, updatedAt: new Date() })
