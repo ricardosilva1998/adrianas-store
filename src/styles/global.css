@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Enable .dark class as the dark-mode trigger (default in Tailwind v4 is the prefers-color-scheme media query). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-rosa-50: #fdf2f8;
   --color-rosa-100: #fce7f3;
@@ -49,33 +52,35 @@ html.dark body {
   background: var(--color-surface-muted);
 }
 
-html {
-  font-family: var(--font-sans);
-  color: var(--color-ink);
-  background: #ffffff;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background: var(--color-surface);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
 
-body {
-  min-height: 100dvh;
-  background: #ffffff;
-}
+  body {
+    min-height: 100dvh;
+    background: var(--color-surface);
+  }
 
-a {
-  color: inherit;
-}
+  a {
+    color: inherit;
+  }
 
-img,
-svg {
-  display: block;
-  max-width: 100%;
-}
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
 
-:focus-visible {
-  outline: 2px solid var(--color-rosa-500);
-  outline-offset: 2px;
-  border-radius: 4px;
+  :focus-visible {
+    outline: 2px solid var(--color-rosa-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
 @layer components {
