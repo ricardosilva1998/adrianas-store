@@ -30,7 +30,11 @@ const textDataSchema = z.object({
 const productGridDataSchema = z.object({
   title: z.string().default(""),
   subtitle: z.string().default(""),
-  filter: z.string().default("bestsellers"),
+  filter: z.union([
+    z.literal("bestsellers"),
+    z.literal("all"),
+    z.string().regex(/^category:[a-z0-9-]+$/, "Filtro inválido"),
+  ]).default("bestsellers"),
   columns: z.enum(["2", "3", "4"]).default("4"),
   layout: z.enum(["grid", "carousel"]).default("grid"),
 });
@@ -346,9 +350,7 @@ export function blocksAllowedIn(
 
 // --- Preset instantiation helper ---
 
-export function instantiatePreset<T extends { type: BlockType; data: any }>(
-  preset: T,
-): Block {
+export function instantiatePreset(preset: Omit<Block, "id">): Block {
   return {
     id: nanoid(10),
     type: preset.type,
