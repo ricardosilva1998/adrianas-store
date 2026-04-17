@@ -127,8 +127,8 @@ export default function BlockPickerDialog({ open, context, onClose, onInsertBloc
       >
         <div className="flex items-center justify-between border-b border-ink-line px-6 py-4">
           <div role="tablist" className="flex gap-1 rounded-full border border-ink-line p-1">
-            <button role="tab" aria-selected={tab === "blocos"} onClick={() => setTab("blocos")} className={`px-4 py-1 text-sm font-medium rounded-full ${tab === "blocos" ? "bg-ink text-white" : "text-ink-soft"}`}>Blocos</button>
-            <button role="tab" aria-selected={tab === "presets"} onClick={() => setTab("presets")} className={`px-4 py-1 text-sm font-medium rounded-full ${tab === "presets" ? "bg-ink text-white" : "text-ink-soft"}`}>Meus blocos</button>
+            <button role="tab" aria-selected={tab === "blocos"} onClick={() => setTab("blocos")} className={`px-4 py-1 text-sm font-medium rounded-full ${tab === "blocos" ? "bg-ink text-white dark:bg-rosa-500" : "text-ink-soft"}`}>Blocos</button>
+            <button role="tab" aria-selected={tab === "presets"} onClick={() => setTab("presets")} className={`px-4 py-1 text-sm font-medium rounded-full ${tab === "presets" ? "bg-ink text-white dark:bg-rosa-500" : "text-ink-soft"}`}>Meus blocos</button>
           </div>
           <button onClick={onClose} className="text-sm text-ink-muted hover:text-rosa-500">Fechar ✕</button>
         </div>

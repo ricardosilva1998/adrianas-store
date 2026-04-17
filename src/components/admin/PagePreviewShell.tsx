@@ -166,7 +166,7 @@ export default function PagePreviewShell({
             className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition disabled:opacity-50 ${
               popupOpen
                 ? "border border-rosa-400 bg-rosa-50 text-rosa-700 hover:border-rosa-500 dark:bg-rosa-500/15 dark:text-rosa-200"
-                : "bg-ink text-white hover:bg-ink/90"
+                : "bg-ink text-white hover:bg-ink/90 dark:bg-rosa-500"
             }`}
             title={!token ? "Aguarda a pré-visualização..." : undefined}
           >

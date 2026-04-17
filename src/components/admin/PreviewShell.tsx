@@ -114,14 +114,14 @@ export default function PreviewShell({
           <button
             type="button"
             onClick={() => setDevice("desktop")}
-            className={`px-3 py-1 text-xs font-medium rounded-full ${device === "desktop" ? "bg-ink text-white" : "text-ink-soft"}`}
+            className={`px-3 py-1 text-xs font-medium rounded-full ${device === "desktop" ? "bg-ink text-white dark:bg-rosa-500" : "text-ink-soft"}`}
           >
             Desktop
           </button>
           <button
             type="button"
             onClick={() => setDevice("mobile")}
-            className={`px-3 py-1 text-xs font-medium rounded-full ${device === "mobile" ? "bg-ink text-white" : "text-ink-soft"}`}
+            className={`px-3 py-1 text-xs font-medium rounded-full ${device === "mobile" ? "bg-ink text-white dark:bg-rosa-500" : "text-ink-soft"}`}
           >
             Mobile
           </button>
