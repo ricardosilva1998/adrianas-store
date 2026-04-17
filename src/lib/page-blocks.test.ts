@@ -85,3 +85,8 @@ describe("reorderBlocks", () => {
     expect(out.ok).toBe(false);
   });
 });
+
+it.skip("/api/admin/pages/[slug]/discard-draft returns 404 for unknown slug (integration test)", () => {
+  // Covered by the endpoint's SELECT-before-UPDATE check added in commit fc7c958.
+  // Real HTTP test requires a test DB harness; skipped until one exists.
+});

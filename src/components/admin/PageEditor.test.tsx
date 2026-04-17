@@ -25,6 +25,21 @@ describe("PageEditor", () => {
     expect(screen.getByText(/hero/i)).toBeInTheDocument();
   });
 
+  it("disables Publicar when a block is dirty", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<PageEditor slug="home" title="Home" initialBlocks={[hero]} published hasDraft={false} />);
+
+    // The first block (hero) starts expanded by default (expanded = initialBlocks[0].id).
+    // No expand click needed — the form is already visible.
+    const titleInput = await screen.findByDisplayValue("Olá");
+    await user.clear(titleInput);
+    await user.type(titleInput, "Dirty");
+
+    // Publicar button should now be disabled.
+    const publishBtn = screen.getByRole("button", { name: /publicar/i });
+    expect(publishBtn).toBeDisabled();
+  });
+
   it("Publicar calls POST /api/admin/pages/home/publish with no body", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<PageEditor slug="home" title="Home" initialBlocks={[hero]} published hasDraft={false} />);
