@@ -39,6 +39,8 @@ export default function BlockCard({
   const [error, setError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [savingPreset, setSavingPreset] = useState(false);
+  const [presetModalOpen, setPresetModalOpen] = useState(false);
+  const [presetName, setPresetName] = useState("");
   const menuWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,22 +61,28 @@ export default function BlockCard({
     };
   }, [menuOpen]);
 
-  const saveAsPreset = async () => {
-    const name = window.prompt("Nome do bloco personalizado?");
-    if (!name || !name.trim()) return;
+  const onClickSaveAsPreset = () => {
+    setPresetName("");
+    setPresetModalOpen(true);
+    setMenuOpen(false);
+  };
+
+  const confirmSaveAsPreset = async () => {
+    const name = presetName.trim();
+    if (!name) return;
     setSavingPreset(true);
     setError(null);
     try {
       const res = await fetch("/api/admin/block-presets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), type: block.type, data: block.data }),
+        body: JSON.stringify({ name, type: block.type, data: block.data }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error((body as { error?: string }).error ?? `Erro ${res.status}`);
       }
-      setMenuOpen(false);
+      setPresetModalOpen(false);
       setJustSaved(true);
       setTimeout(() => setJustSaved(false), 2500);
     } catch (err) {
@@ -117,14 +125,20 @@ export default function BlockCard({
 
   return (
     <div className="rounded-3xl border border-ink-line bg-surface">
-      <div className="flex cursor-pointer items-center justify-between px-6 py-4" onClick={onToggleExpand}>
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between px-6 py-4">
+        <button
+          type="button"
+          onClick={onToggleExpand}
+          className="flex flex-1 items-center gap-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-rosa-200 rounded"
+          aria-expanded={expanded}
+          aria-label={blockLabel(block.type)}
+        >
           <span className="rounded-full bg-rosa-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
             {blockLabel(block.type)}
           </span>
           <span className="text-xs text-ink-muted">{expanded ? "▼" : "▶"}</span>
-        </div>
-        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+        </button>
+        <div className="flex items-center gap-1">
           <button type="button" onClick={onMoveUp} disabled={!canMoveUp} className="rounded-lg p-1.5 text-ink-muted hover:bg-rosa-50 hover:text-rosa-500 disabled:opacity-30">↑</button>
           <button type="button" onClick={onMoveDown} disabled={!canMoveDown} className="rounded-lg p-1.5 text-ink-muted hover:bg-rosa-50 hover:text-rosa-500 disabled:opacity-30">↓</button>
           <div className="relative" ref={menuWrapperRef}>
@@ -144,7 +158,7 @@ export default function BlockCard({
                 <button
                   role="menuitem"
                   type="button"
-                  onClick={saveAsPreset}
+                  onClick={onClickSaveAsPreset}
                   disabled={savingPreset}
                   className="block w-full rounded-lg px-3 py-2 text-left text-xs text-ink-soft hover:bg-rosa-50 hover:text-rosa-500 disabled:opacity-40"
                 >
@@ -173,6 +187,50 @@ export default function BlockCard({
             >
               {saving ? "A guardar…" : "Guardar bloco"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {presetModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Guardar bloco personalizado"
+        >
+          <div className="w-[min(420px,95vw)] rounded-3xl border border-ink-line bg-surface p-6 shadow-2xl">
+            <h3 className="text-sm font-semibold text-ink">Guardar como bloco personalizado</h3>
+            <p className="mt-1 text-xs text-ink-muted">Dá um nome para poderes reutilizar este bloco.</p>
+            <input
+              value={presetName}
+              onChange={(e) => setPresetName(e.target.value)}
+              autoFocus
+              placeholder="Ex: Hero da home"
+              className="field-input mt-4"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && presetName.trim()) confirmSaveAsPreset();
+                if (e.key === "Escape") setPresetModalOpen(false);
+              }}
+            />
+            {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setPresetModalOpen(false)}
+                disabled={savingPreset}
+                className="rounded-full border border-ink-line px-4 py-2 text-sm text-ink-soft"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmSaveAsPreset}
+                disabled={!presetName.trim() || savingPreset}
+                className="rounded-full bg-rosa-400 px-5 py-2 text-sm font-medium text-white hover:bg-rosa-500 disabled:opacity-40"
+              >
+                {savingPreset ? "A guardar…" : "Guardar"}
+              </button>
+            </div>
           </div>
         </div>
       )}

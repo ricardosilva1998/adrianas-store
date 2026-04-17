@@ -70,9 +70,8 @@ describe("BlockCard", () => {
     expect(save).toBeDisabled();
   });
 
-  it("POSTs to /api/admin/block-presets when 'Guardar como bloco personalizado' is clicked", async () => {
+  it("POSTs to /api/admin/block-presets when the preset modal is confirmed", async () => {
     const user = userEvent.setup();
-    vi.spyOn(window, "prompt").mockReturnValue("Hero home");
     render(
       <BlockCard
         slug="home"
@@ -89,6 +88,9 @@ describe("BlockCard", () => {
     );
     await user.click(screen.getByRole("button", { name: /mais opções/i }));
     await user.click(screen.getByRole("menuitem", { name: /guardar como bloco personalizado/i }));
+    const input = await screen.findByPlaceholderText(/Hero da home/i);
+    await user.type(input, "Hero home");
+    await user.click(screen.getByRole("button", { name: /^guardar$/i }));
     await waitFor(() =>
       expect((globalThis.fetch as any)).toHaveBeenCalledWith(
         "/api/admin/block-presets",
