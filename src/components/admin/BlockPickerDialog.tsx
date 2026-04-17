@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { blocksAllowedIn, type BlockType } from "../../lib/blocks";
 import BlockIllustration from "./block-illustrations/BlockIllustration";
 
@@ -22,6 +22,45 @@ export default function BlockPickerDialog({ open, context, onClose, onInsertBloc
   const [loadingPresets, setLoadingPresets] = useState(false);
 
   const allowed = useMemo(() => blocksAllowedIn(context), [context]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    const node = dialogRef.current;
+    if (!node) return;
+
+    // Focus the first focusable element inside on open.
+    const first = node.querySelector<HTMLElement>("button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])");
+    first?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const focusable = Array.from(
+        node.querySelectorAll<HTMLElement>("button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])"),
+      ).filter((el) => !el.hasAttribute("disabled"));
+      if (focusable.length === 0) return;
+      const firstEl = focusable[0];
+      const lastEl = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === firstEl) {
+        e.preventDefault();
+        lastEl.focus();
+      } else if (!e.shiftKey && document.activeElement === lastEl) {
+        e.preventDefault();
+        firstEl.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   useEffect(() => {
     if (!open || tab !== "presets") return;
@@ -57,7 +96,13 @@ export default function BlockPickerDialog({ open, context, onClose, onInsertBloc
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-6">
-      <div className="flex h-[85vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded-3xl border border-ink-line bg-surface shadow-2xl">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Selecionar bloco"
+        className="flex h-[85vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded-3xl border border-ink-line bg-surface shadow-2xl"
+      >
         <div className="flex items-center justify-between border-b border-ink-line px-6 py-4">
           <div role="tablist" className="flex gap-1 rounded-full border border-ink-line p-1">
             <button role="tab" aria-selected={tab === "blocos"} onClick={() => setTab("blocos")} className={`px-4 py-1 text-sm font-medium rounded-full ${tab === "blocos" ? "bg-ink text-white" : "text-ink-soft"}`}>Blocos</button>
