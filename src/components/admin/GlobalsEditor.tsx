@@ -57,7 +57,7 @@ export default function GlobalsEditor({ initialConfig }: Props) {
             type="button"
             onClick={() => setTab(t.id)}
             className={`rounded-full px-3 py-1 text-xs font-medium ${
-              tab === t.id ? "bg-ink text-white" : "text-ink-soft hover:bg-rosa-50 dark:hover:bg-rosa-500/10"
+              tab === t.id ? "bg-ink text-white dark:bg-rosa-500" : "text-ink-soft hover:bg-rosa-50 dark:hover:bg-rosa-500/10"
             }`}
           >
             {t.label}
