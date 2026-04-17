@@ -26,7 +26,8 @@ if (data.filter === "bestsellers") {
   products = await getBestsellers(8);
 }
 
-const isCarousel = data.layout === "carousel";
+const effectiveLayout = data.layout === "carousel" && products.length >= 3 ? "carousel" : "grid";
+const isCarousel = effectiveLayout === "carousel";
 
 const gridColsClass =
   data.columns === "2"

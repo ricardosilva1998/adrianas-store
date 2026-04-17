@@ -87,6 +87,28 @@ describe("new block schemas", () => {
   });
 });
 
+describe("product-grid filter schema", () => {
+  it("accepts bestsellers, all, and category:<slug>", () => {
+    for (const filter of ["bestsellers", "all", "category:tote-bags"]) {
+      const parsed = blockSchema.safeParse({
+        id: "p",
+        type: "product-grid",
+        data: { title: "", subtitle: "", filter, columns: "4", layout: "grid" },
+      });
+      expect(parsed.success).toBe(true);
+    }
+  });
+
+  it("rejects nonsense filter values", () => {
+    const parsed = blockSchema.safeParse({
+      id: "p",
+      type: "product-grid",
+      data: { title: "", subtitle: "", filter: "foo", columns: "4", layout: "grid" },
+    });
+    expect(parsed.success).toBe(false);
+  });
+});
+
 describe("URL safety validation", () => {
   it("rejects hero imageUrl with quote characters", () => {
     const bad = { id: "h", type: "hero", data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "x.jpg') ; opacity:0", layout: "background-image" } };

@@ -23,6 +23,8 @@ const aspectClass =
     : data.imageAspect === "portrait"
       ? "aspect-[3/4]"
       : "aspect-[4/3]";
+
+const capClass = isStacked ? "max-h-[32rem]" : "";
 ---
 
 <section class="py-16">
@@ -32,7 +34,7 @@ const aspectClass =
         {data.layout === "image-top" ? (
           <>
             {data.imageUrl && (
-              <div class={`w-full overflow-hidden rounded-3xl ${aspectClass}`}>
+              <div class={`w-full overflow-hidden rounded-3xl ${aspectClass} ${capClass}`}>
                 <img
                   src={data.imageUrl}
                   alt={data.imageAlt || data.title}
@@ -66,7 +68,7 @@ const aspectClass =
               )}
             </div>
             {data.imageUrl && (
-              <div class={`w-full overflow-hidden rounded-3xl ${aspectClass}`}>
+              <div class={`w-full overflow-hidden rounded-3xl ${aspectClass} ${capClass}`}>
                 <img
                   src={data.imageUrl}
                   alt={data.imageAlt || data.title}
