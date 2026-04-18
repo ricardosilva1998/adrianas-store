@@ -25,9 +25,55 @@ const templateBlocks: Array<{ type: string; data: any }> =
   template && Array.isArray(template.blocks) && template.blocks.length > 0
     ? (template.blocks as Array<{ type: string; data: any }>)
     : [];
+
+const productUrl = `${Astro.url.origin}/catalogo/${product.slug}`;
+const productImage = product.images[0]?.url
+  ? new URL(product.images[0].url, Astro.url.origin).href
+  : undefined;
+
+const productJsonLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: product.name,
+  description: product.description,
+  sku: product.slug,
+  category: categoryLabel(product.category),
+  ...(productImage ? { image: product.images.map((i) => new URL(i.url, Astro.url.origin).href) } : {}),
+  offers: {
+    "@type": "Offer",
+    url: productUrl,
+    priceCurrency: "EUR",
+    price: (product.priceCents / 100).toFixed(2),
+    availability: available
+      ? "https://schema.org/InStock"
+      : "https://schema.org/OutOfStock",
+    itemCondition: "https://schema.org/NewCondition",
+  },
+};
+
+const breadcrumbJsonLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Início", item: `${Astro.url.origin}/` },
+    { "@type": "ListItem", position: 2, name: "Catálogo", item: `${Astro.url.origin}/catalogo` },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: categoryLabel(product.category),
+      item: `${Astro.url.origin}/catalogo?categoria=${product.category}`,
+    },
+    { "@type": "ListItem", position: 4, name: product.name, item: productUrl },
+  ],
+};
 ---
 
-<BaseLayout title={product.name} description={product.description}>
+<BaseLayout
+  title={product.name}
+  description={product.description}
+  image={productImage}
+  jsonLd={[productJsonLd, breadcrumbJsonLd]}
+>
   {templateBlocks.length > 0 ? (
     templateBlocks.map((block) => (
       <BlockRenderer block={block} context={{ product, relatedProducts: related }} />

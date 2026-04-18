@@ -8,17 +8,32 @@ import { getSiteConfig } from "../lib/config-server";
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  noindex?: boolean;
+  canonical?: string;
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
 const config = await getSiteConfig(Astro.locals.previewConfig);
 const { identity } = config.globals;
 
-const { title, description = identity.description } = Astro.props;
+const {
+  title,
+  description = identity.description,
+  image,
+  noindex = false,
+  canonical,
+  jsonLd,
+} = Astro.props;
 const pageTitle = title ? `${title} — ${identity.name}` : `${identity.name} — ${identity.tagline}`;
 
 const themeCSS = renderThemeCSS(config.theme);
 const fontsHref = renderGoogleFontsHref(config.theme.fonts);
 const isPreview = Astro.url.searchParams.has("preview");
+
+const canonicalUrl = canonical ?? `${Astro.url.origin}${Astro.url.pathname}`;
+const ogImage = image ?? (config.theme.logo.url || null);
+const jsonLdList = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 ---
 
 <!doctype html>
@@ -31,13 +46,26 @@ const isPreview = Astro.url.searchParams.has("preview");
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <meta name="theme-color" content={config.theme.colors.primary} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={identity.name} />
+    <meta property="og:locale" content="pt_PT" />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href={fontsHref} rel="stylesheet" />
     <style set:html={themeCSS}></style>
+    {jsonLdList.map((data) => (
+      <script type="application/ld+json" set:html={JSON.stringify(data)} />
+    ))}
     <title>{pageTitle}</title>
   </head>
   <body class="flex min-h-dvh flex-col bg-white text-ink antialiased">

@@ -19,9 +19,18 @@ const templateBlocks: Array<{ type: string; data: any }> =
   template && Array.isArray(template.blocks) && template.blocks.length > 0
     ? (template.blocks as Array<{ type: string; data: any }>)
     : [];
+
+const breadcrumbJsonLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Início", item: `${Astro.url.origin}/` },
+    { "@type": "ListItem", position: 2, name: "Catálogo", item: `${Astro.url.origin}/catalogo` },
+  ],
+};
 ---
 
-<BaseLayout title="Catálogo">
+<BaseLayout title="Catálogo" jsonLd={breadcrumbJsonLd}>
   {templateBlocks.length > 0 ? (
     templateBlocks.map((block) => (
       <BlockRenderer
