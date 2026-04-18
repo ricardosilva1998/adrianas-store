@@ -87,16 +87,16 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   theme: {
     colors: { primary: "#F691B4", neutral: "#111111", accent: null },
     fonts: { body: "Inter", display: "Inter" },
-    logo: { url: null, alt: "Adriana's Store" },
+    logo: { url: null, alt: "Drisclub" },
     radius: "rounded",
   },
   globals: {
     identity: {
-      name: "Adriana's Store",
+      name: "Drisclub",
       tagline: "Peças personalizadas com carinho",
       description:
         "Loja portuguesa de t-shirts, tote bags, bolsas necessaire e muito mais. Cada peça é personalizada à mão, com a tua frase ou ideia.",
-      email: "ola@adrianastore.pt",
+      email: "ola@drisclub.com",
       whatsapp: "+351 912 345 678",
       instagram: "@adrianas.store",
       shippingProvider: "CTT",
@@ -140,13 +140,13 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: "transferencia",
         label: "Transferência Bancária",
         instructions:
-          "IBAN: PT50 0000 0000 0000 0000 0000 0\nTitular: Adriana's Store\nEnvia o comprovativo por email indicando o teu nome e número de encomenda.",
+          "IBAN: PT50 0000 0000 0000 0000 0000 0\nTitular: Drisclub\nEnvia o comprovativo por email indicando o teu nome e número de encomenda.",
       },
       {
         id: "paypal",
         label: "PayPal",
         instructions:
-          "Envia o pagamento para ola@adrianastore.pt (opção 'Family & Friends') indicando o teu nome e número de encomenda.",
+          "Envia o pagamento para ola@drisclub.com (opção 'Family & Friends') indicando o teu nome e número de encomenda.",
       },
     ],
   },

@@ -57,6 +57,13 @@
       "when": 1776368663981,
       "tag": "0007_groovy_boomerang",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1776873600000,
+      "tag": "0008_drisclub_rebrand",
+      "breakpoints": true
     }
   ]
 }

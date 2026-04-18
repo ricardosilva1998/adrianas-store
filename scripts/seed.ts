@@ -156,7 +156,7 @@ const seedPages = async () => {
     {
       slug: "sobre-nos",
       title: "Sobre Nós",
-      body: `A Adriana's Store nasceu do desejo de criar peças únicas, personalizadas à mão, que contam uma história. Cada frase, cada cor, cada desenho que nos confiam é trabalhado com o mesmo cuidado — como se fosse para nós.
+      body: `A Drisclub nasceu do desejo de criar peças únicas, personalizadas à mão, que contam uma história. Cada frase, cada cor, cada desenho que nos confiam é trabalhado com o mesmo cuidado — como se fosse para nós.
 
 ## Feito à mão
 
@@ -216,11 +216,11 @@ Após submeter a encomenda, recebes por email as instruções de pagamento do m�
 
 ## 1. Âmbito
 
-Os presentes Termos e Condições regulam a relação entre a Adriana's Store e os utilizadores do site. Ao efectuar uma encomenda, declaras conhecer e aceitar integralmente estes termos.
+Os presentes Termos e Condições regulam a relação entre a Drisclub e os utilizadores do site. Ao efectuar uma encomenda, declaras conhecer e aceitar integralmente estes termos.
 
 ## 2. Produtos e personalização
 
-Todas as peças da Adriana's Store são produzidas à mão, por encomenda. As imagens apresentadas no site representam exemplos reais de encomendas anteriores, mas cada peça é única e podem existir pequenas variações de cor, posicionamento ou traço. Essas variações fazem parte do carácter artesanal do produto e não são consideradas defeito.
+Todas as peças da Drisclub são produzidas à mão, por encomenda. As imagens apresentadas no site representam exemplos reais de encomendas anteriores, mas cada peça é única e podem existir pequenas variações de cor, posicionamento ou traço. Essas variações fazem parte do carácter artesanal do produto e não são consideradas defeito.
 
 ## 3. Preços e pagamento
 

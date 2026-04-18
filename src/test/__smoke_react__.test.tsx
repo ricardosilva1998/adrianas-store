@@ -7,7 +7,7 @@ function Greeting({ name }: { name: string }) {
 
 describe("react smoke", () => {
   it("renders a component", () => {
-    render(<Greeting name="Adriana" />);
-    expect(screen.getByText("Olá Adriana")).toBeInTheDocument();
+    render(<Greeting name="Dris" />);
+    expect(screen.getByText("Olá Dris")).toBeInTheDocument();
   });
 });

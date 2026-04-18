@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Adriana's Store — a Portuguese e-commerce platform for handmade personalized products (tote bags, t-shirts, etc.) with an admin dashboard. Built with Astro SSR + React islands + PostgreSQL.
+Drisclub — a Portuguese e-commerce platform for handmade personalized products (tote bags, t-shirts, etc.) with an admin dashboard. Built with Astro SSR + React islands + PostgreSQL.
 
 ## Commands
 

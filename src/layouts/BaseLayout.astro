@@ -34,6 +34,7 @@ const isPreview = Astro.url.searchParams.has("preview");
 const canonicalUrl = canonical ?? `${Astro.url.origin}${Astro.url.pathname}`;
 const ogImage = image ?? (config.theme.logo.url || null);
 const jsonLdList = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION;
 ---
 
 <!doctype html>
@@ -47,6 +48,9 @@ const jsonLdList = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <meta name="description" content={description} />
     <meta name="theme-color" content={config.theme.colors.primary} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {googleSiteVerification && (
+      <meta name="google-site-verification" content={googleSiteVerification} />
+    )}
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />

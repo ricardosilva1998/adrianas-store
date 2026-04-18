@@ -2,12 +2,39 @@ import { Resend } from "resend";
 import type { Order, OrderItem, OrderStatus } from "../db/schema";
 
 const apiKey = process.env.RESEND_API_KEY;
-const fromEmail = process.env.EMAIL_FROM ?? "Adriana's Store <ola@adrianastore.pt>";
+const fromEmail = process.env.EMAIL_FROM ?? "Drisclub <ola@drisclub.com>";
 const adminEmail = process.env.ADMIN_NOTIFY_EMAIL ?? process.env.EMAIL_FROM;
 
 export const emailConfigured = Boolean(apiKey);
 
 const resend = apiKey ? new Resend(apiKey) : null;
+
+export type EmailStatus = {
+  configured: boolean;
+  hasResendKey: boolean;
+  from: string | null;
+  adminTo: string | null;
+  issues: string[];
+};
+
+export const getEmailStatus = (): EmailStatus => {
+  const hasResendKey = Boolean(process.env.RESEND_API_KEY);
+  const hasFrom = Boolean(process.env.EMAIL_FROM);
+  const hasAdmin = Boolean(process.env.ADMIN_NOTIFY_EMAIL);
+
+  const issues: string[] = [];
+  if (!hasResendKey) issues.push("Falta RESEND_API_KEY");
+  if (!hasFrom) issues.push("Falta EMAIL_FROM (remetente verificado no Resend)");
+  if (!hasAdmin) issues.push("Falta ADMIN_NOTIFY_EMAIL (destinatário do alerta de vendas)");
+
+  return {
+    configured: hasResendKey && hasFrom && hasAdmin,
+    hasResendKey,
+    from: process.env.EMAIL_FROM ?? null,
+    adminTo: process.env.ADMIN_NOTIFY_EMAIL ?? null,
+    issues,
+  };
+};
 
 const formatEuro = (cents: number) =>
   new Intl.NumberFormat("pt-PT", {
@@ -64,7 +91,7 @@ const baseLayout = (title: string, inner: string) => `
           <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:24px;padding:40px;border:1px solid #fbcfe8">
             <tr>
               <td>
-                <p style="margin:0 0 4px 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#ED7396"><strong>Adriana's Store</strong></p>
+                <p style="margin:0 0 4px 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#ED7396"><strong>Drisclub</strong></p>
                 ${inner}
                 <p style="margin:32px 0 0 0;font-size:12px;color:#9ca3af">Em caso de dúvida, responde diretamente a este email.</p>
               </td>
