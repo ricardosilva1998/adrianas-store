@@ -74,11 +74,15 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
+const formatPriceText = (cents: number): string =>
+  cents > 0 ? (cents / 100).toFixed(2) : "";
+
 export default function ProductForm({ initial, mode }: Props) {
   const [data, setData] = useState<ProductFormData>(initial ?? emptyProduct);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [priceText, setPriceText] = useState<string>(formatPriceText(initial?.priceCents ?? 0));
 
   const update = <K extends keyof ProductFormData>(
     key: K,
@@ -481,11 +485,23 @@ export default function ProductForm({ initial, mode }: Props) {
               <label className="field-label" htmlFor="price">Preço (€)</label>
               <input
                 id="price"
-                type="number"
-                min="0"
-                step="0.01"
-                value={data.priceCents > 0 ? data.priceCents / 100 : ""}
-                onChange={(e) => update("priceCents", Math.round(parseFloat(e.target.value || "0") * 100))}
+                type="text"
+                inputMode="decimal"
+                value={priceText}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setPriceText(v);
+                  const cleaned = v.replace(",", ".").trim();
+                  if (cleaned === "") {
+                    update("priceCents", 0);
+                    return;
+                  }
+                  const n = parseFloat(cleaned);
+                  if (!isNaN(n) && n >= 0) {
+                    update("priceCents", Math.round(n * 100));
+                  }
+                }}
+                onBlur={() => setPriceText(formatPriceText(data.priceCents))}
                 required
                 className="field-input"
               />
