@@ -2,7 +2,7 @@ import { Resend } from "resend";
 import type { Order, OrderItem, OrderStatus } from "../db/schema";
 
 const apiKey = process.env.RESEND_API_KEY;
-const fromEmail = process.env.EMAIL_FROM ?? "Drisclub <ola@drisclub.com>";
+const fromEmail = process.env.EMAIL_FROM ?? "Drisclub <no-reply@drisclub.com>";
 const adminEmail = process.env.ADMIN_NOTIFY_EMAIL ?? process.env.EMAIL_FROM;
 
 export const emailConfigured = Boolean(apiKey);

@@ -96,7 +96,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       tagline: "Peças personalizadas com carinho",
       description:
         "Loja portuguesa de t-shirts, tote bags, bolsas necessaire e muito mais. Cada peça é personalizada à mão, com a tua frase ou ideia.",
-      email: "ola@drisclub.com",
+      email: "drisclub.shop@gmail.com",
       whatsapp: "+351 912 345 678",
       instagram: "@adrianas.store",
       shippingProvider: "CTT",
@@ -146,7 +146,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: "paypal",
         label: "PayPal",
         instructions:
-          "Envia o pagamento para ola@drisclub.com (opção 'Family & Friends') indicando o teu nome e número de encomenda.",
+          "Envia o pagamento para drisclub.shop@gmail.com (opção 'Family & Friends') indicando o teu nome e número de encomenda.",
       },
     ],
   },

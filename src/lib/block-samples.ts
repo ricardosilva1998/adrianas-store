@@ -118,7 +118,7 @@ export const SAMPLE_BLOCK_DATA: Record<BlockType, any> = {
     items: [
       { icon: "instagram", label: "@drisclub", url: "https://instagram.com/drisclub" },
       { icon: "facebook", label: "Drisclub", url: "https://facebook.com/drisclub" },
-      { icon: "email", label: "ola@drisclub.com", url: "mailto:ola@drisclub.com" },
+      { icon: "email", label: "drisclub.shop@gmail.com", url: "mailto:drisclub.shop@gmail.com" },
     ],
   },
 };

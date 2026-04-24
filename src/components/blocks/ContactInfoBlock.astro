@@ -17,17 +17,13 @@ const hasContent = data.email || data.whatsapp || data.instagram || data.address
     <div class="section max-w-3xl">
       <div class="grid gap-6 sm:grid-cols-2">
         {data.email && (
-          <>
-            <Fragment set:html="<!--email_off-->" />
-            <a href={`mailto:${data.email}`} class="flex items-center gap-4 rounded-2xl border border-ink-line bg-white p-5 transition hover:border-rosa-300">
-              <span class="flex h-10 w-10 items-center justify-center rounded-full bg-rosa-100 text-rosa-500">@</span>
-              <div>
-                <span class="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">Email</span>
-                <p class="text-sm font-medium text-ink">{data.email}</p>
-              </div>
-            </a>
-            <Fragment set:html="<!--/email_off-->" />
-          </>
+          <a href={`mailto:${data.email}`} class="flex items-center gap-4 rounded-2xl border border-ink-line bg-white p-5 transition hover:border-rosa-300">
+            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-rosa-100 text-rosa-500">@</span>
+            <div>
+              <span class="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">Email</span>
+              <p class="text-sm font-medium text-ink">{data.email}</p>
+            </div>
+          </a>
         )}
         {data.whatsapp && (
           <a href={`https://wa.me/${data.whatsapp.replace(/[^0-9+]/g, "")}`} class="flex items-center gap-4 rounded-2xl border border-ink-line bg-white p-5 transition hover:border-rosa-300">

@@ -1070,7 +1070,7 @@ const SOCIAL_URL_PLACEHOLDERS: Record<SocialIconName, string> = {
   youtube: "https://youtube.com/@drisclub",
   pinterest: "https://pinterest.com/drisclub",
   whatsapp: "351912345678 ou https://wa.me/351912345678",
-  email: "ola@drisclub.com",
+  email: "drisclub.shop@gmail.com",
 };
 
 const SOCIAL_LABEL_PLACEHOLDERS: Record<SocialIconName, string> = {
@@ -1080,7 +1080,7 @@ const SOCIAL_LABEL_PLACEHOLDERS: Record<SocialIconName, string> = {
   youtube: "@drisclub (opcional)",
   pinterest: "Drisclub (opcional)",
   whatsapp: "+351 912 345 678 (opcional)",
-  email: "ola@drisclub.com (opcional)",
+  email: "drisclub.shop@gmail.com (opcional)",
 };
 
 function socialUrlPlaceholder(icon: SocialIconName): string {
