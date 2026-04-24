@@ -17,8 +17,8 @@ export const SAMPLE_PRODUCT: ProductWithExtras = {
   sortOrder: 0,
   variantColorTitle: "Cor do produto",
   images: [
-    { url: "https://picsum.photos/seed/tote-1/800/800", alt: "Tote frente", position: 0 },
-    { url: "https://picsum.photos/seed/tote-2/800/800", alt: "Tote verso", position: 1 },
+    { url: "https://picsum.photos/seed/tote-1/800/800", alt: "Tote frente", position: 0, kind: "image" },
+    { url: "https://picsum.photos/seed/tote-2/800/800", alt: "Tote verso", position: 1, kind: "image" },
   ],
   colors: [
     { name: "Rosa", hex: "#ED7396", position: 0 },
