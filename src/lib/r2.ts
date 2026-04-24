@@ -21,7 +21,7 @@ const client = r2Configured
     })
   : null;
 
-export const uploadImage = async (
+export const uploadMedia = async (
   file: Buffer,
   contentType: string,
   filename: string,
@@ -32,7 +32,9 @@ export const uploadImage = async (
     );
   }
 
-  const key = `products/${Date.now()}-${filename.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
+  const isVideo = contentType.startsWith("video/");
+  const prefix = isVideo ? "products/videos" : "products";
+  const key = `${prefix}/${Date.now()}-${filename.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
 
   await client.send(
     new PutObjectCommand({
@@ -46,3 +48,5 @@ export const uploadImage = async (
 
   return `${publicUrl.replace(/\/$/, "")}/${key}`;
 };
+
+export const uploadImage = uploadMedia;
