@@ -226,7 +226,7 @@ export default function ProductForm({ initial, mode }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+    <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
       <div className="space-y-6">
         <section className="rounded-3xl border border-ink-line bg-surface p-6">
           <h2 className="text-lg font-semibold text-ink">Informação básica</h2>
@@ -304,7 +304,7 @@ export default function ProductForm({ initial, mode }: Props) {
                     <img src={img.url} alt={img.alt} className="h-full w-full object-cover" />
                   )}
                 </div>
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <p className="truncate text-xs text-ink-muted">{img.url}</p>
                   <input
                     value={img.alt}
@@ -484,7 +484,7 @@ export default function ProductForm({ initial, mode }: Props) {
                 type="number"
                 min="0"
                 step="0.01"
-                value={(data.priceCents / 100).toFixed(2)}
+                value={data.priceCents > 0 ? data.priceCents / 100 : ""}
                 onChange={(e) => update("priceCents", Math.round(parseFloat(e.target.value || "0") * 100))}
                 required
                 className="field-input"

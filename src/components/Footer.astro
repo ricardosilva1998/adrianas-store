@@ -44,7 +44,7 @@ const identityDescriptionHtml = renderMixedContent(identity.description);
         </div>
       ))}
 
-      <div>
+      <div class="hidden md:block">
         <h3 class="text-xs font-semibold uppercase tracking-wide text-ink">Categorias</h3>
         <ul class="mt-4 space-y-2 text-sm text-ink-soft">
           {categories.slice(0, 6).map((c) => (
