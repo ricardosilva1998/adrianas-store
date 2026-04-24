@@ -25,23 +25,28 @@ const hasItems = data.items && data.items.length > 0;
       {data.items.map((item) => {
         const href = normalizeSocialUrl(item.icon, item.url);
         const isHttp = /^https?:\/\//i.test(href);
+        const isEmail = item.icon === "email";
         return (
-          <a
-            href={href}
-            target={isHttp ? "_blank" : undefined}
-            rel={isHttp ? "noopener noreferrer" : undefined}
-            class="group flex flex-col items-center gap-2"
-            aria-label={`${item.icon} ${item.label}`.trim()}
-          >
-            <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-rosa-500 text-white transition group-hover:-translate-y-0.5 group-hover:bg-rosa-600">
-              <svg viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor" aria-hidden="true">
-                <path d={SOCIAL_ICON_PATHS[item.icon]} />
-              </svg>
-            </span>
-            {item.label && (
-              <span class="text-xs text-ink-soft">{item.label}</span>
-            )}
-          </a>
+          <>
+            {isEmail && <Fragment set:html="<!--email_off-->" />}
+            <a
+              href={href}
+              target={isHttp ? "_blank" : undefined}
+              rel={isHttp ? "noopener noreferrer" : undefined}
+              class="group flex flex-col items-center gap-2"
+              aria-label={`${item.icon} ${item.label}`.trim()}
+            >
+              <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-rosa-500 text-white transition group-hover:-translate-y-0.5 group-hover:bg-rosa-600">
+                <svg viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor" aria-hidden="true">
+                  <path d={SOCIAL_ICON_PATHS[item.icon]} />
+                </svg>
+              </span>
+              {item.label && (
+                <span class="text-xs text-ink-soft">{item.label}</span>
+              )}
+            </a>
+            {isEmail && <Fragment set:html="<!--/email_off-->" />}
+          </>
         );
       })}
     </div>

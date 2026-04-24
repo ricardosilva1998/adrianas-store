@@ -61,9 +61,11 @@ const identityDescriptionHtml = renderMixedContent(identity.description);
         <h3 class="text-xs font-semibold uppercase tracking-wide text-ink">Contacto</h3>
         <ul class="mt-4 space-y-2 text-sm text-ink-soft">
           <li>
+            <Fragment set:html="<!--email_off-->" />
             <a href={`mailto:${identity.email}`} class="transition hover:text-rosa-500">
               {identity.email}
             </a>
+            <Fragment set:html="<!--/email_off-->" />
           </li>
           <li>{identity.whatsapp}</li>
           <li>Instagram: {identity.instagram}</li>
