@@ -7,7 +7,7 @@ import {
 } from "./page-blocks";
 import type { Block } from "./blocks";
 
-const hero: Block = { id: "a", type: "hero", data: { title: "Olá", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", layout: "image-right" } };
+const hero: Block = { id: "a", type: "hero", data: { title: "Olá", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", slides: [], layout: "image-right" } };
 const text: Block = { id: "b", type: "text", data: { html: "<p>hi</p>" } };
 const faq: Block = { id: "c", type: "faq", data: { title: "", items: [] } };
 

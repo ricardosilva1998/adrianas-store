@@ -16,7 +16,7 @@ const makePayload = (slug = "home") => ({
     {
       id: "a",
       type: "hero" as const,
-      data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", layout: "image-right" as const },
+      data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", slides: [], layout: "image-right" as const },
     },
   ],
 });

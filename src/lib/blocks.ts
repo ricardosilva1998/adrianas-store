@@ -13,6 +13,11 @@ const safeUrl = z
 
 // --- Block data schemas ---
 
+const heroSlideSchema = z.object({
+  url: z.string().min(1).refine((s) => !/['")\\]/.test(s), "URL inválido"),
+  alt: z.string().default(""),
+});
+
 const heroDataSchema = z.object({
   title: z.string().default(""),
   titleAccent: z.string().default(""),
@@ -20,7 +25,8 @@ const heroDataSchema = z.object({
   buttonText: z.string().default(""),
   buttonUrl: z.string().default(""),
   imageUrl: safeUrl,
-  layout: z.enum(["image-right", "image-left", "background-image", "centered"]).default("image-right"),
+  slides: z.array(heroSlideSchema).default([]),
+  layout: z.enum(["image-right", "image-left", "background-image", "centered", "carousel"]).default("image-right"),
 });
 
 const textDataSchema = z.object({
@@ -391,7 +397,7 @@ export function createBlock(type: BlockType): Block {
   const id = nanoid(10);
   switch (type) {
     case "hero":
-      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", layout: "image-right" } };
+      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", slides: [], layout: "image-right" } };
     case "text":
       return { id, type, data: { html: "" } };
     case "product-grid":

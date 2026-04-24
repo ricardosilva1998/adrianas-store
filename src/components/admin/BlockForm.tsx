@@ -55,6 +55,29 @@ export default function BlockForm({ block, onChange }: { block: Block; onChange:
 }
 
 function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const isCarousel = data.layout === "carousel";
+  const slides: Array<{ url: string; alt: string }> = data.slides ?? [];
+
+  const addSlide = () => {
+    onChange({ slides: [...slides, { url: "", alt: "" }] });
+  };
+  const removeSlide = (idx: number) => {
+    onChange({ slides: slides.filter((_, i) => i !== idx) });
+  };
+  const updateSlideUrl = (idx: number, url: string) => {
+    onChange({ slides: slides.map((s, i) => (i === idx ? { ...s, url } : s)) });
+  };
+  const updateSlideAlt = (idx: number, alt: string) => {
+    onChange({ slides: slides.map((s, i) => (i === idx ? { ...s, alt } : s)) });
+  };
+  const moveSlide = (idx: number, direction: "up" | "down") => {
+    const newIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (newIdx < 0 || newIdx >= slides.length) return;
+    const copy = [...slides];
+    [copy[idx], copy[newIdx]] = [copy[newIdx], copy[idx]];
+    onChange({ slides: copy });
+  };
+
   return (
     <div className="grid gap-4">
       <div>
@@ -65,6 +88,7 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
             { value: "image-left", label: "Imagem à esquerda" },
             { value: "background-image", label: "Imagem de fundo" },
             { value: "centered", label: "Apenas texto" },
+            { value: "carousel", label: "Carrossel" },
           ] as const).map(({ value, label }) => (
             <label
               key={value}
@@ -113,11 +137,47 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
           <input value={data.buttonUrl} onChange={(e) => onChange({ buttonUrl: e.target.value })} className="field-input" />
         </div>
       </div>
-      <ImagePicker
-        label="Imagem"
-        value={data.imageUrl}
-        onChange={(imageUrl) => onChange({ imageUrl })}
-      />
+      {isCarousel ? (
+        <div className="grid gap-3">
+          <div>
+            <label className="field-label">Slides do carrossel</label>
+            <p className="mt-1 text-xs text-ink-muted">Imagens e GIFs rodam automaticamente a cada 5s. Proporção fixa (≈2.8:1).</p>
+          </div>
+          {slides.map((slide, i) => (
+            <div key={i} className="rounded-xl border border-ink-line bg-surface p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">Slide #{i + 1}</span>
+                <div className="flex items-center gap-1">
+                  <button type="button" onClick={() => moveSlide(i, "up")} disabled={i === 0} className="text-ink-muted hover:text-rosa-500 disabled:opacity-30">↑</button>
+                  <button type="button" onClick={() => moveSlide(i, "down")} disabled={i === slides.length - 1} className="text-ink-muted hover:text-rosa-500 disabled:opacity-30">↓</button>
+                  <button type="button" onClick={() => removeSlide(i)} className="text-ink-muted hover:text-red-500">✕</button>
+                </div>
+              </div>
+              <ImagePicker
+                value={slide.url}
+                onChange={(url) => updateSlideUrl(i, url)}
+              />
+              <div className="mt-3">
+                <input
+                  value={slide.alt}
+                  onChange={(e) => updateSlideAlt(i, e.target.value)}
+                  placeholder="Texto alternativo (acessibilidade)"
+                  className="field-input"
+                />
+              </div>
+            </div>
+          ))}
+          <button type="button" onClick={addSlide} className="btn-secondary w-fit">
+            + Adicionar slide
+          </button>
+        </div>
+      ) : (
+        <ImagePicker
+          label="Imagem"
+          value={data.imageUrl}
+          onChange={(imageUrl) => onChange({ imageUrl })}
+        />
+      )}
     </div>
   );
 }

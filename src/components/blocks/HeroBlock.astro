@@ -1,5 +1,6 @@
 ---
 import { renderMixedContent } from "../../lib/content";
+import HeroCarousel from "../islands/HeroCarousel";
 
 interface Props {
   data: {
@@ -9,18 +10,56 @@ interface Props {
     buttonText: string;
     buttonUrl: string;
     imageUrl: string;
-    layout?: "image-right" | "image-left" | "background-image" | "centered";
+    slides?: { url: string; alt?: string }[];
+    layout?: "image-right" | "image-left" | "background-image" | "centered" | "carousel";
   };
 }
 
 const { data } = Astro.props;
+const slides = data.slides ?? [];
 const layout = (data.layout === "background-image" && !data.imageUrl)
   ? "centered"
-  : (data.layout ?? "image-right");
+  : (data.layout === "carousel" && slides.length === 0)
+    ? "centered"
+    : (data.layout ?? "image-right");
 const subtitleHtml = renderMixedContent(data.subtitle);
+const hasOverlayText = !!(data.title || data.titleAccent || subtitleHtml || (data.buttonText && data.buttonUrl));
 ---
 
-{layout === "background-image" ? (
+{layout === "carousel" ? (
+  <section class="relative overflow-hidden bg-black">
+    <div class="relative w-full" style="aspect-ratio: 5834 / 2084;">
+      <HeroCarousel client:load slides={slides} />
+      {hasOverlayText && (
+        <div class="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center">
+          <div class="pointer-events-auto mx-auto max-w-3xl px-6 text-center text-white sm:px-10 lg:px-16">
+            {(data.title || data.titleAccent) && (
+              <h1 class="text-4xl font-semibold leading-tight tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)] sm:text-5xl lg:text-6xl">
+                {data.title && <span>{data.title}</span>}
+                {data.title && data.titleAccent && <br />}
+                {data.titleAccent && <span class="text-rosa-300">{data.titleAccent}</span>}
+              </h1>
+            )}
+            {subtitleHtml && (
+              <div class="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/90 drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)] sm:text-lg" set:html={subtitleHtml} />
+            )}
+            {data.buttonText && data.buttonUrl && (
+              <div class="mt-8">
+                <a href={data.buttonUrl} class="btn-primary">
+                  {data.buttonText}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+) : layout === "background-image" ? (
   <section
     class="relative overflow-hidden bg-cover bg-center"
     style={`background-image:url('${data.imageUrl}')`}
