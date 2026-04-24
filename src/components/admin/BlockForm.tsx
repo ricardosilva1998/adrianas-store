@@ -1,6 +1,8 @@
 import type { Block, Icon } from "../../lib/blocks";
 import ImagePicker from "./ImagePicker";
 import IconPreview from "./IconPreview";
+import { SocialIconPreview } from "./SocialIconPreview";
+import { SOCIAL_ICONS, type SocialIconName } from "../../lib/icons";
 import { RichTextEditor } from "./RichTextEditor";
 
 export default function BlockForm({ block, onChange }: { block: Block; onChange: (data: any) => void }) {
@@ -47,6 +49,8 @@ export default function BlockForm({ block, onChange }: { block: Block; onChange:
       return <ShippingStripForm data={block.data} onChange={onChange} />;
     case "feature-list":
       return <FeatureListForm data={block.data} onChange={onChange} />;
+    case "social-links":
+      return <SocialLinksForm data={block.data} onChange={onChange} />;
   }
 }
 
@@ -974,6 +978,94 @@ function FeatureListForm({ data, onChange }: { data: any; onChange: (d: any) => 
       ))}
       {items.length < 6 && (
         <button type="button" onClick={addItem} className="btn-secondary w-fit">+ Adicionar item</button>
+      )}
+    </div>
+  );
+}
+
+function SocialIconPicker({ value, onChange }: { value: SocialIconName; onChange: (next: SocialIconName) => void }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {SOCIAL_ICONS.map((icon) => (
+        <button
+          key={icon}
+          type="button"
+          onClick={() => onChange(icon)}
+          aria-label={icon}
+          className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${
+            value === icon ? "border-rosa-400 bg-rosa-500 text-white" : "border-ink-line bg-surface text-ink-soft hover:border-rosa-300"
+          }`}
+        >
+          <SocialIconPreview name={icon} className="h-5 w-5" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function SocialLinksForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const items: Array<{ icon: SocialIconName; label: string; url: string }> = data.items ?? [];
+  const addItem = () =>
+    items.length < 7 &&
+    onChange({ items: [...items, { icon: "instagram" as SocialIconName, label: "", url: "" }] });
+  const removeItem = (idx: number) =>
+    onChange({ items: items.filter((_, i) => i !== idx) });
+  const updateItem = (
+    idx: number,
+    patch: Partial<{ icon: SocialIconName; label: string; url: string }>,
+  ) => onChange({ items: items.map((it, i) => (i === idx ? { ...it, ...patch } : it)) });
+
+  return (
+    <div className="grid gap-4">
+      <div>
+        <label className="field-label">Título</label>
+        <input
+          value={data.title ?? ""}
+          onChange={(e) => onChange({ title: e.target.value })}
+          placeholder="Segue-nos"
+          className="field-input"
+        />
+      </div>
+      <div>
+        <label className="field-label">Subtítulo (opcional)</label>
+        <input
+          value={data.subtitle ?? ""}
+          onChange={(e) => onChange({ subtitle: e.target.value })}
+          className="field-input"
+        />
+      </div>
+      <label className="field-label">Redes (até 7)</label>
+      {items.map((it, i) => (
+        <div key={i} className="grid gap-2 rounded-xl border border-ink-line bg-surface p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">#{i + 1}</span>
+            <button
+              type="button"
+              onClick={() => removeItem(i)}
+              className="text-xs text-ink-muted hover:text-red-500"
+            >
+              Remover
+            </button>
+          </div>
+          <SocialIconPicker value={it.icon} onChange={(icon) => updateItem(i, { icon })} />
+          <input
+            value={it.label}
+            onChange={(e) => updateItem(i, { label: e.target.value })}
+            placeholder="@drisclub (opcional)"
+            className="field-input"
+          />
+          <input
+            value={it.url}
+            onChange={(e) => updateItem(i, { url: e.target.value })}
+            placeholder="https://instagram.com/drisclub"
+            className="field-input"
+          />
+        </div>
+      ))}
+      {items.length < 7 && (
+        <button type="button" onClick={addItem} className="btn-secondary w-fit">
+          + Adicionar rede social
+        </button>
       )}
     </div>
   );
