@@ -46,3 +46,26 @@ export const SOCIAL_ICONS: SocialIconName[] = [
   "whatsapp",
   "email",
 ];
+
+const KNOWN_SCHEMES = /^(https?:|mailto:|tel:|sms:|whatsapp:)/i;
+
+export function normalizeSocialUrl(icon: SocialIconName, rawUrl: string): string {
+  const url = (rawUrl ?? "").trim();
+  if (!url) return "";
+
+  if (icon === "email") {
+    if (/^mailto:/i.test(url)) return url;
+    const withoutProtocol = url.replace(/^(https?:|tel:|sms:)\s*/i, "");
+    return `mailto:${withoutProtocol}`;
+  }
+
+  if (icon === "whatsapp") {
+    if (KNOWN_SCHEMES.test(url)) return url;
+    const digits = url.replace(/[^\d+]/g, "").replace(/^\+/, "");
+    if (digits) return `https://wa.me/${digits}`;
+    return url;
+  }
+
+  if (KNOWN_SCHEMES.test(url)) return url;
+  return `https://${url.replace(/^\/+/, "")}`;
+}

@@ -1003,6 +1003,34 @@ function SocialIconPicker({ value, onChange }: { value: SocialIconName; onChange
   );
 }
 
+const SOCIAL_URL_PLACEHOLDERS: Record<SocialIconName, string> = {
+  instagram: "https://instagram.com/drisclub",
+  facebook: "https://facebook.com/drisclub",
+  tiktok: "https://tiktok.com/@drisclub",
+  youtube: "https://youtube.com/@drisclub",
+  pinterest: "https://pinterest.com/drisclub",
+  whatsapp: "351912345678 ou https://wa.me/351912345678",
+  email: "ola@drisclub.com",
+};
+
+const SOCIAL_LABEL_PLACEHOLDERS: Record<SocialIconName, string> = {
+  instagram: "@drisclub (opcional)",
+  facebook: "Drisclub (opcional)",
+  tiktok: "@drisclub (opcional)",
+  youtube: "@drisclub (opcional)",
+  pinterest: "Drisclub (opcional)",
+  whatsapp: "+351 912 345 678 (opcional)",
+  email: "ola@drisclub.com (opcional)",
+};
+
+function socialUrlPlaceholder(icon: SocialIconName): string {
+  return SOCIAL_URL_PLACEHOLDERS[icon] ?? "https://exemplo.com";
+}
+
+function socialLabelPlaceholder(icon: SocialIconName): string {
+  return SOCIAL_LABEL_PLACEHOLDERS[icon] ?? "(opcional)";
+}
+
 function SocialLinksForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
   const items: Array<{ icon: SocialIconName; label: string; url: string }> = data.items ?? [];
   const addItem = () =>
@@ -1051,13 +1079,15 @@ function SocialLinksForm({ data, onChange }: { data: any; onChange: (d: any) => 
           <input
             value={it.label}
             onChange={(e) => updateItem(i, { label: e.target.value })}
-            placeholder="@drisclub (opcional)"
+            placeholder={socialLabelPlaceholder(it.icon)}
             className="field-input"
           />
           <input
             value={it.url}
             onChange={(e) => updateItem(i, { url: e.target.value })}
-            placeholder="https://instagram.com/drisclub"
+            placeholder={socialUrlPlaceholder(it.icon)}
+            type={it.icon === "email" ? "email" : "text"}
+            inputMode={it.icon === "email" ? "email" : it.icon === "whatsapp" ? "tel" : "url"}
             className="field-input"
           />
         </div>
