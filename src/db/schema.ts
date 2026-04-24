@@ -99,6 +99,7 @@ export const productImages = pgTable(
     url: text("url").notNull(),
     alt: text("alt").notNull().default(""),
     position: integer("position").notNull().default(0),
+    kind: text("kind").notNull().default("image"),
   },
   (t) => [index("product_images_product_idx").on(t.productId)],
 );
@@ -359,3 +360,4 @@ export type PaymentMethodId = (typeof paymentMethod.enumValues)[number];
 export type UserRole = (typeof userRole.enumValues)[number];
 export type TemplateRow = typeof templates.$inferSelect;
 export type TemplateKind = (typeof templateKind.enumValues)[number];
+export type ProductMediaKind = "image" | "video";

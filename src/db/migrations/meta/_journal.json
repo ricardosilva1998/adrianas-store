@@ -78,6 +78,13 @@
       "when": 1777766400000,
       "tag": "0010_variant_color_title",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1777939200000,
+      "tag": "0011_product_media_kind",
+      "breakpoints": true
     }
   ]
 }
