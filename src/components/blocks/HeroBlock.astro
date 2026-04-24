@@ -25,17 +25,16 @@ const subtitleHtml = renderMixedContent(data.subtitle);
     class="relative overflow-hidden bg-cover bg-center"
     style={`background-image:url('${data.imageUrl}')`}
   >
-    <div class="absolute inset-0 bg-black/40"></div>
-    <div class="section relative py-28 text-center text-white md:py-36 lg:py-44">
+    <div class="relative mx-auto max-w-3xl px-6 py-28 text-center text-white sm:px-10 md:py-36 lg:px-16 lg:py-44">
       {(data.title || data.titleAccent) && (
-        <h1 class="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+        <h1 class="text-4xl font-semibold leading-tight tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)] sm:text-5xl lg:text-6xl">
           {data.title && <span>{data.title}</span>}
           {data.title && data.titleAccent && <br />}
           {data.titleAccent && <span class="text-rosa-300">{data.titleAccent}</span>}
         </h1>
       )}
       {subtitleHtml && (
-        <div class="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg" set:html={subtitleHtml} />
+        <div class="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/90 drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)] sm:text-lg" set:html={subtitleHtml} />
       )}
       {data.buttonText && data.buttonUrl && (
         <div class="mt-10">
