@@ -24,6 +24,10 @@ export const themeSchema = z.object({
     url: z.string().url().nullable(),
     alt: z.string().min(1).max(200),
   }),
+  favicon: z.object({
+    url: z.string().url().nullable(),
+  }).default({ url: null }),
+  browserTitle: z.string().max(120).default(""),
   radius: z.enum(["none", "soft", "rounded", "pill"]),
 });
 
@@ -88,6 +92,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     colors: { primary: "#F691B4", neutral: "#111111", accent: null },
     fonts: { body: "Inter", display: "Inter" },
     logo: { url: null, alt: "Drisclub" },
+    favicon: { url: null },
+    browserTitle: "",
     radius: "rounded",
   },
   globals: {

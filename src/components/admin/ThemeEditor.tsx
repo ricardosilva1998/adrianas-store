@@ -150,6 +150,37 @@ export default function ThemeEditor({ initialConfig }: Props) {
         </section>
 
         <section>
+          <h2 className="text-sm font-semibold text-ink">Pestana do navegador</h2>
+          <p className="mt-1 text-xs text-ink-soft">
+            Imagem e título visíveis na pestana do browser quando alguém abre o site.
+          </p>
+          <div className="mt-3 space-y-3">
+            <ImagePicker
+              label="Ícone (favicon — quadrado, idealmente PNG/SVG transparente)"
+              value={config.theme.favicon.url ?? ""}
+              onChange={(url) =>
+                setTheme({ favicon: { ...config.theme.favicon, url: url || null } })
+              }
+            />
+            <div>
+              <label className="field-label">Título da pestana</label>
+              <input
+                type="text"
+                value={config.theme.browserTitle}
+                onChange={(e) => setTheme({ browserTitle: e.target.value.slice(0, 120) })}
+                placeholder={config.globals.identity.name}
+                maxLength={120}
+                className="field-input"
+              />
+              <p className="mt-1 text-[11px] text-ink-muted">
+                Deixa vazio para usar o nome da loja ({config.globals.identity.name}). Em páginas internas mostra como
+                "Página — {config.theme.browserTitle.trim() || config.globals.identity.name}".
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section>
           <h2 className="text-sm font-semibold text-ink">Arredondamento</h2>
           <div className="mt-3 flex gap-2">
             {RADIUS_LABELS.map((r) => (
