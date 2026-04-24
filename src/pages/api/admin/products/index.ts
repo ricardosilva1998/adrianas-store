@@ -28,7 +28,13 @@ const ProductSchema = z.object({
   sortOrder: z.number().int().default(0),
   variantColorTitle: z.string().default("Cor do produto"),
   images: z
-    .array(z.object({ url: z.string(), alt: z.string().default("") }))
+    .array(
+      z.object({
+        url: z.string(),
+        alt: z.string().default(""),
+        kind: z.enum(["image", "video"]).default("image"),
+      }),
+    )
     .default([]),
   colors: z
     .array(z.object({ name: z.string(), hex: z.string() }))
@@ -82,6 +88,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
             url: img.url,
             alt: img.alt,
             position: i,
+            kind: img.kind,
           })),
         );
       }
