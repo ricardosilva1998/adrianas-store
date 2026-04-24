@@ -1,5 +1,6 @@
 ---
 import { renderMixedContent } from "../../lib/content";
+import TestimonialsCarousel from "../islands/TestimonialsCarousel";
 
 interface TestimonialItem {
   name: string;
@@ -17,18 +18,10 @@ interface Props {
 const { data } = Astro.props;
 const hasContent = data.items && data.items.length > 0;
 const items = (data.items ?? []).map((item) => ({
-  ...item,
+  name: item.name,
+  avatarUrl: item.avatarUrl,
   quoteHtml: renderMixedContent(item.quote),
 }));
-
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0] ?? "")
-    .join("")
-    .toUpperCase();
-}
 ---
 
 {hasContent && (
@@ -39,27 +32,7 @@ function initials(name: string): string {
           {data.title}
         </h2>
       )}
-      <div class="grid gap-6 md:grid-cols-2">
-        {items.map((item) => (
-          <div class="rounded-2xl border border-ink-line bg-white p-6">
-            <div class="prose prose-sm max-w-none leading-relaxed text-ink-soft" set:html={item.quoteHtml} />
-            <div class="mt-5 flex items-center gap-3">
-              {item.avatarUrl ? (
-                <img
-                  src={item.avatarUrl}
-                  alt={item.name}
-                  class="h-12 w-12 rounded-full object-cover"
-                />
-              ) : (
-                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-rosa-100 text-sm font-semibold text-rosa-600">
-                  {initials(item.name)}
-                </div>
-              )}
-              <span class="text-sm font-semibold text-ink">{item.name}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+      <TestimonialsCarousel client:load items={items} />
     </div>
   </section>
 )}
