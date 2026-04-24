@@ -82,7 +82,7 @@ const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION;
     ))}
     <title>{pageTitle}</title>
   </head>
-  <body class="flex min-h-dvh flex-col bg-white text-ink antialiased">
+  <body class="flex min-h-dvh flex-col overflow-x-clip bg-white text-ink antialiased">
     <Header config={config} />
     <main class="flex-1">
       <slot />
