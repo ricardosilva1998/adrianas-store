@@ -1,0 +1,45 @@
+---
+import { SOCIAL_ICON_PATHS, type SocialIconName } from "../../lib/icons";
+
+interface Props {
+  data: {
+    title: string;
+    subtitle: string;
+    items: Array<{ icon: SocialIconName; label: string; url: string }>;
+  };
+}
+
+const { data } = Astro.props;
+const hasItems = data.items && data.items.length > 0;
+---
+
+{hasItems && (
+  <section class="section py-12">
+    {data.title && (
+      <h2 class="text-center text-2xl font-semibold text-ink">{data.title}</h2>
+    )}
+    {data.subtitle && (
+      <p class="mt-2 text-center text-sm text-ink-soft">{data.subtitle}</p>
+    )}
+    <div class="mt-8 flex flex-wrap justify-center gap-6">
+      {data.items.map((item) => (
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group flex flex-col items-center gap-2"
+          aria-label={`${item.icon} ${item.label}`.trim()}
+        >
+          <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-rosa-500 text-white transition group-hover:-translate-y-0.5 group-hover:bg-rosa-600">
+            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor" aria-hidden="true">
+              <path d={SOCIAL_ICON_PATHS[item.icon]} />
+            </svg>
+          </span>
+          {item.label && (
+            <span class="text-xs text-ink-soft">{item.label}</span>
+          )}
+        </a>
+      ))}
+    </div>
+  </section>
+)}

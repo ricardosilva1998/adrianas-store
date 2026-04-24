@@ -20,6 +20,7 @@ import CatalogGridBoundBlock from "./CatalogGridBoundBlock.astro";
 import StatsBlock from "./StatsBlock.astro";
 import ShippingStripBlock from "./ShippingStripBlock.astro";
 import FeatureListBlock from "./FeatureListBlock.astro";
+import SocialLinksBlock from "./SocialLinksBlock.astro";
 import type { ProductWithExtras } from "../../lib/queries";
 
 export interface TemplateContext {
@@ -55,6 +56,7 @@ const attrs = block.id ? { "data-block-id": block.id } : {};
   {block.type === "stats" && <StatsBlock data={block.data} />}
   {block.type === "shipping-strip" && <ShippingStripBlock data={block.data} />}
   {block.type === "feature-list" && <FeatureListBlock data={block.data} />}
+  {block.type === "social-links" && <SocialLinksBlock data={block.data} />}
 
   {block.type === "product-gallery" && context?.product && (
     <ProductGalleryBlock data={block.data} product={context.product} />

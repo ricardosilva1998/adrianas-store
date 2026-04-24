@@ -21,6 +21,7 @@ import CatalogGridBound from "./catalog-grid-bound";
 import Stats from "./stats";
 import ShippingStrip from "./shipping-strip";
 import FeatureList from "./feature-list";
+import SocialLinks from "./social-links";
 
 const MAP: Record<BlockType, React.ComponentType> = {
   hero: Hero,
@@ -39,6 +40,7 @@ const MAP: Record<BlockType, React.ComponentType> = {
   stats: Stats,
   "shipping-strip": ShippingStrip,
   "feature-list": FeatureList,
+  "social-links": SocialLinks,
   "product-gallery": ProductGallery,
   "product-info": ProductInfo,
   "product-long-description": ProductLongDescription,

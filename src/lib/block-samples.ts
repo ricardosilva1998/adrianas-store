@@ -112,4 +112,13 @@ export const SAMPLE_BLOCK_DATA: Record<BlockType, any> = {
       { icon: "shield", title: "Qualidade", description: "Materiais selecionados à mão." },
     ],
   },
+  "social-links": {
+    title: "Segue-nos",
+    subtitle: "",
+    items: [
+      { icon: "instagram", label: "@drisclub", url: "https://instagram.com/drisclub" },
+      { icon: "facebook", label: "Drisclub", url: "https://facebook.com/drisclub" },
+      { icon: "email", label: "ola@drisclub.com", url: "mailto:ola@drisclub.com" },
+    ],
+  },
 };
