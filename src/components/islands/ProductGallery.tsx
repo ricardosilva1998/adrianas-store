@@ -1,10 +1,10 @@
 import useEmblaCarousel from "embla-carousel-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-type Image = { url: string; alt?: string };
+type MediaItem = { url: string; alt?: string; kind?: "image" | "video" };
 
 type Props = {
-  images: Image[];
+  images: MediaItem[];
   productName: string;
   showThumbs?: boolean;
   showBadges?: boolean;
@@ -18,12 +18,18 @@ export default function ProductGallery({
   showBadges = true,
   badges = {},
 }: Props) {
-  const safeImages = images.length > 0 ? images : [{ url: "/placeholders/product.svg", alt: productName }];
-  const single = safeImages.length <= 1;
+  const safeMedia: MediaItem[] =
+    images.length > 0
+      ? images
+      : [{ url: "/placeholders/product.svg", alt: productName, kind: "image" }];
+  const single = safeMedia.length <= 1;
+  const hasAnyVideo = safeMedia.some((m) => m.kind === "video");
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: "start", containScroll: "trimSnaps" });
   const [thumbsRef, thumbsApi] = useEmblaCarousel({ containScroll: "keepSnaps", dragFree: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [muted, setMuted] = useState(true);
+  const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map());
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -43,6 +49,16 @@ export default function ProductGallery({
     };
   }, [emblaApi, onSelect]);
 
+  useEffect(() => {
+    videoRefs.current.forEach((video, idx) => {
+      if (idx === selectedIndex) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, [selectedIndex]);
+
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
   const scrollTo = useCallback((idx: number) => emblaApi?.scrollTo(idx), [emblaApi]);
@@ -61,16 +77,35 @@ export default function ProductGallery({
   );
 
   if (single) {
-    const img = safeImages[0]!;
+    const media = safeMedia[0]!;
     return (
       <div className="flex flex-col gap-4">
         <div className="relative aspect-square overflow-hidden rounded-3xl border border-ink-line bg-rosa-50">
-          <img
-            src={img.url}
-            alt={img.alt || productName}
-            className="h-full w-full object-cover"
-          />
+          {media.kind === "video" ? (
+            <video
+              ref={(el) => {
+                if (el) videoRefs.current.set(0, el);
+                else videoRefs.current.delete(0);
+              }}
+              src={media.url}
+              autoPlay
+              muted={muted}
+              loop
+              playsInline
+              className="h-full w-full object-cover"
+              aria-label={media.alt || productName}
+            />
+          ) : (
+            <img
+              src={media.url}
+              alt={media.alt || productName}
+              className="h-full w-full object-cover"
+            />
+          )}
           {showBadges && <Badges {...badges} />}
+          {media.kind === "video" && (
+            <MuteToggle muted={muted} onToggle={() => setMuted((m) => !m)} />
+          )}
         </div>
       </div>
     );
@@ -88,20 +123,36 @@ export default function ProductGallery({
       >
         <div className="overflow-hidden rounded-3xl border border-ink-line bg-rosa-50" ref={emblaRef}>
           <div className="flex">
-            {safeImages.map((img, i) => (
+            {safeMedia.map((media, i) => (
               <div
                 key={i}
                 className="relative aspect-square w-full flex-[0_0_100%]"
                 role="group"
                 aria-roledescription="slide"
-                aria-label={`${i + 1} de ${safeImages.length}`}
+                aria-label={`${i + 1} de ${safeMedia.length}`}
               >
-                <img
-                  src={img.url}
-                  alt={img.alt || productName}
-                  className="h-full w-full object-cover"
-                  draggable={false}
-                />
+                {media.kind === "video" ? (
+                  <video
+                    ref={(el) => {
+                      if (el) videoRefs.current.set(i, el);
+                      else videoRefs.current.delete(i);
+                    }}
+                    src={media.url}
+                    autoPlay
+                    muted={muted}
+                    loop
+                    playsInline
+                    className="h-full w-full object-cover"
+                    aria-label={media.alt || productName}
+                  />
+                ) : (
+                  <img
+                    src={media.url}
+                    alt={media.alt || productName}
+                    className="h-full w-full object-cover"
+                    draggable={false}
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -134,8 +185,12 @@ export default function ProductGallery({
           </svg>
         </button>
 
+        {hasAnyVideo && (
+          <MuteToggle muted={muted} onToggle={() => setMuted((m) => !m)} />
+        )}
+
         <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
-          {safeImages.map((_, i) => (
+          {safeMedia.map((_, i) => (
             <button
               key={i}
               type="button"
@@ -153,7 +208,7 @@ export default function ProductGallery({
       {showThumbs && (
         <div className="overflow-hidden" ref={thumbsRef}>
           <div className="flex gap-3">
-            {safeImages.map((img, i) => (
+            {safeMedia.map((media, i) => (
               <button
                 key={i}
                 type="button"
@@ -166,17 +221,61 @@ export default function ProductGallery({
                     : "border-ink-line hover:border-rosa-300"
                 }`}
               >
-                <img
-                  src={img.url}
-                  alt={img.alt || productName}
-                  className="h-full w-full object-cover"
-                />
+                {media.kind === "video" ? (
+                  <div className="relative h-full w-full">
+                    <video
+                      src={media.url}
+                      preload="metadata"
+                      muted
+                      playsInline
+                      className="h-full w-full object-cover"
+                    />
+                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="h-6 w-6 drop-shadow">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </span>
+                  </div>
+                ) : (
+                  <img
+                    src={media.url}
+                    alt={media.alt || productName}
+                    className="h-full w-full object-cover"
+                  />
+                )}
               </button>
             ))}
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+function MuteToggle({ muted, onToggle }: { muted: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={muted ? "Ativar som" : "Desativar som"}
+      aria-pressed={!muted}
+      className="absolute bottom-3 right-3 z-10 rounded-full bg-white/90 p-2 text-ink shadow-md ring-1 ring-ink-line transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-rosa-500"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+        {muted ? (
+          <>
+            <path d="M11 5 6 9H2v6h4l5 4V5z" />
+            <line x1="23" y1="9" x2="17" y2="15" />
+            <line x1="17" y1="9" x2="23" y2="15" />
+          </>
+        ) : (
+          <>
+            <path d="M11 5 6 9H2v6h4l5 4V5z" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </>
+        )}
+      </svg>
+    </button>
   );
 }
 

@@ -16,7 +16,7 @@ const available = isAvailable(product);
 <div class="flex flex-col gap-4">
   <ProductGallery
     client:load
-    images={product.images.map((i) => ({ url: i.url, alt: i.alt }))}
+    images={product.images.map((i) => ({ url: i.url, alt: i.alt, kind: i.kind }))}
     productName={product.name}
     showThumbs={data.showThumbs}
     showBadges={data.showBadges}
