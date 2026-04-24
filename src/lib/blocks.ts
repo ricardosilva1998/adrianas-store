@@ -172,9 +172,31 @@ const featureListDataSchema = z.object({
   })).max(6).default([]),
 });
 
+const socialIconSchema = z.enum([
+  "instagram",
+  "facebook",
+  "tiktok",
+  "youtube",
+  "pinterest",
+  "whatsapp",
+  "email",
+]);
+export type SocialIcon = z.infer<typeof socialIconSchema>;
+
+const socialLinksDataSchema = z.object({
+  title: z.string().default("Segue-nos"),
+  subtitle: z.string().default(""),
+  items: z.array(z.object({
+    icon: socialIconSchema.default("instagram"),
+    label: z.string().default(""),
+    url: safeUrl,
+  })).max(7).default([]),
+});
+
 const statsBlockSchema = z.object({ id: z.string(), type: z.literal("stats"), data: statsDataSchema });
 const shippingStripBlockSchema = z.object({ id: z.string(), type: z.literal("shipping-strip"), data: shippingStripDataSchema });
 const featureListBlockSchema = z.object({ id: z.string(), type: z.literal("feature-list"), data: featureListDataSchema });
+const socialLinksBlockSchema = z.object({ id: z.string(), type: z.literal("social-links"), data: socialLinksDataSchema });
 
 // --- Block schema (discriminated union) ---
 
@@ -279,6 +301,7 @@ export const blockSchema = z.discriminatedUnion("type", [
   statsBlockSchema,
   shippingStripBlockSchema,
   featureListBlockSchema,
+  socialLinksBlockSchema,
   productGalleryBlockSchema,
   productInfoBlockSchema,
   productLongDescriptionBlockSchema,
@@ -312,6 +335,7 @@ export type CatalogGridBoundData = z.infer<typeof catalogGridBoundDataSchema>;
 export type StatsData = z.infer<typeof statsDataSchema>;
 export type ShippingStripData = z.infer<typeof shippingStripDataSchema>;
 export type FeatureListData = z.infer<typeof featureListDataSchema>;
+export type SocialLinksData = z.infer<typeof socialLinksDataSchema>;
 
 // --- Block metadata for the admin picker ---
 
@@ -337,6 +361,7 @@ export const BLOCK_TYPES: Array<{
   { type: "stats", label: "Estatísticas", description: "Fila de números grandes com legendas" },
   { type: "shipping-strip", label: "Garantias", description: "Icones com texto curto (envios, pagamentos, etc.)" },
   { type: "feature-list", label: "Destaques", description: "Grelha de 3 colunas com icone, título e descrição" },
+  { type: "social-links", label: "Redes Sociais", description: "Tiles com ícones das redes sociais da loja" },
   { type: "product-gallery", label: "Galeria do Produto", description: "Imagens do produto com thumbs", allowedIn: ["template-product-detail"] },
   { type: "product-info", label: "Info do Produto", description: "Nome, preço, descrição, botões", allowedIn: ["template-product-detail"] },
   { type: "product-long-description", label: "Descrição Longa", description: "Descrição detalhada do produto com formatação", allowedIn: ["template-product-detail"] },
@@ -397,6 +422,8 @@ export function createBlock(type: BlockType): Block {
       return { id, type, data: { items: [] } };
     case "feature-list":
       return { id, type, data: { title: "", subtitle: "", items: [] } };
+    case "social-links":
+      return { id, type, data: { title: "Segue-nos", subtitle: "", items: [] } };
     case "product-gallery":
       return { id, type, data: { showThumbs: true, showBadges: true } };
     case "product-info":

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { blockSchema, instantiatePreset } from "./blocks";
+import { blockSchema, createBlock, instantiatePreset } from "./blocks";
 
 describe("instantiatePreset", () => {
   it("returns a new block with a fresh nanoid id and deep-cloned data", () => {
@@ -114,5 +114,68 @@ describe("URL safety validation", () => {
     const bad = { id: "h", type: "hero", data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "x.jpg') ; opacity:0", layout: "background-image" } };
     const parsed = blockSchema.safeParse(bad);
     expect(parsed.success).toBe(false);
+  });
+});
+
+describe("social-links block", () => {
+  it("round-trips a populated block through the schema", () => {
+    const input = {
+      id: "abc1234567",
+      type: "social-links" as const,
+      data: {
+        title: "Segue-nos",
+        subtitle: "",
+        items: [
+          { icon: "instagram" as const, label: "@drisclub", url: "https://instagram.com/drisclub" },
+          { icon: "email" as const, label: "", url: "mailto:ola@drisclub.com" },
+        ],
+      },
+    };
+    const parsed = blockSchema.parse(input);
+    expect(parsed).toEqual(input);
+  });
+
+  it("defaults title to 'Segue-nos' and starts with no items", () => {
+    const fresh = createBlock("social-links");
+    expect(fresh.type).toBe("social-links");
+    if (fresh.type !== "social-links") throw new Error("type narrowing");
+    expect(fresh.data.title).toBe("Segue-nos");
+    expect(fresh.data.items).toEqual([]);
+  });
+
+  it("rejects unknown social icon values", () => {
+    const bad = {
+      id: "abc1234567",
+      type: "social-links" as const,
+      data: {
+        title: "x",
+        subtitle: "",
+        items: [{ icon: "myspace", label: "", url: "https://example.com" }],
+      },
+    };
+    expect(() => blockSchema.parse(bad)).toThrow();
+  });
+
+  it("caps items at 7 entries", () => {
+    const icons = [
+      "instagram",
+      "facebook",
+      "tiktok",
+      "youtube",
+      "pinterest",
+      "whatsapp",
+      "email",
+      "instagram",
+    ] as const;
+    const input = {
+      id: "abc1234567",
+      type: "social-links" as const,
+      data: {
+        title: "x",
+        subtitle: "",
+        items: icons.map((icon) => ({ icon, label: "", url: "https://x" })),
+      },
+    };
+    expect(() => blockSchema.parse(input)).toThrow();
   });
 });
