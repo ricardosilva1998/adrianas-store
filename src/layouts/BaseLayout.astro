@@ -17,6 +17,8 @@ interface Props {
 
 const config = await getSiteConfig(Astro.locals.previewConfig);
 const { identity } = config.globals;
+const favicon = config.theme.favicon ?? { url: null };
+const browserTitle = config.theme.browserTitle ?? "";
 
 const {
   title,
@@ -26,7 +28,8 @@ const {
   canonical,
   jsonLd,
 } = Astro.props;
-const pageTitle = title ? `${title} — ${identity.name}` : `${identity.name} — ${identity.tagline}`;
+const siteName = browserTitle.trim() || identity.name;
+const pageTitle = title ? `${title} — ${siteName}` : `${siteName} — ${identity.tagline}`;
 
 const themeCSS = renderThemeCSS(config.theme);
 const fontsHref = renderGoogleFontsHref(config.theme.fonts);
