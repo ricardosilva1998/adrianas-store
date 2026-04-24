@@ -62,9 +62,9 @@ const hasOverlayText = !!(data.title || data.titleAccent || subtitleHtml || (dat
 ) : layout === "background-image" ? (
   <section
     class="relative overflow-hidden bg-cover bg-center"
-    style={`background-image:url('${data.imageUrl}')`}
+    style={`background-image:url('${data.imageUrl}'); aspect-ratio: 5834 / 2084;`}
   >
-    <div class="relative mx-auto max-w-3xl px-6 py-28 text-center text-white sm:px-10 md:py-36 lg:px-16 lg:py-44">
+    <div class="relative mx-auto flex h-full max-w-3xl flex-col items-center justify-center px-6 text-center text-white sm:px-10 lg:px-16">
       {(data.title || data.titleAccent) && (
         <h1 class="text-4xl font-semibold leading-tight tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)] sm:text-5xl lg:text-6xl">
           {data.title && <span>{data.title}</span>}
