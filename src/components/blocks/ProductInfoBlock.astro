@@ -4,6 +4,7 @@ import type { ProductInfoData } from "../../lib/blocks";
 import type { ProductWithExtras } from "../../lib/queries";
 import { formatEuro, isAvailable } from "../../lib/queries";
 import { categoryLabel } from "../../lib/site";
+import { renderMixedContent } from "../../lib/content";
 
 interface Props {
   data: ProductInfoData;
@@ -13,6 +14,7 @@ interface Props {
 const { data, product } = Astro.props;
 const available = isAvailable(product);
 const shippingLines = data.shippingInfo.split("\n").filter((l) => l.trim() !== "");
+const descriptionHtml = renderMixedContent(product.description);
 ---
 
 <div class="flex flex-col gap-6">
@@ -45,9 +47,9 @@ const shippingLines = data.shippingInfo.split("\n").filter((l) => l.trim() !== "
     </p>
   </div>
 
-  <p class="text-sm leading-relaxed text-ink-soft sm:text-base">
-    {product.description}
-  </p>
+  {descriptionHtml && (
+    <div class="prose prose-sm max-w-none leading-relaxed text-ink-soft sm:text-base sm:prose-base" set:html={descriptionHtml} />
+  )}
 
   {available ? (
     <ProductActions

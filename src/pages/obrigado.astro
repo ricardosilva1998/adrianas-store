@@ -2,9 +2,14 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Slot from "../components/Slot.astro";
 import { getSiteConfig } from "../lib/config-server";
+import { renderMixedContent } from "../lib/content";
 
 const config = await getSiteConfig(Astro.locals.previewConfig);
 const { identity, payments } = config.globals;
+const paymentsWithHtml = payments.map((m) => ({
+  ...m,
+  instructionsHtml: renderMixedContent(m.instructions),
+}));
 
 const url = new URL(Astro.request.url);
 const orderNumber = url.searchParams.get("num");
@@ -42,7 +47,7 @@ const orderNumber = url.searchParams.get("num");
         </p>
 
         <div class="mt-6 grid gap-4">
-          {payments.map((m) => (
+          {paymentsWithHtml.map((m) => (
             <details class="rounded-3xl border border-ink-line bg-white p-6" open={m.id === "mbway"}>
               <summary class="flex cursor-pointer items-center justify-between text-left text-lg font-semibold text-ink">
                 {m.label}
@@ -50,7 +55,7 @@ const orderNumber = url.searchParams.get("num");
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </summary>
-              <p class="mt-4 whitespace-pre-line text-sm leading-relaxed text-ink-soft">{m.instructions}</p>
+              <div class="prose prose-sm mt-4 max-w-none leading-relaxed text-ink-soft" set:html={m.instructionsHtml} />
             </details>
           ))}
         </div>

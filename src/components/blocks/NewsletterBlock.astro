@@ -1,4 +1,6 @@
 ---
+import { renderMixedContent } from "../../lib/content";
+
 interface Props {
   data: {
     title: string;
@@ -9,7 +11,8 @@ interface Props {
 }
 
 const { data } = Astro.props;
-const hasContent = data.title || data.description;
+const descriptionHtml = renderMixedContent(data.description);
+const hasContent = data.title || descriptionHtml;
 const href = data.actionUrl || "#";
 ---
 
@@ -22,10 +25,8 @@ const href = data.actionUrl || "#";
             {data.title}
           </h2>
         )}
-        {data.description && (
-          <p class="mt-4 text-sm leading-relaxed text-ink-soft">
-            {data.description}
-          </p>
+        {descriptionHtml && (
+          <div class="prose prose-sm mx-auto mt-4 max-w-none leading-relaxed text-ink-soft" set:html={descriptionHtml} />
         )}
         {data.buttonText && (
           <a

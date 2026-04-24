@@ -1,4 +1,6 @@
 ---
+import { renderMixedContent } from "../../lib/content";
+
 interface Props {
   data: {
     title: string;
@@ -15,6 +17,7 @@ const { data } = Astro.props;
 const isInk = data.bgColor === "ink";
 const hasBgImage = !!data.backgroundImage;
 const isCenter = data.align === "center";
+const subtitleHtml = renderMixedContent(data.subtitle);
 ---
 
 <section class="py-20">
@@ -31,10 +34,8 @@ const isCenter = data.align === "center";
               {data.title}
             </h2>
           )}
-          {data.subtitle && (
-            <p class={`mt-5 text-sm leading-relaxed text-white/70 ${isCenter ? "mx-auto max-w-xl" : "max-w-xl"}`}>
-              {data.subtitle}
-            </p>
+          {subtitleHtml && (
+            <div class={`prose prose-sm mt-5 max-w-none leading-relaxed text-white/70 prose-headings:text-white prose-strong:text-white prose-a:text-white ${isCenter ? "mx-auto max-w-xl" : "max-w-xl"}`} set:html={subtitleHtml} />
           )}
           {data.buttonText && data.buttonUrl && (
             <a
@@ -58,10 +59,8 @@ const isCenter = data.align === "center";
               {data.title}
             </h2>
           )}
-          {data.subtitle && (
-            <p class={`mt-5 text-sm leading-relaxed ${isCenter ? "mx-auto max-w-xl" : "max-w-xl"} ${isInk ? "text-white/70" : "text-ink-soft"}`}>
-              {data.subtitle}
-            </p>
+          {subtitleHtml && (
+            <div class={`prose prose-sm mt-5 max-w-none leading-relaxed ${isCenter ? "mx-auto max-w-xl" : "max-w-xl"} ${isInk ? "text-white/70 prose-headings:text-white prose-strong:text-white prose-a:text-white" : "text-ink-soft"}`} set:html={subtitleHtml} />
           )}
           {data.buttonText && data.buttonUrl && (
             <a

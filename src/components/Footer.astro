@@ -1,6 +1,7 @@
 ---
 import { categories } from "../lib/site";
 import type { SiteConfig } from "../lib/config";
+import { renderMixedContent } from "../lib/content";
 
 interface Props {
   config: SiteConfig;
@@ -11,6 +12,7 @@ const { identity, footer } = config.globals;
 const { logo } = config.theme;
 
 const year = new Date().getFullYear();
+const identityDescriptionHtml = renderMixedContent(identity.description);
 ---
 
 <footer class="border-t border-ink-line bg-white">
@@ -24,9 +26,9 @@ const year = new Date().getFullYear();
             <span class="text-lg font-semibold tracking-tight text-ink">{identity.name}</span>
           )}
         </a>
-        <p class="mt-4 max-w-xs text-sm leading-relaxed text-ink-soft">
-          {identity.description}
-        </p>
+        {identityDescriptionHtml && (
+          <div class="prose prose-sm mt-4 max-w-xs leading-relaxed text-ink-soft" set:html={identityDescriptionHtml} />
+        )}
       </div>
 
       {footer.columns.map((col) => (

@@ -4,6 +4,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { renderThemeCSS, renderGoogleFontsHref } from "../lib/config";
 import { getSiteConfig } from "../lib/config-server";
+import { stripHtml } from "../lib/content";
 
 interface Props {
   title?: string;
@@ -19,7 +20,7 @@ const { identity } = config.globals;
 
 const {
   title,
-  description = identity.description,
+  description = stripHtml(identity.description),
   image,
   noindex = false,
   canonical,

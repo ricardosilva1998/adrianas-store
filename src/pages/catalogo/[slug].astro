@@ -6,7 +6,7 @@ import BlockRenderer from "../../components/blocks/BlockRenderer.astro";
 import ProductGallery from "../../components/islands/ProductGallery.tsx";
 import { getProductBySlug, getRelatedProducts, formatEuro, isAvailable, getActiveTemplate } from "../../lib/queries";
 import { categoryLabel } from "../../lib/site";
-import { renderMixedContent } from "../../lib/content";
+import { renderMixedContent, stripHtml } from "../../lib/content";
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect("/catalogo");
@@ -19,6 +19,8 @@ if (!product) {
 const related = await getRelatedProducts(product.category, product.id, 4);
 const available = isAvailable(product);
 const longContent = renderMixedContent(product.longDescription);
+const descriptionHtml = renderMixedContent(product.description);
+const descriptionText = stripHtml(product.description);
 const template = await getActiveTemplate("product-detail");
 const templateBlocks: Array<{ type: string; data: any }> =
   template && Array.isArray(template.blocks) && template.blocks.length > 0
@@ -34,7 +36,7 @@ const productJsonLd: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "Product",
   name: product.name,
-  description: product.description,
+  description: descriptionText,
   sku: product.slug,
   category: categoryLabel(product.category),
   ...(productImage ? { image: product.images.map((i) => new URL(i.url, Astro.url.origin).href) } : {}),
@@ -69,7 +71,7 @@ const breadcrumbJsonLd: Record<string, unknown> = {
 
 <BaseLayout
   title={product.name}
-  description={product.description}
+  description={descriptionText}
   image={productImage}
   jsonLd={[productJsonLd, breadcrumbJsonLd]}
 >
@@ -128,9 +130,9 @@ const breadcrumbJsonLd: Record<string, unknown> = {
               </p>
             </div>
 
-            <p class="text-sm leading-relaxed text-ink-soft sm:text-base">
-              {product.description}
-            </p>
+            {descriptionHtml && (
+              <div class="prose prose-sm max-w-none leading-relaxed text-ink-soft sm:text-base sm:prose-base" set:html={descriptionHtml} />
+            )}
 
             {available ? (
               <ProductActions

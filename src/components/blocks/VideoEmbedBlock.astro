@@ -1,4 +1,6 @@
 ---
+import { renderMixedContent } from "../../lib/content";
+
 interface Props {
   data: {
     url: string;
@@ -8,6 +10,7 @@ interface Props {
 }
 
 const { data } = Astro.props;
+const captionHtml = renderMixedContent(data.caption);
 
 function toEmbedUrl(raw: string): string {
   if (!raw) return "";
@@ -55,8 +58,8 @@ const embedUrl = toEmbedUrl(data.url);
           allowfullscreen
         />
       </div>
-      {data.caption && (
-        <p class="mt-4 text-center text-sm text-ink-muted">{data.caption}</p>
+      {captionHtml && (
+        <div class="prose prose-sm mx-auto mt-4 max-w-none text-center text-ink-muted" set:html={captionHtml} />
       )}
     </div>
   </section>

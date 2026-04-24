@@ -1,4 +1,6 @@
 ---
+import { renderMixedContent } from "../../lib/content";
+
 interface TestimonialItem {
   name: string;
   quote: string;
@@ -14,6 +16,10 @@ interface Props {
 
 const { data } = Astro.props;
 const hasContent = data.items && data.items.length > 0;
+const items = (data.items ?? []).map((item) => ({
+  ...item,
+  quoteHtml: renderMixedContent(item.quote),
+}));
 
 function initials(name: string): string {
   return name
@@ -34,9 +40,9 @@ function initials(name: string): string {
         </h2>
       )}
       <div class="grid gap-6 md:grid-cols-2">
-        {data.items.map((item) => (
+        {items.map((item) => (
           <div class="rounded-2xl border border-ink-line bg-white p-6">
-            <p class="text-sm leading-relaxed text-ink-soft">"{item.quote}"</p>
+            <div class="prose prose-sm max-w-none leading-relaxed text-ink-soft" set:html={item.quoteHtml} />
             <div class="mt-5 flex items-center gap-3">
               {item.avatarUrl ? (
                 <img

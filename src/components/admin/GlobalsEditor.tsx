@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { Globals, SiteConfig } from "../../lib/config";
 import DragList from "./DragList";
 import PreviewShell from "./PreviewShell";
+import { RichTextEditor } from "./RichTextEditor";
 
 interface Props {
   initialConfig: SiteConfig;
@@ -328,12 +329,13 @@ function Textarea({ label, value, onChange }: { label: string; value: string; on
   return (
     <div>
       <label className="field-label">{label}</label>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={4}
-        className="field-input mt-1 resize-y"
-      />
+      <div className="mt-2">
+        <RichTextEditor
+          value={value}
+          onChange={onChange}
+          minHeight={120}
+        />
+      </div>
     </div>
   );
 }

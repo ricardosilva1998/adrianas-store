@@ -250,15 +250,14 @@ export default function ProductForm({ initial, mode }: Props) {
               />
             </div>
             <div>
-              <label className="field-label" htmlFor="description">Descrição curta</label>
-              <textarea
-                id="description"
-                value={data.description}
-                onChange={(e) => update("description", e.target.value)}
-                rows={2}
-                required
-                className="field-input resize-none"
-              />
+              <label className="field-label">Descrição curta</label>
+              <div className="mt-2">
+                <RichTextEditor
+                  value={data.description}
+                  onChange={(html) => update("description", html)}
+                  minHeight={120}
+                />
+              </div>
             </div>
             <div>
               <label className="field-label">Descrição longa</label>

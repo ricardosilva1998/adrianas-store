@@ -1,4 +1,6 @@
 ---
+import { renderMixedContent } from "../../lib/content";
+
 interface Props {
   data: {
     title: string;
@@ -7,22 +9,24 @@ interface Props {
 }
 
 const { data } = Astro.props;
+const items = data.items.map((item) => ({
+  ...item,
+  answerHtml: renderMixedContent(item.answer),
+}));
 ---
 
-{data.items.length > 0 && (
+{items.length > 0 && (
   <section class="py-16">
     <div class="section max-w-3xl">
       {data.title && <h2 class="mb-8 text-3xl font-semibold text-ink sm:text-4xl">{data.title}</h2>}
       <div class="grid gap-3">
-        {data.items.map((item) => (
+        {items.map((item) => (
           <details class="group rounded-2xl border border-ink-line bg-white">
             <summary class="flex cursor-pointer items-center justify-between px-6 py-4 text-sm font-semibold text-ink">
               {item.question}
               <span class="ml-4 text-ink-muted transition group-open:rotate-180">▼</span>
             </summary>
-            <div class="border-t border-ink-line px-6 py-4 text-sm leading-relaxed text-ink-soft">
-              {item.answer}
-            </div>
+            <div class="prose prose-sm max-w-none border-t border-ink-line px-6 py-4 leading-relaxed text-ink-soft" set:html={item.answerHtml} />
           </details>
         ))}
       </div>

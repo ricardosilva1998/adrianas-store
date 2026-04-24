@@ -61,6 +61,12 @@ html.dark body {
     text-rendering: optimizeLegibility;
   }
 
+  /* Preserve visible blank lines from rich-text editor (Tiptap emits <p></p>
+     for empty paragraphs, which collapse to 0 height without this). */
+  .prose p:empty::before {
+    content: "\00a0";
+  }
+
   body {
     min-height: 100dvh;
     background: var(--color-surface);

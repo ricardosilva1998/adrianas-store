@@ -328,7 +328,13 @@ function CtaBannerForm({ data, onChange }: { data: any; onChange: (d: any) => vo
       </div>
       <div>
         <label className="field-label">Subtitulo</label>
-        <textarea value={data.subtitle} onChange={(e) => onChange({ subtitle: e.target.value })} rows={3} className="field-input" />
+        <div className="mt-2">
+          <RichTextEditor
+            value={data.subtitle ?? ""}
+            onChange={(subtitle) => onChange({ subtitle })}
+            minHeight={120}
+          />
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
@@ -427,12 +433,10 @@ function FaqForm({ data, onChange }: { data: any; onChange: (d: any) => void }) 
             placeholder="Pergunta"
             className="field-input"
           />
-          <textarea
-            value={item.answer}
-            onChange={(e) => updateItem(idx, "answer", e.target.value)}
-            placeholder="Resposta"
-            rows={3}
-            className="field-input"
+          <RichTextEditor
+            value={item.answer ?? ""}
+            onChange={(answer) => updateItem(idx, "answer", answer)}
+            minHeight={120}
           />
         </div>
       ))}
@@ -500,12 +504,10 @@ function TestimonialsForm({ data, onChange }: { data: any; onChange: (d: any) =>
             placeholder="Nome"
             className="field-input"
           />
-          <textarea
-            value={item.quote}
-            onChange={(e) => updateItem(idx, "quote", e.target.value)}
-            placeholder="Citação"
-            rows={3}
-            className="field-input"
+          <RichTextEditor
+            value={item.quote ?? ""}
+            onChange={(quote) => updateItem(idx, "quote", quote)}
+            minHeight={120}
           />
           <input
             value={item.avatarUrl}
@@ -531,7 +533,13 @@ function NewsletterForm({ data, onChange }: { data: any; onChange: (d: any) => v
       </div>
       <div>
         <label className="field-label">Descrição</label>
-        <textarea value={data.description} onChange={(e) => onChange({ description: e.target.value })} rows={3} className="field-input" />
+        <div className="mt-2">
+          <RichTextEditor
+            value={data.description ?? ""}
+            onChange={(description) => onChange({ description })}
+            minHeight={120}
+          />
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
@@ -636,7 +644,13 @@ function VideoEmbedForm({ data, onChange }: { data: any; onChange: (d: any) => v
       </div>
       <div>
         <label className="field-label">Legenda</label>
-        <textarea value={data.caption} onChange={(e) => onChange({ caption: e.target.value })} rows={2} className="field-input" />
+        <div className="mt-2">
+          <RichTextEditor
+            value={data.caption ?? ""}
+            onChange={(caption) => onChange({ caption })}
+            minHeight={100}
+          />
+        </div>
       </div>
     </div>
   );
@@ -951,7 +965,11 @@ function FeatureListForm({ data, onChange }: { data: any; onChange: (d: any) => 
           </div>
           <IconPicker value={it.icon} onChange={(icon) => updateItem(i, { icon })} />
           <input value={it.title} onChange={(e) => updateItem(i, { title: e.target.value })} placeholder="Título" className="field-input" />
-          <textarea value={it.description} onChange={(e) => updateItem(i, { description: e.target.value })} placeholder="Descrição" rows={2} className="field-input" />
+          <RichTextEditor
+            value={it.description ?? ""}
+            onChange={(description) => updateItem(i, { description })}
+            minHeight={100}
+          />
         </div>
       ))}
       {items.length < 6 && (

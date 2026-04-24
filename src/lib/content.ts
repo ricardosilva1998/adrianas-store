@@ -26,3 +26,19 @@ export function renderMixedContent(raw: string | null | undefined): string {
   const parsed = marked.parse(raw, { async: false }) as string;
   return sanitizeHtml(parsed);
 }
+
+export function stripHtml(raw: string | null | undefined): string {
+  if (!raw) return "";
+  return raw
+    .replace(/<\s*br\s*\/?\s*>/gi, " ")
+    .replace(/<\/(p|div|h[1-6]|li|blockquote)>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
