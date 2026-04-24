@@ -37,7 +37,7 @@ export type ProductFormData = {
   active: boolean;
   sortOrder: number;
   variantColorTitle: string;
-  images: Array<{ url: string; alt: string }>;
+  images: Array<{ url: string; alt: string; kind: "image" | "video" }>;
   colors: Array<{ name: string; hex: string }>;
   variantColors: Array<{ name: string; hex: string }>;
 };
@@ -87,7 +87,7 @@ export default function ProductForm({ initial, mode }: Props) {
     setData((d) => ({ ...d, [key]: value }));
   };
 
-  const handleImageUpload = async (file: File) => {
+  const handleMediaUpload = async (file: File, kind: "image" | "video") => {
     setUploading(true);
     setError(null);
     try {
@@ -101,8 +101,11 @@ export default function ProductForm({ initial, mode }: Props) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || `Erro ${res.status}`);
       }
-      const body = (await res.json()) as { url: string };
-      update("images", [...data.images, { url: body.url, alt: "" }]);
+      const body = (await res.json()) as { url: string; kind?: "image" | "video" };
+      update("images", [
+        ...data.images,
+        { url: body.url, alt: "", kind: body.kind ?? kind },
+      ]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha no upload");
     } finally {
@@ -113,7 +116,7 @@ export default function ProductForm({ initial, mode }: Props) {
   const handleImageUrlAdd = () => {
     const url = prompt("URL da imagem:");
     if (!url) return;
-    update("images", [...data.images, { url, alt: "" }]);
+    update("images", [...data.images, { url, alt: "", kind: "image" }]);
   };
 
   const removeImage = (i: number) => {
@@ -275,16 +278,31 @@ export default function ProductForm({ initial, mode }: Props) {
         </section>
 
         <section className="rounded-3xl border border-ink-line bg-surface p-6">
-          <h2 className="text-lg font-semibold text-ink">Imagens</h2>
+          <h2 className="text-lg font-semibold text-ink">Imagens e vídeos</h2>
           <p className="mt-1 text-xs text-ink-muted">
-            Adiciona as fotos reais do produto. Podes fazer upload ou colar um URL externo.
+            Adiciona fotos reais do produto e, opcionalmente, um vídeo curto (até 50 MB, MP4/WebM/MOV). Ordena com as setas ↑↓.
           </p>
 
           <div className="mt-5 grid gap-3">
             {data.images.map((img, i) => (
               <div key={i} className="flex items-center gap-3 rounded-2xl border border-ink-line p-3">
-                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-rosa-50">
-                  <img src={img.url} alt={img.alt} className="h-full w-full object-cover" />
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-rosa-50">
+                  {img.kind === "video" ? (
+                    <>
+                      <video
+                        src={img.url}
+                        preload="metadata"
+                        muted
+                        playsInline
+                        className="h-full w-full object-cover"
+                      />
+                      <span className="pointer-events-none absolute bottom-0.5 left-0.5 rounded bg-ink/80 px-1 text-[8px] font-semibold uppercase text-white">
+                        Vídeo
+                      </span>
+                    </>
+                  ) : (
+                    <img src={img.url} alt={img.alt} className="h-full w-full object-cover" />
+                  )}
                 </div>
                 <div className="flex-1">
                   <p className="truncate text-xs text-ink-muted">{img.url}</p>
@@ -336,7 +354,21 @@ export default function ProductForm({ initial, mode }: Props) {
                 disabled={uploading}
                 onChange={(e) => {
                   const f = e.target.files?.[0];
-                  if (f) handleImageUpload(f);
+                  if (f) handleMediaUpload(f, "image");
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            <label className="cursor-pointer rounded-full border border-rosa-300 bg-white px-4 py-2 text-xs font-medium text-rosa-500 hover:border-rosa-500">
+              {uploading ? "A enviar…" : "+ Upload de vídeo"}
+              <input
+                type="file"
+                accept="video/mp4,video/webm,video/quicktime"
+                className="hidden"
+                disabled={uploading}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleMediaUpload(f, "video");
                   e.target.value = "";
                 }}
               />
@@ -346,7 +378,7 @@ export default function ProductForm({ initial, mode }: Props) {
               onClick={handleImageUrlAdd}
               className="rounded-full border border-ink-line px-4 py-2 text-xs font-medium text-ink-soft hover:border-rosa-300 hover:text-rosa-500"
             >
-              + Adicionar URL
+              + Adicionar URL de imagem
             </button>
           </div>
         </section>
