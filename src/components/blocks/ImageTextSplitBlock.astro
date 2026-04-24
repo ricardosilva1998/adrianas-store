@@ -1,19 +1,20 @@
 ---
-import { marked } from "marked";
+import { renderBlockContent } from "../../lib/content";
 
 interface Props {
   data: {
     imageUrl: string;
     imageAlt: string;
     title: string;
-    markdown: string;
+    html?: string;
+    markdown?: string;
     layout: "image-left" | "image-right" | "image-top" | "image-bottom";
     imageAspect?: "square" | "landscape" | "portrait";
   };
 }
 
 const { data } = Astro.props;
-const html = data.markdown ? (marked.parse(data.markdown, { async: false }) as string) : "";
+const html = renderBlockContent({ html: data.html, markdown: data.markdown });
 const isStacked = data.layout === "image-top" || data.layout === "image-bottom";
 const imageFirst = data.layout !== "image-right" && data.layout !== "image-bottom";
 

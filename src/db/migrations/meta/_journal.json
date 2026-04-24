@@ -64,6 +64,13 @@
       "when": 1776873600000,
       "tag": "0008_drisclub_rebrand",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1777334400000,
+      "tag": "0009_product_variant_colors",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,7 @@
 ---
 import "../../styles/global.css";
 import { getSessionUser } from "../../lib/auth";
+import PasswordInput from "../../components/admin/PasswordInput.tsx";
 
 const user = await getSessionUser(Astro.cookies);
 if (user) return Astro.redirect("/admin");
@@ -52,13 +53,12 @@ const error = Astro.url.searchParams.get("error");
           </div>
           <div>
             <label for="password" class="field-label">Password</label>
-            <input
+            <PasswordInput
+              client:load
               id="password"
               name="password"
-              type="password"
               required
-              autocomplete="current-password"
-              class="field-input"
+              autoComplete="current-password"
             />
           </div>
           <button type="submit" class="btn-primary mt-6 w-full">

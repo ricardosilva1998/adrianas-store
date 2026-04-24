@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PersonalizeModal from "./PersonalizeModal";
-import { addToCart, type Personalization } from "./stores/cart";
+import { addToCart, type Personalization, type VariantColor } from "./stores/cart";
 
 type ColorOption = { name: string; hex: string };
 
@@ -12,6 +12,7 @@ interface ProductInput {
   category: string;
   personalizable: boolean;
   availableColors: ColorOption[];
+  variantColors?: ColorOption[];
 }
 
 interface Props {
@@ -19,14 +20,25 @@ interface Props {
 }
 
 export default function ProductActions({ product }: Props) {
+  const variantColors = product.variantColors ?? [];
+  const requireVariant = variantColors.length > 0;
+
   const [quantity, setQuantity] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [personalization, setPersonalization] = useState<
     Personalization | undefined
   >(undefined);
+  const [selectedVariant, setSelectedVariant] = useState<VariantColor | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
 
+  const canAdd = !requireVariant || selectedVariant !== null;
+
   const handleAdd = (includePersonalization: boolean) => {
+    if (!canAdd) {
+      setFeedback("Escolhe uma cor antes de adicionar.");
+      window.setTimeout(() => setFeedback(null), 3000);
+      return;
+    }
     addToCart({
       productSlug: product.slug,
       name: product.name,
@@ -36,6 +48,7 @@ export default function ProductActions({ product }: Props) {
       category: product.category,
       personalization:
         includePersonalization && personalization ? personalization : undefined,
+      variantColor: selectedVariant ?? undefined,
     });
     setFeedback(
       includePersonalization && personalization
@@ -50,6 +63,38 @@ export default function ProductActions({ product }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
+      {requireVariant && (
+        <div>
+          <p className="field-label">Cor do produto</p>
+          <p className="mt-1 text-xs text-ink-muted">Escolhe uma cor.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {variantColors.map((c) => {
+              const active = selectedVariant?.hex === c.hex;
+              return (
+                <button
+                  key={c.hex}
+                  type="button"
+                  onClick={() => setSelectedVariant({ name: c.name, hex: c.hex })}
+                  aria-pressed={active}
+                  aria-label={`Escolher cor ${c.name}`}
+                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    active
+                      ? "border-rosa-400 bg-rosa-50 text-rosa-600 ring-2 ring-rosa-400"
+                      : "border-ink-line text-ink-soft hover:border-rosa-300"
+                  }`}
+                >
+                  <span
+                    className="inline-block h-4 w-4 rounded-full border border-ink-line"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                  {c.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-3">
         <div className="inline-flex items-center gap-2 rounded-full border border-ink-line bg-white p-1 text-ink">
           <button
@@ -78,8 +123,10 @@ export default function ProductActions({ product }: Props) {
       <div className="flex flex-col gap-3 sm:flex-row">
         <button
           type="button"
-          className="btn-primary flex-1"
+          className="btn-primary flex-1 disabled:opacity-60 disabled:cursor-not-allowed"
           onClick={() => handleAdd(Boolean(personalization))}
+          disabled={!canAdd}
+          title={!canAdd ? "Escolhe uma cor primeiro" : undefined}
         >
           Adicionar ao carrinho
           <svg

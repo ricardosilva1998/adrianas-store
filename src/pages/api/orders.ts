@@ -33,6 +33,10 @@ const CheckoutSchema = z.object({
           })
           .optional()
           .nullable(),
+        variantColor: z
+          .object({ name: z.string(), hex: z.string() })
+          .optional()
+          .nullable(),
       }),
     )
     .min(1),

@@ -18,6 +18,7 @@ export type ProductWithExtras = {
   sortOrder: number;
   images: Array<{ url: string; alt: string; position: number }>;
   colors: Array<{ name: string; hex: string; position: number }>;
+  variantColors: Array<{ name: string; hex: string; position: number }>;
 };
 
 const attachExtras = async (
@@ -26,7 +27,7 @@ const attachExtras = async (
   if (rows.length === 0) return [];
 
   const ids = rows.map((r) => r.id);
-  const [allImages, allColors] = await Promise.all([
+  const [allImages, allColors, allVariantColors] = await Promise.all([
     db
       .select()
       .from(schema.productImages)
@@ -35,6 +36,10 @@ const attachExtras = async (
       .select()
       .from(schema.productColors)
       .where(inArray(schema.productColors.productId, ids)),
+    db
+      .select()
+      .from(schema.productVariantColors)
+      .where(inArray(schema.productVariantColors.productId, ids)),
   ]);
 
   return rows.map((p) => ({
@@ -56,6 +61,10 @@ const attachExtras = async (
       .sort((a, b) => a.position - b.position)
       .map((i) => ({ url: i.url, alt: i.alt, position: i.position })),
     colors: allColors
+      .filter((c) => c.productId === p.id)
+      .sort((a, b) => a.position - b.position)
+      .map((c) => ({ name: c.name, hex: c.hex, position: c.position })),
+    variantColors: allVariantColors
       .filter((c) => c.productId === p.id)
       .sort((a, b) => a.position - b.position)
       .map((c) => ({ name: c.name, hex: c.hex, position: c.position })),

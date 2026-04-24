@@ -1,12 +1,12 @@
 ---
-import { marked } from "marked";
+import { renderBlockContent } from "../../lib/content";
 
 interface Props {
-  data: { markdown: string };
+  data: { html?: string; markdown?: string };
 }
 
 const { data } = Astro.props;
-const html = data.markdown ? (marked.parse(data.markdown, { async: false }) as string) : "";
+const html = renderBlockContent({ html: data.html, markdown: data.markdown });
 ---
 
 {html && (

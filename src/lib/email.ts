@@ -63,14 +63,21 @@ const statusIntro: Record<OrderStatus, string> = {
 const renderItems = (items: OrderItem[]): string => {
   return items
     .map((item) => {
-      const personalization = item.personalization
-        ? `<div style="font-size:12px;color:#6b7280;margin-top:4px"><em>Personalizado: "${item.personalization.phrase || "—"}" ${item.personalization.description ? `— ${item.personalization.description}` : ""}</em></div>`
+      const p = item.personalization;
+      const hasVariant = p && p.variantColor;
+      const hasPersonalization = p && (p.phrase || p.description || (p.colors && p.colors.length > 0));
+      const variantLine = hasVariant
+        ? `<div style="font-size:12px;color:#6b7280;margin-top:4px">Cor: <span style="display:inline-block;width:10px;height:10px;border-radius:999px;background:${p.variantColor!.hex};border:1px solid #e5e7eb;vertical-align:middle"></span> ${p.variantColor!.name}</div>`
+        : "";
+      const personalizationLine = hasPersonalization
+        ? `<div style="font-size:12px;color:#6b7280;margin-top:4px"><em>Personalizado: "${p!.phrase || "—"}" ${p!.description ? `— ${p!.description}` : ""}</em></div>`
         : "";
       return `
         <tr>
           <td style="padding:12px 0;border-top:1px solid #f1e1e9;color:#111">
             <strong>${item.quantity}× ${item.productName}</strong>
-            ${personalization}
+            ${variantLine}
+            ${personalizationLine}
           </td>
           <td style="padding:12px 0;border-top:1px solid #f1e1e9;text-align:right;color:#111">
             ${formatEuro(item.unitPriceCents * item.quantity)}

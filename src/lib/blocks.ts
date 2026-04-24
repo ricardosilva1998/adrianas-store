@@ -24,7 +24,8 @@ const heroDataSchema = z.object({
 });
 
 const textDataSchema = z.object({
-  markdown: z.string().default(""),
+  html: z.string().default(""),
+  markdown: z.string().optional(),
 });
 
 const productGridDataSchema = z.object({
@@ -97,7 +98,8 @@ const imageTextSplitDataSchema = z.object({
   imageUrl: safeUrl,
   imageAlt: z.string().default(""),
   title: z.string().default(""),
-  markdown: z.string().default(""),
+  html: z.string().default(""),
+  markdown: z.string().optional(),
   layout: z.enum(["image-left", "image-right", "image-top", "image-bottom"]).default("image-left"),
   imageAspect: z.enum(["square", "landscape", "portrait"]).default("landscape"),
 });
@@ -320,7 +322,7 @@ export const BLOCK_TYPES: Array<{
   allowedIn?: Array<"page" | "template-catalog" | "template-product-detail">;
 }> = [
   { type: "hero", label: "Hero", description: "Banner com titulo, subtitulo, botao e imagem" },
-  { type: "text", label: "Texto", description: "Bloco de texto com suporte a Markdown" },
+  { type: "text", label: "Texto", description: "Bloco de texto com formatação (negrito, cor, listas, etc.)" },
   { type: "product-grid", label: "Grelha de Produtos", description: "Mostra produtos (mais vendidos, por categoria, ou todos)" },
   { type: "category-grid", label: "Grelha de Categorias", description: "Mostra cartoes de categorias" },
   { type: "image-gallery", label: "Galeria de Imagens", description: "Grelha de imagens" },
@@ -329,7 +331,7 @@ export const BLOCK_TYPES: Array<{
   { type: "contact-info", label: "Contacto", description: "Email, WhatsApp, Instagram, morada" },
   { type: "testimonials", label: "Testemunhos", description: "Citações de clientes com nome e avatar" },
   { type: "newsletter", label: "Newsletter", description: "Call-to-action para subscrição" },
-  { type: "image-text-split", label: "Imagem + Texto", description: "Imagem ao lado de texto em Markdown" },
+  { type: "image-text-split", label: "Imagem + Texto", description: "Imagem ao lado de texto formatado" },
   { type: "video-embed", label: "Vídeo", description: "Embed de YouTube ou Vimeo" },
   { type: "divider", label: "Separador", description: "Linha visual entre secções" },
   { type: "stats", label: "Estatísticas", description: "Fila de números grandes com legendas" },
@@ -337,7 +339,7 @@ export const BLOCK_TYPES: Array<{
   { type: "feature-list", label: "Destaques", description: "Grelha de 3 colunas com icone, título e descrição" },
   { type: "product-gallery", label: "Galeria do Produto", description: "Imagens do produto com thumbs", allowedIn: ["template-product-detail"] },
   { type: "product-info", label: "Info do Produto", description: "Nome, preço, descrição, botões", allowedIn: ["template-product-detail"] },
-  { type: "product-long-description", label: "Descrição Longa", description: "Conteúdo em Markdown do produto", allowedIn: ["template-product-detail"] },
+  { type: "product-long-description", label: "Descrição Longa", description: "Descrição detalhada do produto com formatação", allowedIn: ["template-product-detail"] },
   { type: "product-related", label: "Produtos Relacionados", description: "Grelha de produtos da mesma categoria", allowedIn: ["template-product-detail"] },
   { type: "catalog-grid-bound", label: "Grelha do Catálogo", description: "Produtos filtrados por categoria do URL", allowedIn: ["template-catalog"] },
 ];
@@ -366,7 +368,7 @@ export function createBlock(type: BlockType): Block {
     case "hero":
       return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", layout: "image-right" } };
     case "text":
-      return { id, type, data: { markdown: "" } };
+      return { id, type, data: { html: "" } };
     case "product-grid":
       return { id, type, data: { title: "", subtitle: "", filter: "bestsellers", columns: "4", layout: "grid" } };
     case "category-grid":
@@ -384,7 +386,7 @@ export function createBlock(type: BlockType): Block {
     case "newsletter":
       return { id, type, data: { title: "", description: "", buttonText: "Subscrever", actionUrl: "" } };
     case "image-text-split":
-      return { id, type, data: { imageUrl: "", imageAlt: "", title: "", markdown: "", layout: "image-left", imageAspect: "landscape" } };
+      return { id, type, data: { imageUrl: "", imageAlt: "", title: "", html: "", layout: "image-left", imageAspect: "landscape" } };
     case "video-embed":
       return { id, type, data: { url: "", title: "", caption: "" } };
     case "divider":

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { RichTextEditor } from "./RichTextEditor";
 
 type Category =
   | "tote-bags"
@@ -37,6 +38,7 @@ export type ProductFormData = {
   sortOrder: number;
   images: Array<{ url: string; alt: string }>;
   colors: Array<{ name: string; hex: string }>;
+  variantColors: Array<{ name: string; hex: string }>;
 };
 
 interface Props {
@@ -59,6 +61,7 @@ const emptyProduct: ProductFormData = {
   sortOrder: 0,
   images: [],
   colors: [],
+  variantColors: [],
 };
 
 const slugify = (value: string) =>
@@ -140,6 +143,23 @@ export default function ProductForm({ initial, mode }: Props) {
     update(
       "colors",
       data.colors.filter((_, idx) => idx !== i),
+    );
+  };
+
+  const addVariantColor = () => {
+    update("variantColors", [...data.variantColors, { name: "", hex: "#111111" }]);
+  };
+
+  const updateVariantColor = (i: number, field: "name" | "hex", value: string) => {
+    const next = [...data.variantColors];
+    next[i] = { ...next[i], [field]: value };
+    update("variantColors", next);
+  };
+
+  const removeVariantColor = (i: number) => {
+    update(
+      "variantColors",
+      data.variantColors.filter((_, idx) => idx !== i),
     );
   };
 
@@ -241,16 +261,14 @@ export default function ProductForm({ initial, mode }: Props) {
               />
             </div>
             <div>
-              <label className="field-label" htmlFor="longDescription">
-                Descrição longa (markdown opcional)
-              </label>
-              <textarea
-                id="longDescription"
-                value={data.longDescription}
-                onChange={(e) => update("longDescription", e.target.value)}
-                rows={8}
-                className="field-input font-mono text-xs"
-              />
+              <label className="field-label">Descrição longa</label>
+              <div className="mt-2">
+                <RichTextEditor
+                  value={data.longDescription}
+                  onChange={(html) => update("longDescription", html)}
+                  minHeight={240}
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -334,6 +352,9 @@ export default function ProductForm({ initial, mode }: Props) {
 
         <section className="rounded-3xl border border-ink-line bg-surface p-6">
           <h2 className="text-lg font-semibold text-ink">Cores disponíveis</h2>
+          <p className="mt-1 text-xs text-ink-muted">
+            Para peças personalizáveis (cores de estampa). Cliente pode escolher uma ou várias.
+          </p>
           {data.colors.map((c, i) => (
             <div key={i} className="mt-3 flex items-center gap-3">
               <input
@@ -360,6 +381,43 @@ export default function ProductForm({ initial, mode }: Props) {
           <button
             type="button"
             onClick={addColor}
+            className="mt-4 rounded-full border border-ink-line px-4 py-2 text-xs font-medium text-ink-soft hover:border-rosa-300 hover:text-rosa-500"
+          >
+            + Adicionar cor
+          </button>
+        </section>
+
+        <section className="rounded-3xl border border-ink-line bg-surface p-6">
+          <h2 className="text-lg font-semibold text-ink">Cor do produto (variante)</h2>
+          <p className="mt-1 text-xs text-ink-muted">
+            Para produtos vendidos em várias cores físicas (ex: acessórios). Escolha única obrigatória no checkout. Deixa vazio se este produto não tem variantes de cor.
+          </p>
+          {data.variantColors.map((c, i) => (
+            <div key={i} className="mt-3 flex items-center gap-3">
+              <input
+                type="color"
+                value={c.hex}
+                onChange={(e) => updateVariantColor(i, "hex", e.target.value)}
+                className="h-9 w-12 rounded border border-ink-line"
+              />
+              <input
+                value={c.name}
+                onChange={(e) => updateVariantColor(i, "name", e.target.value)}
+                placeholder="Nome (ex: Preto)"
+                className="flex-1 rounded-xl border border-ink-line px-3 py-2 text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => removeVariantColor(i)}
+                className="text-xs text-rosa-500 hover:underline"
+              >
+                Remover
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addVariantColor}
             className="mt-4 rounded-full border border-ink-line px-4 py-2 text-xs font-medium text-ink-soft hover:border-rosa-300 hover:text-rosa-500"
           >
             + Adicionar cor

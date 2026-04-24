@@ -6,6 +6,8 @@ export type Personalization = {
   description: string;
 };
 
+export type VariantColor = { name: string; hex: string };
+
 export type CartItem = {
   id: string;
   productSlug: string;
@@ -15,6 +17,7 @@ export type CartItem = {
   image: string;
   category: string;
   personalization?: Personalization;
+  variantColor?: VariantColor;
 };
 
 export const cart = persistentAtom<CartItem[]>("adriana-cart", [], {

@@ -1,8 +1,7 @@
-import { useMemo } from "react";
-import { marked } from "marked";
 import type { Block, Icon } from "../../lib/blocks";
 import ImagePicker from "./ImagePicker";
 import IconPreview from "./IconPreview";
+import { RichTextEditor } from "./RichTextEditor";
 
 export default function BlockForm({ block, onChange }: { block: Block; onChange: (data: any) => void }) {
   switch (block.type) {
@@ -91,8 +90,14 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
         />
       </div>
       <div>
-        <label className="field-label">Subtitulo</label>
-        <input value={data.subtitle} onChange={(e) => onChange({ subtitle: e.target.value })} className="field-input" />
+        <label className="field-label">Subtítulo</label>
+        <div className="mt-2">
+          <RichTextEditor
+            value={data.subtitle ?? ""}
+            onChange={(subtitle) => onChange({ subtitle })}
+            minHeight={120}
+          />
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
@@ -114,26 +119,15 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
 }
 
 function TextForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
-  const html = useMemo(
-    () => marked.parse(data.markdown || "", { async: false }) as string,
-    [data.markdown],
-  );
+  const initialValue = data.html ?? data.markdown ?? "";
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <div>
-        <label className="field-label">Conteudo (Markdown)</label>
-        <textarea
-          value={data.markdown}
-          onChange={(e) => onChange({ markdown: e.target.value })}
-          rows={16}
-          className="mt-2 w-full resize-y rounded-xl border border-ink-line bg-surface p-4 font-mono text-xs leading-relaxed"
-        />
-      </div>
-      <div>
-        <span className="field-label">Preview</span>
-        <article
-          className="prose prose-sm mt-2 max-w-none text-ink-soft"
-          dangerouslySetInnerHTML={{ __html: html }}
+    <div>
+      <label className="field-label">Conteúdo</label>
+      <div className="mt-2">
+        <RichTextEditor
+          value={initialValue}
+          onChange={(html) => onChange({ html, markdown: undefined })}
+          minHeight={300}
         />
       </div>
     </div>
@@ -554,10 +548,7 @@ function NewsletterForm({ data, onChange }: { data: any; onChange: (d: any) => v
 }
 
 function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
-  const html = useMemo(
-    () => marked.parse(data.markdown || "", { async: false }) as string,
-    [data.markdown],
-  );
+  const initialValue = data.html ?? data.markdown ?? "";
   return (
     <div className="grid gap-4">
       <ImagePicker
@@ -618,21 +609,13 @@ function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) 
           ))}
         </div>
       </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div>
-          <label className="field-label">Conteudo (Markdown)</label>
-          <textarea
-            value={data.markdown}
-            onChange={(e) => onChange({ markdown: e.target.value })}
-            rows={12}
-            className="mt-2 w-full resize-y rounded-xl border border-ink-line bg-surface p-4 font-mono text-xs leading-relaxed"
-          />
-        </div>
-        <div>
-          <span className="field-label">Preview</span>
-          <article
-            className="prose prose-sm mt-2 max-w-none text-ink-soft"
-            dangerouslySetInnerHTML={{ __html: html }}
+      <div>
+        <label className="field-label">Conteúdo</label>
+        <div className="mt-2">
+          <RichTextEditor
+            value={initialValue}
+            onChange={(html) => onChange({ html, markdown: undefined })}
+            minHeight={240}
           />
         </div>
       </div>

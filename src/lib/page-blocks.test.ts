@@ -8,25 +8,25 @@ import {
 import type { Block } from "./blocks";
 
 const hero: Block = { id: "a", type: "hero", data: { title: "Olá", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", layout: "image-right" } };
-const text: Block = { id: "b", type: "text", data: { markdown: "# hi" } };
+const text: Block = { id: "b", type: "text", data: { html: "<p>hi</p>" } };
 const faq: Block = { id: "c", type: "faq", data: { title: "", items: [] } };
 
 describe("replaceBlockData", () => {
   it("replaces data on matching id, preserves order", () => {
-    const out = replaceBlockData([hero, text, faq], "b", { markdown: "# new" });
+    const out = replaceBlockData([hero, text, faq], "b", { html: "<p>new</p>" });
     expect(out.ok).toBe(true);
-    expect(out.blocks[1]).toEqual({ id: "b", type: "text", data: { markdown: "# new" } });
+    expect(out.blocks[1]).toEqual({ id: "b", type: "text", data: { html: "<p>new</p>" } });
     expect(out.blocks.map((b) => b.id)).toEqual(["a", "b", "c"]);
   });
 
   it("returns ok:false when id is missing", () => {
-    const out = replaceBlockData([hero, text], "zzz", { markdown: "no" });
+    const out = replaceBlockData([hero, text], "zzz", { html: "<p>no</p>" });
     expect(out.ok).toBe(false);
     expect(out.blocks).toEqual([hero, text]);
   });
 
   it("rejects data that fails the block schema", () => {
-    const out = replaceBlockData([text], "b", { markdown: 42 as unknown as string });
+    const out = replaceBlockData([text], "b", { html: 42 as unknown as string });
     expect(out.ok).toBe(false);
   });
 });

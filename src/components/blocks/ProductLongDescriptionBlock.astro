@@ -1,7 +1,7 @@
 ---
 import type { ProductLongDescriptionData } from "../../lib/blocks";
 import type { ProductWithExtras } from "../../lib/queries";
-import { marked } from "marked";
+import { renderMixedContent } from "../../lib/content";
 
 interface Props {
   data: ProductLongDescriptionData;
@@ -9,9 +9,7 @@ interface Props {
 }
 
 const { data, product } = Astro.props;
-const longContent = product.longDescription
-  ? (marked.parse(product.longDescription, { async: false }) as string)
-  : "";
+const longContent = renderMixedContent(product.longDescription);
 ---
 
 {longContent && (

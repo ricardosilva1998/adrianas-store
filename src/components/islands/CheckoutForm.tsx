@@ -62,6 +62,7 @@ export default function CheckoutForm() {
         quantity: item.quantity,
         image: item.image,
         personalization: item.personalization ?? null,
+        variantColor: item.variantColor ?? null,
       })),
     };
 

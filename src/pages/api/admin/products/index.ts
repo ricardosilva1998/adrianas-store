@@ -32,6 +32,9 @@ const ProductSchema = z.object({
   colors: z
     .array(z.object({ name: z.string(), hex: z.string() }))
     .default([]),
+  variantColors: z
+    .array(z.object({ name: z.string(), hex: z.string() }))
+    .default([]),
 });
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -84,6 +87,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
       if (parsed.data.colors.length > 0) {
         await tx.insert(schema.productColors).values(
           parsed.data.colors.map((c, i) => ({
+            productId: product.id,
+            name: c.name,
+            hex: c.hex,
+            position: i,
+          })),
+        );
+      }
+
+      if (parsed.data.variantColors.length > 0) {
+        await tx.insert(schema.productVariantColors).values(
+          parsed.data.variantColors.map((c, i) => ({
             productId: product.id,
             name: c.name,
             hex: c.hex,

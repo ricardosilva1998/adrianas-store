@@ -23,6 +23,7 @@ export const SAMPLE_PRODUCT: ProductWithExtras = {
     { name: "Rosa", hex: "#ED7396", position: 0 },
     { name: "Preto", hex: "#111111", position: 1 },
   ],
+  variantColors: [],
 };
 
 export const SAMPLE_PRODUCTS: ProductWithExtras[] = [
@@ -42,7 +43,7 @@ export const SAMPLE_BLOCK_DATA: Record<BlockType, any> = {
     imageUrl: "https://picsum.photos/seed/hero/1200/600",
     layout: "image-right",
   },
-  text: { markdown: "## Sobre\n\nPeças **feitas à mão** em Portugal." },
+  text: { html: "<h2>Sobre</h2><p>Peças <strong>feitas à mão</strong> em Portugal.</p>" },
   "product-grid": { title: "Mais vendidos", subtitle: "Os favoritos desta semana", filter: "bestsellers", columns: "4", layout: "grid" },
   "category-grid": { title: "Categorias", subtitle: "", categories: ["tote-bags", "t-shirts", "necessaire"] },
   "image-gallery": {
@@ -73,7 +74,7 @@ export const SAMPLE_BLOCK_DATA: Record<BlockType, any> = {
     imageUrl: "https://picsum.photos/seed/split/800/800",
     imageAlt: "Peça bordada",
     title: "Feito por mãos portuguesas",
-    markdown: "Cada peça é **bordada à mão** no nosso atelier.",
+    html: "<p>Cada peça é <strong>bordada à mão</strong> no nosso atelier.</p>",
     layout: "image-left",
     imageAspect: "landscape",
   },

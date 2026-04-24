@@ -30,6 +30,7 @@ const initial = {
   sortOrder: product.sortOrder,
   images: product.images.map((i) => ({ url: i.url, alt: i.alt })),
   colors: product.colors.map((c) => ({ name: c.name, hex: c.hex })),
+  variantColors: product.variantColors.map((c) => ({ name: c.name, hex: c.hex })),
 };
 ---
 

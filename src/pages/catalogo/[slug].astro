@@ -3,9 +3,10 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProductActions from "../../components/islands/ProductActions.tsx";
 import ProductCard from "../../components/ProductCard.astro";
 import BlockRenderer from "../../components/blocks/BlockRenderer.astro";
+import ProductGallery from "../../components/islands/ProductGallery.tsx";
 import { getProductBySlug, getRelatedProducts, formatEuro, isAvailable, getActiveTemplate } from "../../lib/queries";
 import { categoryLabel } from "../../lib/site";
-import { marked } from "marked";
+import { renderMixedContent } from "../../lib/content";
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect("/catalogo");
@@ -17,9 +18,7 @@ if (!product) {
 
 const related = await getRelatedProducts(product.category, product.id, 4);
 const available = isAvailable(product);
-const longContent = product.longDescription
-  ? marked.parse(product.longDescription, { async: false })
-  : "";
+const longContent = renderMixedContent(product.longDescription);
 const template = await getActiveTemplate("product-detail");
 const templateBlocks: Array<{ type: string; data: any }> =
   template && Array.isArray(template.blocks) && template.blocks.length > 0
@@ -102,41 +101,14 @@ const breadcrumbJsonLd: Record<string, unknown> = {
       <section class="py-12">
         <div class="section grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div class="flex flex-col gap-4">
-            <div class="relative aspect-square overflow-hidden rounded-3xl border border-ink-line bg-rosa-50">
-              <img
-                id="hero-image"
-                src={product.images[0]?.url ?? "/placeholders/product.svg"}
-                alt={product.images[0]?.alt || product.name}
-                class="h-full w-full object-cover"
-              />
-              {product.bestseller && (
-                <span class="absolute left-5 top-5 inline-flex items-center rounded-full bg-rosa-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-                  Mais vendido
-                </span>
-              )}
-              {!available && (
-                <span class="absolute right-5 top-5 inline-flex items-center rounded-full bg-ink px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-                  Esgotado
-                </span>
-              )}
-            </div>
-
-            {product.images.length > 1 && (
-              <div class="grid grid-cols-4 gap-3">
-                {product.images.map((img, i) => (
-                  <button
-                    type="button"
-                    class="thumb aspect-square overflow-hidden rounded-xl border border-ink-line bg-rosa-50 transition hover:border-rosa-400"
-                    data-src={img.url}
-                    data-index={i}
-                    aria-label={`Imagem ${i + 1}`}
-                  >
-                    <img src={img.url} alt={img.alt} class="h-full w-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
-
+            <ProductGallery
+              client:load
+              images={product.images.map((i) => ({ url: i.url, alt: i.alt }))}
+              productName={product.name}
+              showBadges={true}
+              showThumbs={true}
+              badges={{ bestseller: product.bestseller, outOfStock: !available }}
+            />
             <p class="mt-2 text-xs text-ink-muted">
               As imagens mostram exemplos reais de encomendas anteriores, para ilustrar possíveis
               estampas e designs.
@@ -171,6 +143,7 @@ const breadcrumbJsonLd: Record<string, unknown> = {
                   category: product.category,
                   personalizable: product.personalizable,
                   availableColors: product.colors.map((c) => ({ name: c.name, hex: c.hex })),
+                  variantColors: product.variantColors.map((c) => ({ name: c.name, hex: c.hex })),
                 }}
               />
             ) : (
@@ -220,20 +193,6 @@ const breadcrumbJsonLd: Record<string, unknown> = {
         </section>
       )}
 
-      <script is:inline>
-        (function () {
-          const hero = document.getElementById("hero-image");
-          const thumbs = document.querySelectorAll(".thumb");
-          thumbs.forEach((btn) => {
-            btn.addEventListener("click", () => {
-              const src = btn.getAttribute("data-src");
-              if (hero && src) hero.setAttribute("src", src);
-              thumbs.forEach((b) => b.classList.remove("ring-2", "ring-rosa-400"));
-              btn.classList.add("ring-2", "ring-rosa-400");
-            });
-          });
-        })();
-      </script>
     </>
   )}
 </BaseLayout>

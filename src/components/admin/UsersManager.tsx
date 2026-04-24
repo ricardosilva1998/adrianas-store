@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PasswordInput from "./PasswordInput";
 
 type User = {
   id: number;
@@ -127,16 +128,15 @@ export default function UsersManager({ users: initial, currentUserId }: Props) {
           </div>
           <div>
             <label className="field-label" htmlFor="u-pw">Password inicial</label>
-            <input
+            <PasswordInput
               id="u-pw"
               name="password"
-              type="text"
               required
-              minLength={8}
+              autoComplete="new-password"
               className="field-input font-mono"
             />
             <p className="mt-1 text-[10px] text-ink-muted">
-              Mínimo 8 caracteres. Copia e envia de forma segura ao utilizador.
+              Mínimo 8 caracteres. Clica no olho para veres o que escreveste antes de enviar.
             </p>
           </div>
           <div>

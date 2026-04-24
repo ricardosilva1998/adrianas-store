@@ -1,4 +1,6 @@
 ---
+import { renderMixedContent } from "../../lib/content";
+
 interface Props {
   data: {
     title: string;
@@ -15,6 +17,7 @@ const { data } = Astro.props;
 const layout = (data.layout === "background-image" && !data.imageUrl)
   ? "centered"
   : (data.layout ?? "image-right");
+const subtitleHtml = renderMixedContent(data.subtitle);
 ---
 
 {layout === "background-image" ? (
@@ -31,10 +34,8 @@ const layout = (data.layout === "background-image" && !data.imageUrl)
           {data.titleAccent && <span class="text-rosa-300">{data.titleAccent}</span>}
         </h1>
       )}
-      {data.subtitle && (
-        <p class="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg">
-          {data.subtitle}
-        </p>
+      {subtitleHtml && (
+        <div class="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg" set:html={subtitleHtml} />
       )}
       {data.buttonText && data.buttonUrl && (
         <div class="mt-10">
@@ -64,10 +65,8 @@ const layout = (data.layout === "background-image" && !data.imageUrl)
             {data.titleAccent && <span class="text-rosa-500">{data.titleAccent}</span>}
           </h1>
         )}
-        {data.subtitle && (
-          <p class="mt-6 text-base leading-relaxed text-ink-soft sm:text-lg">
-            {data.subtitle}
-          </p>
+        {subtitleHtml && (
+          <div class="mt-6 text-base leading-relaxed text-ink-soft sm:text-lg" set:html={subtitleHtml} />
         )}
         {data.buttonText && data.buttonUrl && (
           <div class="mt-10">
@@ -111,10 +110,8 @@ const layout = (data.layout === "background-image" && !data.imageUrl)
                 {data.titleAccent && <span class="text-rosa-500">{data.titleAccent}</span>}
               </h1>
             )}
-            {data.subtitle && (
-              <p class="mt-6 max-w-lg text-base leading-relaxed text-ink-soft sm:text-lg">
-                {data.subtitle}
-              </p>
+            {subtitleHtml && (
+              <div class="mt-6 max-w-lg text-base leading-relaxed text-ink-soft sm:text-lg" set:html={subtitleHtml} />
             )}
             {data.buttonText && data.buttonUrl && (
               <div class="mt-10">
@@ -139,10 +136,8 @@ const layout = (data.layout === "background-image" && !data.imageUrl)
                 {data.titleAccent && <span class="text-rosa-500">{data.titleAccent}</span>}
               </h1>
             )}
-            {data.subtitle && (
-              <p class="mt-6 max-w-lg text-base leading-relaxed text-ink-soft sm:text-lg">
-                {data.subtitle}
-              </p>
+            {subtitleHtml && (
+              <div class="mt-6 max-w-lg text-base leading-relaxed text-ink-soft sm:text-lg" set:html={subtitleHtml} />
             )}
             {data.buttonText && data.buttonUrl && (
               <div class="mt-10">

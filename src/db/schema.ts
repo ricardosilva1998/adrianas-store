@@ -116,6 +116,20 @@ export const productColors = pgTable(
   (t) => [index("product_colors_product_idx").on(t.productId)],
 );
 
+export const productVariantColors = pgTable(
+  "product_variant_colors",
+  {
+    id: serial("id").primaryKey(),
+    productId: integer("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    hex: text("hex").notNull(),
+    position: integer("position").notNull().default(0),
+  },
+  (t) => [index("product_variant_colors_product_idx").on(t.productId)],
+);
+
 export const pages = pgTable("pages", {
   slug: text("slug").primaryKey(),
   title: text("title").notNull(),
@@ -257,6 +271,7 @@ export const orderItems = pgTable(
       phrase: string;
       colors: string[];
       description: string;
+      variantColor?: { name: string; hex: string };
     } | null>(),
   },
   (t) => [index("order_items_order_idx").on(t.orderId)],

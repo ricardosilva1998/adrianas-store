@@ -88,6 +88,17 @@ export default function CartView() {
                 </button>
               </div>
 
+              {item.variantColor && (
+                <div className="mt-2 flex items-center gap-2 text-xs text-ink-soft">
+                  <span className="font-semibold uppercase tracking-wide text-rosa-500">Cor:</span>
+                  <span
+                    className="inline-block h-3 w-3 rounded-full border border-ink-line"
+                    style={{ backgroundColor: item.variantColor.hex }}
+                  />
+                  <span>{item.variantColor.name}</span>
+                </div>
+              )}
+
               {item.personalization && (
                 <div className="mt-2 rounded-xl bg-rosa-50/70 p-3 text-xs text-ink-soft">
                   <p className="font-semibold uppercase tracking-wide text-rosa-500">

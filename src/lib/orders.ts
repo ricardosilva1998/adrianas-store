@@ -62,6 +62,7 @@ export type NewOrderInput = {
       colors: string[];
       description: string;
     } | null;
+    variantColor?: { name: string; hex: string } | null;
   }>;
 };
 
@@ -98,16 +99,28 @@ export const createOrder = async (input: NewOrderInput) => {
       ).map((p) => [p.slug, p.id]),
     );
 
-    const itemsToInsert = input.items.map((item) => ({
-      orderId: order.id,
-      productId: productsBySlug.get(item.productSlug) ?? null,
-      productName: item.name,
-      productSlug: item.productSlug,
-      unitPriceCents: item.unitPriceCents,
-      quantity: item.quantity,
-      image: item.image ?? null,
-      personalization: item.personalization ?? null,
-    }));
+    const itemsToInsert = input.items.map((item) => {
+      const basePersonalization = item.personalization ?? null;
+      const variantColor = item.variantColor ?? undefined;
+      const personalization = variantColor
+        ? {
+            phrase: basePersonalization?.phrase ?? "",
+            colors: basePersonalization?.colors ?? [],
+            description: basePersonalization?.description ?? "",
+            variantColor,
+          }
+        : basePersonalization;
+      return {
+        orderId: order.id,
+        productId: productsBySlug.get(item.productSlug) ?? null,
+        productName: item.name,
+        productSlug: item.productSlug,
+        unitPriceCents: item.unitPriceCents,
+        quantity: item.quantity,
+        image: item.image ?? null,
+        personalization,
+      };
+    });
 
     const insertedItems = await tx
       .insert(schema.orderItems)
