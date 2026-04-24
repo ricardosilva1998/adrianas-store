@@ -15,6 +15,7 @@ export const SAMPLE_PRODUCT: ProductWithExtras = {
   personalizable: true,
   active: true,
   sortOrder: 0,
+  variantColorTitle: "Cor do produto",
   images: [
     { url: "https://picsum.photos/seed/tote-1/800/800", alt: "Tote frente", position: 0 },
     { url: "https://picsum.photos/seed/tote-2/800/800", alt: "Tote verso", position: 1 },

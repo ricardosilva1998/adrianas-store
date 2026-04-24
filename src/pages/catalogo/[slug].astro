@@ -146,6 +146,7 @@ const breadcrumbJsonLd: Record<string, unknown> = {
                   personalizable: product.personalizable,
                   availableColors: product.colors.map((c) => ({ name: c.name, hex: c.hex })),
                   variantColors: product.variantColors.map((c) => ({ name: c.name, hex: c.hex })),
+                  variantColorTitle: product.variantColorTitle,
                 }}
               />
             ) : (

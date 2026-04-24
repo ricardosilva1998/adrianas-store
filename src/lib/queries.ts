@@ -16,6 +16,7 @@ export type ProductWithExtras = {
   personalizable: boolean;
   active: boolean;
   sortOrder: number;
+  variantColorTitle: string;
   images: Array<{ url: string; alt: string; position: number }>;
   colors: Array<{ name: string; hex: string; position: number }>;
   variantColors: Array<{ name: string; hex: string; position: number }>;
@@ -56,6 +57,7 @@ const attachExtras = async (
     personalizable: p.personalizable,
     active: p.active,
     sortOrder: p.sortOrder,
+    variantColorTitle: p.variantColorTitle,
     images: allImages
       .filter((i) => i.productId === p.id)
       .sort((a, b) => a.position - b.position)

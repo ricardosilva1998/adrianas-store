@@ -75,6 +75,7 @@ export const products = pgTable(
     personalizable: boolean("personalizable").notNull().default(true),
     active: boolean("active").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),
+    variantColorTitle: text("variant_color_title").notNull().default("Cor do produto"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

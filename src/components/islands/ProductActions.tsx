@@ -13,6 +13,7 @@ interface ProductInput {
   personalizable: boolean;
   availableColors: ColorOption[];
   variantColors?: ColorOption[];
+  variantColorTitle?: string;
 }
 
 interface Props {
@@ -22,6 +23,7 @@ interface Props {
 export default function ProductActions({ product }: Props) {
   const variantColors = product.variantColors ?? [];
   const requireVariant = variantColors.length > 0;
+  const variantColorTitle = product.variantColorTitle?.trim() || "Cor do produto";
 
   const [quantity, setQuantity] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
@@ -65,7 +67,7 @@ export default function ProductActions({ product }: Props) {
     <div className="flex flex-col gap-4">
       {requireVariant && (
         <div>
-          <p className="field-label">Cor do produto</p>
+          <p className="field-label">{variantColorTitle}</p>
           <p className="mt-1 text-xs text-ink-muted">Escolhe uma cor.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {variantColors.map((c) => {

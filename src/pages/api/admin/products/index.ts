@@ -26,6 +26,7 @@ const ProductSchema = z.object({
   personalizable: z.boolean().default(true),
   active: z.boolean().default(true),
   sortOrder: z.number().int().default(0),
+  variantColorTitle: z.string().default("Cor do produto"),
   images: z
     .array(z.object({ url: z.string(), alt: z.string().default("") }))
     .default([]),
@@ -70,6 +71,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
           personalizable: parsed.data.personalizable,
           active: parsed.data.active,
           sortOrder: parsed.data.sortOrder,
+          variantColorTitle: parsed.data.variantColorTitle,
         })
         .returning();
 

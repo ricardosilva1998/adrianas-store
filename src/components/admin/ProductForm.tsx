@@ -36,6 +36,7 @@ export type ProductFormData = {
   personalizable: boolean;
   active: boolean;
   sortOrder: number;
+  variantColorTitle: string;
   images: Array<{ url: string; alt: string }>;
   colors: Array<{ name: string; hex: string }>;
   variantColors: Array<{ name: string; hex: string }>;
@@ -59,6 +60,7 @@ const emptyProduct: ProductFormData = {
   personalizable: true,
   active: true,
   sortOrder: 0,
+  variantColorTitle: "Cor do produto",
   images: [],
   colors: [],
   variantColors: [],
@@ -391,6 +393,21 @@ export default function ProductForm({ initial, mode }: Props) {
           <p className="mt-1 text-xs text-ink-muted">
             Para produtos vendidos em várias cores físicas (ex: acessórios). Escolha única obrigatória no checkout. Deixa vazio se este produto não tem variantes de cor.
           </p>
+          <div className="mt-4">
+            <label className="field-label" htmlFor="variantColorTitle">
+              Título mostrado na loja
+            </label>
+            <input
+              id="variantColorTitle"
+              value={data.variantColorTitle}
+              onChange={(e) => update("variantColorTitle", e.target.value)}
+              placeholder="Cor do produto"
+              className="field-input"
+            />
+            <p className="mt-1 text-xs text-ink-muted">
+              Aparece acima dos botões de cor na página do produto.
+            </p>
+          </div>
           {data.variantColors.map((c, i) => (
             <div key={i} className="mt-3 flex items-center gap-3">
               <input

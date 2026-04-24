@@ -71,6 +71,13 @@
       "when": 1777334400000,
       "tag": "0009_product_variant_colors",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1777766400000,
+      "tag": "0010_variant_color_title",
+      "breakpoints": true
     }
   ]
 }
