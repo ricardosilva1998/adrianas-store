@@ -1,7 +1,21 @@
 import type { APIRoute } from "astro";
-import { uploadImage, r2Configured } from "../../../lib/r2";
+import { uploadMedia, r2Configured } from "../../../lib/r2";
 
 export const prerender = false;
+
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+]);
+const ALLOWED_VIDEO_TYPES = new Set([
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+]);
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
 
 export const POST: APIRoute = async ({ request, locals }) => {
   if (!locals.user) {
@@ -25,17 +39,32 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return new Response(JSON.stringify({ error: "Sem ficheiro" }), { status: 400 });
   }
 
-  if (file.size > 5 * 1024 * 1024) {
+  const isImage = ALLOWED_IMAGE_TYPES.has(file.type);
+  const isVideo = ALLOWED_VIDEO_TYPES.has(file.type);
+
+  if (!isImage && !isVideo) {
     return new Response(
-      JSON.stringify({ error: "Ficheiro demasiado grande (máx 5MB)" }),
+      JSON.stringify({
+        error: `Tipo de ficheiro não suportado (${file.type || "desconhecido"}). Usa JPG/PNG/WEBP/GIF para imagens ou MP4/WebM/MOV para vídeos.`,
+      }),
+      { status: 415 },
+    );
+  }
+
+  const maxBytes = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+  if (file.size > maxBytes) {
+    const mb = Math.round(maxBytes / 1024 / 1024);
+    return new Response(
+      JSON.stringify({ error: `Ficheiro demasiado grande (máx ${mb}MB)` }),
       { status: 413 },
     );
   }
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const url = await uploadImage(buffer, file.type, file.name);
-    return new Response(JSON.stringify({ url }), {
+    const url = await uploadMedia(buffer, file.type, file.name);
+    const kind = isVideo ? "video" : "image";
+    return new Response(JSON.stringify({ url, kind }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
