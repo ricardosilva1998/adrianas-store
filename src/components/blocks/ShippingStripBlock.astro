@@ -22,15 +22,15 @@ const desktopColsClass =
 ---
 
 {hasItems && (
-  <section class="section py-8">
-    <div class={`grid grid-cols-2 gap-6 ${desktopColsClass}`}>
+  <section class="section py-10 md:py-12">
+    <div class={`grid grid-cols-1 gap-6 sm:grid-cols-2 ${desktopColsClass}`}>
       {data.items.map((item) => (
-        <div class="flex items-center gap-3">
-          <Icon name={item.icon} class="h-6 w-6 shrink-0 text-rosa-500" />
+        <div class="flex items-center gap-4">
+          <Icon name={item.icon} class="h-9 w-9 shrink-0 text-rosa-500 sm:h-10 sm:w-10" />
           <div>
-            <p class="text-sm font-semibold text-ink">{item.title}</p>
+            <p class="text-base font-semibold text-ink sm:text-lg">{item.title}</p>
             {item.subtitle && (
-              <p class="text-xs text-ink-muted">{item.subtitle}</p>
+              <p class="text-sm text-ink-muted">{item.subtitle}</p>
             )}
           </div>
         </div>
