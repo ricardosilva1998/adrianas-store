@@ -44,6 +44,7 @@
     "@types/react-dom": "^19.2.3",
     "astro": "^6.1.6",
     "bcryptjs": "^3.0.3",
+    "@floating-ui/dom": "^1.7.6",
     "drizzle-orm": "^0.45.2",
     "embla-carousel-react": "^8.6.0",
     "isomorphic-dompurify": "^3.10.0",
