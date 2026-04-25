@@ -1,9 +1,11 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import { listTemplates } from "../../../lib/queries";
+import { listTemplates, ensureDefaultCatalogTemplate } from "../../../lib/queries";
 
 const user = Astro.locals.user;
 if (!user) return Astro.redirect("/admin/login");
+
+await ensureDefaultCatalogTemplate();
 
 const catalog = await listTemplates("catalog");
 const productDetail = await listTemplates("product-detail");

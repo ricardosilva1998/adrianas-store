@@ -3,7 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProductCard from "../../components/ProductCard.astro";
 import CategoryPills from "../../components/CategoryPills.astro";
 import BlockRenderer from "../../components/blocks/BlockRenderer.astro";
-import { getActiveProducts, getActiveTemplate } from "../../lib/queries";
+import { getActiveProducts, getActiveTemplate, ensureDefaultCatalogTemplate } from "../../lib/queries";
 import type { CategorySlug } from "../../lib/site";
 
 const url = new URL(Astro.request.url);
@@ -14,6 +14,7 @@ const filtered = active
   ? allProducts.filter((p) => p.category === active)
   : allProducts;
 
+await ensureDefaultCatalogTemplate();
 const template = await getActiveTemplate("catalog");
 const templateBlocks: Array<{ type: string; data: any }> =
   template && Array.isArray(template.blocks) && template.blocks.length > 0

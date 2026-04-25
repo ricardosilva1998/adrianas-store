@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import type { SessionUser } from "../lib/auth";
 import ThemeToggle from "../components/admin/ThemeToggle.tsx";
+import { getSiteConfig } from "../lib/config-server";
 
 interface Props {
   title: string;
@@ -14,6 +15,9 @@ const currentPath = Astro.url.pathname;
 const themeCookie = Astro.cookies.get("adriana-admin-theme")?.value;
 const initialTheme: "dark" | "light" | null =
   themeCookie === "dark" || themeCookie === "light" ? themeCookie : null;
+
+const config = await getSiteConfig();
+const favicon = config.theme.favicon ?? { url: null };
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: "home" },
@@ -39,7 +43,14 @@ const isActive = (href: string) =>
 <html lang="pt-PT" class={initialTheme === "dark" ? "dark" : undefined}>
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {favicon.url ? (
+      <link rel="icon" href={favicon.url} />
+    ) : (
+      <>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+      </>
+    )}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script is:inline define:vars={{ initialTheme }}>
       if (!initialTheme) {

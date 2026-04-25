@@ -1,5 +1,6 @@
 import { db, schema } from "../db/client";
 import { eq, and, desc, asc, inArray, sql } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import type { ProductCategorySlug, TemplateKind } from "../db/schema";
 
 export type ProductWithExtras = {
@@ -206,6 +207,56 @@ export const getActiveTemplate = async (kind: TemplateKind) => {
     .limit(1);
   return tpl ?? null;
 };
+
+let _catalogTemplateBootstrapped = false;
+
+export async function ensureDefaultCatalogTemplate(): Promise<void> {
+  if (_catalogTemplateBootstrapped) return;
+
+  const existing = await db
+    .select({ id: schema.templates.id })
+    .from(schema.templates)
+    .where(eq(schema.templates.kind, "catalog"))
+    .limit(1);
+
+  if (existing.length > 0) {
+    _catalogTemplateBootstrapped = true;
+    return;
+  }
+
+  try {
+    await db.insert(schema.templates).values({
+      kind: "catalog",
+      name: "Catálogo",
+      active: true,
+      blocks: [
+        {
+          id: nanoid(10),
+          type: "hero",
+          data: {
+            title: "Todas as peças",
+            titleAccent: "",
+            subtitle: "Explora as nossas categorias. Cada produto pode ser personalizado com a tua frase, cores e desenhos à tua escolha.",
+            buttonText: "",
+            buttonUrl: "",
+            imageUrl: "",
+            slides: [],
+            layout: "centered",
+          },
+        },
+        {
+          id: nanoid(10),
+          type: "catalog-grid-bound",
+          data: { title: "", subtitle: "", showCategoryFilter: true, columns: "4" },
+        },
+      ],
+    });
+  } catch {
+    // Race or unique-index conflict: the template now exists.
+  }
+
+  _catalogTemplateBootstrapped = true;
+}
 
 export const listTemplates = async (kind: TemplateKind) => {
   return db
