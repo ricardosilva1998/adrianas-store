@@ -309,7 +309,12 @@ export default function ProductForm({ initial, mode }: Props) {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs text-ink-muted">{img.url}</p>
+                  <p
+                    className="truncate text-xs text-ink-muted"
+                    title={img.url}
+                  >
+                    {img.url.split("/").pop() || img.url}
+                  </p>
                   <input
                     value={img.alt}
                     onChange={(e) => {
