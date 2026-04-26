@@ -55,8 +55,8 @@ Block type definitions, Zod schemas, factories, and the `blocksAllowedIn(context
 
 **External services**:
 - Cloudflare R2 for product image storage (`src/lib/r2.ts`)
-- Resend for transactional emails (`src/lib/email.ts`)
-- Railway.app for hosting + PostgreSQL
+- Resend for transactional emails (`src/lib/email.ts`). Verified sender domain on Resend is `drisclub.com` — `EMAIL_FROM` must use that domain (e.g. `Drisclub <noreply@drisclub.com>`); any other domain causes Resend to reject the send, and the failure is swallowed by the `try/catch` in `sendOrderEmail` so checkout still succeeds while no email goes out. Required env vars: `RESEND_API_KEY`, `EMAIL_FROM`, `ADMIN_NOTIFY_EMAIL`.
+- Railway.app for hosting + PostgreSQL. Env-var changes require a redeploy to take effect.
 
 ## Key Directories
 
