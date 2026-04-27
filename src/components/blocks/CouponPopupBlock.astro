@@ -1,0 +1,30 @@
+---
+import CouponPopup from "../islands/CouponPopup";
+
+interface Props {
+  data: {
+    title: string;
+    subtitle: string;
+    couponCode: string;
+    buttonText: string;
+    buttonUrl: string;
+    imageUrl?: string;
+    delaySeconds?: number;
+    dismissDays?: number;
+  };
+}
+
+const { data } = Astro.props;
+---
+
+<CouponPopup
+  client:load
+  title={data.title}
+  subtitle={data.subtitle}
+  couponCode={data.couponCode}
+  buttonText={data.buttonText}
+  buttonUrl={data.buttonUrl}
+  imageUrl={data.imageUrl}
+  delaySeconds={data.delaySeconds ?? 10}
+  dismissDays={data.dismissDays ?? 7}
+/>

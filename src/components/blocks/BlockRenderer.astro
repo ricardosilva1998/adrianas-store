@@ -6,6 +6,7 @@ import CategoryGridBlock from "./CategoryGridBlock.astro";
 import ImageGalleryBlock from "./ImageGalleryBlock.astro";
 import ImageCarouselBlock from "./ImageCarouselBlock.astro";
 import IntroHeroBlock from "./IntroHeroBlock.astro";
+import CouponPopupBlock from "./CouponPopupBlock.astro";
 import CtaBannerBlock from "./CtaBannerBlock.astro";
 import FaqBlock from "./FaqBlock.astro";
 import ContactInfoBlock from "./ContactInfoBlock.astro";
@@ -48,6 +49,7 @@ const attrs = block.id ? { "data-block-id": block.id } : {};
   {block.type === "image-gallery" && <ImageGalleryBlock data={block.data} />}
   {block.type === "image-carousel" && <ImageCarouselBlock data={block.data} />}
   {block.type === "intro-hero" && <IntroHeroBlock data={block.data} />}
+  {block.type === "coupon-popup" && <CouponPopupBlock data={block.data} />}
   {block.type === "cta-banner" && <CtaBannerBlock data={block.data} />}
   {block.type === "faq" && <FaqBlock data={block.data} />}
   {block.type === "contact-info" && <ContactInfoBlock data={block.data} />}

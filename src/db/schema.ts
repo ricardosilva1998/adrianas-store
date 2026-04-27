@@ -239,6 +239,8 @@ export const orders = pgTable(
     status: orderStatus("status").notNull().default("new"),
     trackingCode: text("tracking_code"),
     subtotalCents: integer("subtotal_cents").notNull(),
+    couponCode: text("coupon_code"),
+    discountCents: integer("discount_cents").notNull().default(0),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
@@ -253,6 +255,35 @@ export const orders = pgTable(
     index("orders_created_idx").on(t.createdAt),
   ],
 );
+
+export const coupons = pgTable(
+  "coupons",
+  {
+    id: serial("id").primaryKey(),
+    code: text("code").notNull(),
+    description: text("description").notNull().default(""),
+    percentOff: integer("percent_off"),
+    amountOffCents: integer("amount_off_cents"),
+    minOrderCents: integer("min_order_cents").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    validUntil: timestamp("valid_until", { withTimezone: true }),
+    maxUses: integer("max_uses"),
+    usedCount: integer("used_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("coupons_code_idx").on(t.code),
+    index("coupons_active_idx").on(t.active),
+  ],
+);
+
+export type Coupon = typeof coupons.$inferSelect;
+export type CouponInsert = typeof coupons.$inferInsert;
 
 export const orderItems = pgTable(
   "order_items",

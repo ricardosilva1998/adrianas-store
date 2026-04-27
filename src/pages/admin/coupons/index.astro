@@ -1,0 +1,17 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import CouponsManager from "../../../components/admin/CouponsManager.tsx";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/admin/login");
+---
+
+<AdminLayout title="Cupões" user={user}>
+  <p class="text-sm text-ink-soft">
+    Gere os códigos de desconto. Os clientes inserem o código no checkout para receberem o desconto.
+  </p>
+
+  <div class="mt-6">
+    <CouponsManager client:load />
+  </div>
+</AdminLayout>

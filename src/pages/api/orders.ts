@@ -17,6 +17,7 @@ const CheckoutSchema = z.object({
   }),
   paymentMethod: z.enum(["mbway", "transferencia", "paypal"]),
   notes: z.string().max(2000).optional().nullable(),
+  couponCode: z.string().min(1).max(60).optional().nullable(),
   items: z
     .array(
       z.object({
@@ -66,6 +67,7 @@ export const POST: APIRoute = async ({ request }) => {
       customer: parsed.data.customer,
       paymentMethod: parsed.data.paymentMethod as PaymentMethodId,
       notes: parsed.data.notes,
+      couponCode: parsed.data.couponCode ?? null,
       items: parsed.data.items,
     });
 

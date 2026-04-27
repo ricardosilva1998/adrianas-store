@@ -73,6 +73,16 @@ export const SAMPLE_BLOCK_DATA: Record<BlockType, any> = {
     overlayOpacity: 40,
     height: "full",
   },
+  "coupon-popup": {
+    title: "10% na primeira compra",
+    subtitle: "Insere este código no checkout.",
+    couponCode: "PRIMEIRA10",
+    buttonText: "Ir às compras",
+    buttonUrl: "/catalogo",
+    imageUrl: "",
+    delaySeconds: 10,
+    dismissDays: 7,
+  },
   "cta-banner": { title: "Pronta para encomendar?", subtitle: "Envios para Portugal Continental e Ilhas.", buttonText: "Encomendar", buttonUrl: "/catalogo", bgColor: "ink", backgroundImage: "", align: "left" },
   faq: {
     title: "Perguntas frequentes",

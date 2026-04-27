@@ -7,6 +7,7 @@ import CategoryGrid from "./category-grid";
 import ImageGallery from "./image-gallery";
 import ImageCarousel from "./image-carousel";
 import IntroHero from "./intro-hero";
+import CouponPopup from "./coupon-popup";
 import CtaBanner from "./cta-banner";
 import Faq from "./faq";
 import ContactInfo from "./contact-info";
@@ -33,6 +34,7 @@ const MAP: Record<BlockType, React.ComponentType> = {
   "image-gallery": ImageGallery,
   "image-carousel": ImageCarousel,
   "intro-hero": IntroHero,
+  "coupon-popup": CouponPopup,
   "cta-banner": CtaBanner,
   faq: Faq,
   "contact-info": ContactInfo,

@@ -96,9 +96,21 @@ const paymentLabels: Record<string, string> = {
           ))}
         </div>
 
-        <div class="mt-4 flex items-center justify-between border-t border-ink-line pt-4 text-sm">
-          <span class="text-ink-soft">Total</span>
-          <span class="text-xl font-semibold text-ink">{formatEuro(order.subtotalCents)}</span>
+        <div class="mt-4 border-t border-ink-line pt-4 text-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-ink-soft">Subtotal</span>
+            <span class="text-ink">{formatEuro(order.subtotalCents)}</span>
+          </div>
+          {order.couponCode && order.discountCents > 0 && (
+            <div class="mt-2 flex items-center justify-between text-emerald-700">
+              <span>Desconto ({order.couponCode})</span>
+              <span class="font-semibold">−{formatEuro(order.discountCents)}</span>
+            </div>
+          )}
+          <div class="mt-3 flex items-center justify-between border-t border-ink-line pt-3">
+            <span class="font-semibold text-ink-soft">Total</span>
+            <span class="text-xl font-semibold text-ink">{formatEuro(order.subtotalCents - (order.discountCents ?? 0))}</span>
+          </div>
         </div>
       </section>
 

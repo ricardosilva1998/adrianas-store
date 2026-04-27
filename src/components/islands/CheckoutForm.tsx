@@ -16,12 +16,58 @@ const PAYMENT_METHODS = [
 
 type Status = "idle" | "submitting" | "error";
 
+type AppliedCoupon = {
+  code: string;
+  discountCents: number;
+};
+
 export default function CheckoutForm() {
   const items = useStore(cart);
   const subtotal = cartSubtotal(items);
 
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  const subtotalCents = Math.round(subtotal * 100);
+  const discountCents = coupon?.discountCents ?? 0;
+  const totalCents = Math.max(0, subtotalCents - discountCents);
+
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponBusy(true);
+    setCouponError(null);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotalCents }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setCoupon(null);
+        setCouponError(data.error || "Cupão inválido.");
+        return;
+      }
+      setCoupon({ code: data.code, discountCents: data.discountCents });
+      setCouponInput(data.code);
+    } catch (err) {
+      setCouponError(err instanceof Error ? err.message : "Erro a validar cupão.");
+    } finally {
+      setCouponBusy(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+  };
 
   if (items.length === 0) {
     return (
@@ -55,6 +101,7 @@ export default function CheckoutForm() {
       },
       paymentMethod: String(formData.get("paymentMethod") ?? "mbway"),
       notes: (formData.get("notes") as string) || null,
+      couponCode: coupon?.code ?? null,
       items: items.map((item) => ({
         productSlug: item.productSlug,
         name: item.name,
@@ -282,14 +329,67 @@ export default function CheckoutForm() {
           ))}
         </ul>
 
+        <div className="mt-5 border-t border-ink-line pt-5">
+          <label className="field-label" htmlFor="coupon-code">Cupão de desconto</label>
+          {coupon ? (
+            <div className="mt-2 flex items-center justify-between rounded-2xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs">
+              <span className="font-mono font-semibold text-emerald-700">{coupon.code}</span>
+              <button
+                type="button"
+                onClick={removeCoupon}
+                className="text-[11px] font-medium text-emerald-700 hover:underline"
+              >
+                Remover
+              </button>
+            </div>
+          ) : (
+            <div className="mt-2 flex gap-2">
+              <input
+                id="coupon-code"
+                type="text"
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                placeholder="Insere código"
+                className="field-input flex-1 font-mono uppercase"
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                onClick={applyCoupon}
+                disabled={couponBusy || !couponInput.trim()}
+                className="btn-secondary shrink-0 px-4 text-xs"
+              >
+                {couponBusy ? "…" : "Aplicar"}
+              </button>
+            </div>
+          )}
+          {couponError && (
+            <p className="mt-2 text-xs text-rosa-700">{couponError}</p>
+          )}
+        </div>
+
         <div className="mt-5 flex items-center justify-between border-t border-ink-line pt-5 text-sm">
           <span className="text-ink-soft">Subtotal</span>
           <span className="font-semibold text-ink">{formatEuro(subtotal)}</span>
         </div>
+        {coupon && (
+          <div className="mt-2 flex items-center justify-between text-sm">
+            <span className="text-ink-soft">Desconto ({coupon.code})</span>
+            <span className="font-semibold text-emerald-600">
+              −{formatEuro(discountCents / 100)}
+            </span>
+          </div>
+        )}
         <div className="mt-2 flex items-center justify-between text-xs text-ink-muted">
           <span>Envio</span>
           <span>A combinar</span>
         </div>
+        {coupon && (
+          <div className="mt-3 flex items-center justify-between border-t border-ink-line pt-3 text-sm">
+            <span className="font-semibold text-ink">Total</span>
+            <span className="font-semibold text-ink">{formatEuro(totalCents / 100)}</span>
+          </div>
+        )}
 
         <button
           type="submit"

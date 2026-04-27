@@ -21,6 +21,8 @@ export default function BlockForm({ block, onChange }: { block: Block; onChange:
       return <ImageCarouselForm data={block.data} onChange={onChange} />;
     case "intro-hero":
       return <IntroHeroForm data={block.data} onChange={onChange} />;
+    case "coupon-popup":
+      return <CouponPopupForm data={block.data} onChange={onChange} />;
     case "cta-banner":
       return <CtaBannerForm data={block.data} onChange={onChange} />;
     case "faq":
@@ -383,6 +385,81 @@ function ImageGalleryForm({ data, onChange }: { data: any; onChange: (d: any) =>
       <button type="button" onClick={addImage} className="btn-secondary w-fit">
         + Adicionar imagem
       </button>
+    </div>
+  );
+}
+
+function CouponPopupForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  return (
+    <div className="grid gap-4">
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-200">
+        Este bloco mostra um popup automático sobre a página. O cupão tem de existir em <a href="/admin/coupons" className="underline">/admin/coupons</a> para o desconto funcionar no checkout.
+      </div>
+      <ImagePicker
+        label="Imagem (opcional)"
+        value={data.imageUrl ?? ""}
+        onChange={(imageUrl) => onChange({ imageUrl })}
+      />
+      <div>
+        <label className="field-label">Título</label>
+        <input value={data.title} onChange={(e) => onChange({ title: e.target.value })} className="field-input" placeholder="10% na primeira compra" />
+      </div>
+      <div>
+        <label className="field-label">Subtítulo</label>
+        <textarea
+          value={data.subtitle ?? ""}
+          onChange={(e) => onChange({ subtitle: e.target.value })}
+          className="field-input"
+          rows={2}
+          placeholder="Insere o código abaixo no checkout."
+        />
+      </div>
+      <div>
+        <label className="field-label">Código do cupão</label>
+        <input
+          value={data.couponCode ?? ""}
+          onChange={(e) => onChange({ couponCode: e.target.value.toUpperCase() })}
+          className="field-input font-mono uppercase"
+          placeholder="PRIMEIRA10"
+        />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label className="field-label">Texto do botão</label>
+          <input value={data.buttonText} onChange={(e) => onChange({ buttonText: e.target.value })} className="field-input" />
+        </div>
+        <div>
+          <label className="field-label">URL do botão</label>
+          <input value={data.buttonUrl} onChange={(e) => onChange({ buttonUrl: e.target.value })} className="field-input" />
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label className="field-label">Aparece após (segundos)</label>
+          <input
+            type="number"
+            min={0}
+            max={120}
+            step={1}
+            value={data.delaySeconds ?? 10}
+            onChange={(e) => onChange({ delaySeconds: Number(e.target.value) })}
+            className="field-input"
+          />
+        </div>
+        <div>
+          <label className="field-label">Esquecer durante (dias)</label>
+          <input
+            type="number"
+            min={0}
+            max={365}
+            step={1}
+            value={data.dismissDays ?? 7}
+            onChange={(e) => onChange({ dismissDays: Number(e.target.value) })}
+            className="field-input"
+          />
+          <p className="mt-1 text-[10px] text-ink-muted">Depois de fechar, não volta a aparecer durante X dias.</p>
+        </div>
+      </div>
     </div>
   );
 }

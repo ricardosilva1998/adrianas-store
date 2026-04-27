@@ -2,6 +2,7 @@ import { db, schema } from "../db/client";
 import { eq, sql as drizzleSql } from "drizzle-orm";
 import type { OrderStatus, PaymentMethodId } from "../db/schema";
 import { sendOrderEmail, notifyAdmin } from "./email";
+import { validateCoupon } from "./coupons";
 
 export const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   new: ["paid", "cancelled"],
@@ -51,6 +52,7 @@ export type NewOrderInput = {
   };
   paymentMethod: PaymentMethodId;
   notes?: string | null;
+  couponCode?: string | null;
   items: Array<{
     productSlug: string;
     name: string;
@@ -73,6 +75,23 @@ export const createOrder = async (input: NewOrderInput) => {
       0,
     );
 
+    let appliedCouponCode: string | null = null;
+    let discountCents = 0;
+    if (input.couponCode) {
+      const validation = await validateCoupon(input.couponCode, subtotal);
+      if (validation.ok) {
+        appliedCouponCode = validation.code;
+        discountCents = validation.discountCents;
+        await tx
+          .update(schema.coupons)
+          .set({
+            usedCount: drizzleSql`${schema.coupons.usedCount} + 1`,
+            updatedAt: new Date(),
+          })
+          .where(drizzleSql`upper(${schema.coupons.code}) = ${appliedCouponCode}`);
+      }
+    }
+
     const [order] = await tx
       .insert(schema.orders)
       .values({
@@ -86,6 +105,8 @@ export const createOrder = async (input: NewOrderInput) => {
         nif: input.customer.nif ?? null,
         paymentMethod: input.paymentMethod,
         subtotalCents: subtotal,
+        couponCode: appliedCouponCode,
+        discountCents,
         notes: input.notes ?? null,
         status: "new",
       })

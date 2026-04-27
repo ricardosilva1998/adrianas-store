@@ -79,6 +79,17 @@ const introHeroDataSchema = z.object({
   height: z.enum(["medium", "tall", "full"]).default("full"),
 });
 
+const couponPopupDataSchema = z.object({
+  title: z.string().default(""),
+  subtitle: z.string().default(""),
+  couponCode: z.string().default(""),
+  buttonText: z.string().default("Ir às compras"),
+  buttonUrl: z.string().default("/catalogo"),
+  imageUrl: safeUrl,
+  delaySeconds: z.number().int().min(0).max(120).default(10),
+  dismissDays: z.number().int().min(0).max(365).default(7),
+});
+
 const ctaBannerDataSchema = z.object({
   title: z.string().default(""),
   subtitle: z.string().default(""),
@@ -268,6 +279,12 @@ const introHeroBlockSchema = z.object({
   data: introHeroDataSchema,
 });
 
+const couponPopupBlockSchema = z.object({
+  id: z.string(),
+  type: z.literal("coupon-popup"),
+  data: couponPopupDataSchema,
+});
+
 const ctaBannerBlockSchema = z.object({
   id: z.string(),
   type: z.literal("cta-banner"),
@@ -330,6 +347,7 @@ export const blockSchema = z.discriminatedUnion("type", [
   imageGalleryBlockSchema,
   imageCarouselBlockSchema,
   introHeroBlockSchema,
+  couponPopupBlockSchema,
   ctaBannerBlockSchema,
   faqBlockSchema,
   contactInfoBlockSchema,
@@ -361,6 +379,7 @@ export type CategoryGridData = z.infer<typeof categoryGridDataSchema>;
 export type ImageGalleryData = z.infer<typeof imageGalleryDataSchema>;
 export type ImageCarouselData = z.infer<typeof imageCarouselDataSchema>;
 export type IntroHeroData = z.infer<typeof introHeroDataSchema>;
+export type CouponPopupData = z.infer<typeof couponPopupDataSchema>;
 export type CtaBannerData = z.infer<typeof ctaBannerDataSchema>;
 export type FaqData = z.infer<typeof faqDataSchema>;
 export type ContactInfoData = z.infer<typeof contactInfoDataSchema>;
@@ -394,6 +413,7 @@ export const BLOCK_TYPES: Array<{
   { type: "image-gallery", label: "Galeria de Imagens", description: "Grelha de imagens" },
   { type: "image-carousel", label: "Carrossel de Imagens", description: "Slideshow de imagens com setas e swipe" },
   { type: "intro-hero", label: "Cabeçalho Inicial", description: "Cabeçalho de ecrã inteiro que desaparece ao fazer scroll" },
+  { type: "coupon-popup", label: "Popup de Cupão", description: "Janela automática com código de desconto. Aparece N segundos depois de chegar à página." },
   { type: "cta-banner", label: "Banner CTA", description: "Seccao colorida com texto e botao" },
   { type: "faq", label: "FAQ", description: "Perguntas e respostas em acordeao" },
   { type: "contact-info", label: "Contacto", description: "Email, WhatsApp, Instagram, morada" },
@@ -448,6 +468,8 @@ export function createBlock(type: BlockType): Block {
       return { id, type, data: { images: [], aspectRatio: "landscape", autoplay: true } };
     case "intro-hero":
       return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", overlayOpacity: 40, height: "full" } };
+    case "coupon-popup":
+      return { id, type, data: { title: "", subtitle: "", couponCode: "", buttonText: "Ir às compras", buttonUrl: "/catalogo", imageUrl: "", delaySeconds: 10, dismissDays: 7 } };
     case "cta-banner":
       return { id, type, data: { title: "", subtitle: "", buttonText: "", buttonUrl: "", bgColor: "ink", backgroundImage: "", align: "left" } };
     case "faq":
