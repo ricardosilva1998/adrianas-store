@@ -1,5 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import { getSessionUser } from "./lib/auth";
+import { getCustomerSession } from "./lib/customer-auth";
 import { getPreview, getPagePreview } from "./lib/preview-store";
 
 const PUBLIC_ADMIN_ROUTES = new Set(["/admin/login", "/api/admin/login"]);
@@ -25,6 +26,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.user = user;
     return next();
   }
+
+  // Populate customer session on every storefront/API route (non-admin).
+  const customer = await getCustomerSession(context.cookies);
+  if (customer) context.locals.customer = customer;
 
   // Populate admin user on storefront routes when drafting or previewing.
   const wantsAdminContext =

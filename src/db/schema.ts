@@ -256,6 +256,31 @@ export const orders = pgTable(
   ],
 );
 
+export const customers = pgTable(
+  "customers",
+  {
+    id: serial("id").primaryKey(),
+    email: text("email").notNull(),
+    name: text("name").notNull(),
+    passwordHash: text("password_hash").notNull(),
+    phone: text("phone").notNull().default(""),
+    address: text("address").notNull().default(""),
+    postalCode: text("postal_code").notNull().default(""),
+    city: text("city").notNull().default(""),
+    nif: text("nif"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [uniqueIndex("customers_email_idx").on(t.email)],
+);
+
+export type Customer = typeof customers.$inferSelect;
+export type CustomerInsert = typeof customers.$inferInsert;
+
 export const coupons = pgTable(
   "coupons",
   {

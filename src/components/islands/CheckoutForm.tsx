@@ -21,7 +21,21 @@ type AppliedCoupon = {
   discountCents: number;
 };
 
-export default function CheckoutForm() {
+type InitialProfile = {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  nif: string;
+};
+
+type Props = {
+  initial?: InitialProfile;
+};
+
+export default function CheckoutForm({ initial }: Props = {}) {
   const items = useStore(cart);
   const subtotal = cartSubtotal(items);
 
@@ -167,6 +181,7 @@ export default function CheckoutForm() {
                 type="text"
                 required
                 autoComplete="name"
+                defaultValue={initial?.name}
                 className="field-input"
               />
             </div>
@@ -180,6 +195,7 @@ export default function CheckoutForm() {
                 type="email"
                 required
                 autoComplete="email"
+                defaultValue={initial?.email}
                 className="field-input"
               />
             </div>
@@ -193,6 +209,7 @@ export default function CheckoutForm() {
                 type="tel"
                 required
                 autoComplete="tel"
+                defaultValue={initial?.phone}
                 className="field-input"
               />
             </div>
@@ -205,6 +222,7 @@ export default function CheckoutForm() {
                 name="nif"
                 type="text"
                 inputMode="numeric"
+                defaultValue={initial?.nif}
                 className="field-input"
               />
             </div>
@@ -224,6 +242,7 @@ export default function CheckoutForm() {
                 type="text"
                 required
                 autoComplete="street-address"
+                defaultValue={initial?.address}
                 className="field-input"
               />
             </div>
@@ -239,6 +258,7 @@ export default function CheckoutForm() {
                   required
                   autoComplete="postal-code"
                   placeholder="0000-000"
+                  defaultValue={initial?.postalCode}
                   className="field-input"
                 />
               </div>
@@ -252,6 +272,7 @@ export default function CheckoutForm() {
                   type="text"
                   required
                   autoComplete="address-level2"
+                  defaultValue={initial?.city}
                   className="field-input"
                 />
               </div>

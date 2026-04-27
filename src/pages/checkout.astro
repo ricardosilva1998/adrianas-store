@@ -2,6 +2,38 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import CheckoutForm from "../components/islands/CheckoutForm.tsx";
 import Slot from "../components/Slot.astro";
+import { db, schema } from "../db/client";
+import { eq } from "drizzle-orm";
+
+const customer = Astro.locals.customer;
+let initial: {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  nif: string;
+} | undefined;
+
+if (customer) {
+  const [row] = await db
+    .select()
+    .from(schema.customers)
+    .where(eq(schema.customers.id, customer.id))
+    .limit(1);
+  if (row) {
+    initial = {
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      address: row.address,
+      postalCode: row.postalCode,
+      city: row.city,
+      nif: row.nif ?? "",
+    };
+  }
+}
 ---
 
 <BaseLayout title="Checkout">
@@ -23,7 +55,7 @@ import Slot from "../components/Slot.astro";
 
   <section class="py-12">
     <div class="section">
-      <CheckoutForm client:only="react" />
+      <CheckoutForm client:only="react" initial={initial} />
     </div>
   </section>
 </BaseLayout>
