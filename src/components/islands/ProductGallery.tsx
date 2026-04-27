@@ -23,12 +23,10 @@ export default function ProductGallery({
       ? images
       : [{ url: "/placeholders/product.svg", alt: productName, kind: "image" }];
   const single = safeMedia.length <= 1;
-  const hasAnyVideo = safeMedia.some((m) => m.kind === "video");
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: "start", containScroll: "trimSnaps" });
   const [thumbsRef, thumbsApi] = useEmblaCarousel({ containScroll: "keepSnaps", dragFree: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [muted, setMuted] = useState(true);
   const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map());
 
   const onSelect = useCallback(() => {
@@ -89,7 +87,7 @@ export default function ProductGallery({
               }}
               src={media.url}
               autoPlay
-              muted={muted}
+              muted
               loop
               playsInline
               className="h-full w-full object-cover"
@@ -103,9 +101,6 @@ export default function ProductGallery({
             />
           )}
           {showBadges && <Badges {...badges} />}
-          {media.kind === "video" && (
-            <MuteToggle muted={muted} onToggle={() => setMuted((m) => !m)} />
-          )}
         </div>
       </div>
     );
@@ -139,7 +134,7 @@ export default function ProductGallery({
                     }}
                     src={media.url}
                     autoPlay
-                    muted={muted}
+                    muted
                     loop
                     playsInline
                     className="h-full w-full object-cover"
@@ -184,10 +179,6 @@ export default function ProductGallery({
             <path d="m9 18 6-6-6-6" />
           </svg>
         </button>
-
-        {hasAnyVideo && (
-          <MuteToggle muted={muted} onToggle={() => setMuted((m) => !m)} />
-        )}
 
         <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
           {safeMedia.map((_, i) => (
@@ -249,33 +240,6 @@ export default function ProductGallery({
         </div>
       )}
     </div>
-  );
-}
-
-function MuteToggle({ muted, onToggle }: { muted: boolean; onToggle: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-label={muted ? "Ativar som" : "Desativar som"}
-      aria-pressed={!muted}
-      className="absolute bottom-3 right-3 z-10 rounded-full bg-white/90 p-2 text-ink shadow-md ring-1 ring-ink-line transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-rosa-500"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
-        {muted ? (
-          <>
-            <path d="M11 5 6 9H2v6h4l5 4V5z" />
-            <line x1="23" y1="9" x2="17" y2="15" />
-            <line x1="17" y1="9" x2="23" y2="15" />
-          </>
-        ) : (
-          <>
-            <path d="M11 5 6 9H2v6h4l5 4V5z" />
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-          </>
-        )}
-      </svg>
-    </button>
   );
 }
 

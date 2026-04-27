@@ -28,12 +28,12 @@ const bannerBg = banner.bgColor === "rosa" ? "bg-rosa-400 text-white" : "bg-ink 
 )}
 
 <header class="sticky top-0 z-40 border-b border-ink-line bg-white/95 backdrop-blur">
-  <div class="section flex h-20 items-center justify-between gap-6">
+  <div class="section flex h-24 items-center justify-between gap-6 md:h-28">
     <a href="/" class="flex items-center gap-3" aria-label={identity.name}>
       {logo.url ? (
-        <img src={logo.url} alt={logo.alt} class="h-14 w-auto" />
+        <img src={logo.url} alt={logo.alt} class="h-16 w-auto md:h-20" />
       ) : (
-        <span class="text-xl font-semibold tracking-tight text-ink">{identity.name}</span>
+        <span class="text-xl font-semibold tracking-tight text-ink md:text-2xl">{identity.name}</span>
       )}
     </a>
 
@@ -53,12 +53,6 @@ const bannerBg = banner.bgColor === "rosa" ? "bg-rosa-400 text-white" : "bg-ink 
     </nav>
 
     <div class="flex items-center gap-3">
-      <a
-        href="/catalogo"
-        class="hidden text-sm font-medium text-ink-soft transition hover:text-rosa-500 md:inline-flex"
-      >
-        Encomendar
-      </a>
       <CartIcon client:load />
     </div>
   </div>

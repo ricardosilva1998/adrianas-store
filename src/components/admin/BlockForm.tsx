@@ -17,6 +17,10 @@ export default function BlockForm({ block, onChange }: { block: Block; onChange:
       return <CategoryGridForm data={block.data} onChange={onChange} />;
     case "image-gallery":
       return <ImageGalleryForm data={block.data} onChange={onChange} />;
+    case "image-carousel":
+      return <ImageCarouselForm data={block.data} onChange={onChange} />;
+    case "intro-hero":
+      return <IntroHeroForm data={block.data} onChange={onChange} />;
     case "cta-banner":
       return <CtaBannerForm data={block.data} onChange={onChange} />;
     case "faq":
@@ -379,6 +383,186 @@ function ImageGalleryForm({ data, onChange }: { data: any; onChange: (d: any) =>
       <button type="button" onClick={addImage} className="btn-secondary w-fit">
         + Adicionar imagem
       </button>
+    </div>
+  );
+}
+
+function IntroHeroForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  return (
+    <div className="grid gap-4">
+      <ImagePicker
+        label="Imagem de fundo"
+        value={data.imageUrl}
+        onChange={(imageUrl) => onChange({ imageUrl })}
+      />
+      <div>
+        <label className="field-label">Título</label>
+        <input value={data.title} onChange={(e) => onChange({ title: e.target.value })} className="field-input" />
+      </div>
+      <div>
+        <label className="field-label">Destaque (em rosa, na linha seguinte)</label>
+        <input
+          value={data.titleAccent ?? ""}
+          onChange={(e) => onChange({ titleAccent: e.target.value })}
+          className="field-input"
+          placeholder="ex: feitas para ti"
+        />
+      </div>
+      <div>
+        <label className="field-label">Subtítulo</label>
+        <div className="mt-2">
+          <RichTextEditor
+            value={data.subtitle ?? ""}
+            onChange={(subtitle) => onChange({ subtitle })}
+            minHeight={120}
+          />
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label className="field-label">Texto do botão</label>
+          <input value={data.buttonText} onChange={(e) => onChange({ buttonText: e.target.value })} className="field-input" />
+        </div>
+        <div>
+          <label className="field-label">URL do botão</label>
+          <input value={data.buttonUrl} onChange={(e) => onChange({ buttonUrl: e.target.value })} className="field-input" />
+        </div>
+      </div>
+      <div>
+        <label className="field-label">Altura</label>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {([
+            { value: "medium", label: "Média (60vh)" },
+            { value: "tall", label: "Alta (80vh)" },
+            { value: "full", label: "Ecrã inteiro" },
+          ] as const).map(({ value, label }) => (
+            <label
+              key={value}
+              className={`flex cursor-pointer items-center justify-center rounded-full border px-3 py-2 text-xs font-medium transition ${
+                (data.height ?? "full") === value
+                  ? "border-rosa-400 bg-rosa-500 text-white"
+                  : "border-ink-line bg-surface text-ink-soft"
+              }`}
+            >
+              <input
+                type="radio"
+                name="ih-height"
+                value={value}
+                checked={(data.height ?? "full") === value}
+                onChange={() => onChange({ height: value })}
+                className="sr-only"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </div>
+      <div>
+        <label className="field-label">Escurecer imagem ({data.overlayOpacity ?? 40}%)</label>
+        <input
+          type="range"
+          min={0}
+          max={80}
+          step={5}
+          value={data.overlayOpacity ?? 40}
+          onChange={(e) => onChange({ overlayOpacity: Number(e.target.value) })}
+          className="mt-2 w-full accent-rosa-500"
+        />
+        <p className="mt-1 text-xs text-ink-muted">Aumenta para o texto ficar mais legível sobre a imagem.</p>
+      </div>
+    </div>
+  );
+}
+
+function ImageCarouselForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const images: Array<{ url: string; alt: string }> = data.images ?? [];
+
+  const addImage = () => onChange({ images: [...images, { url: "", alt: "" }] });
+  const removeImage = (idx: number) =>
+    onChange({ images: images.filter((_: any, i: number) => i !== idx) });
+  const updateAlt = (idx: number, alt: string) =>
+    onChange({ images: images.map((img: any, i: number) => (i === idx ? { ...img, alt } : img)) });
+  const moveImage = (idx: number, direction: "up" | "down") => {
+    const newIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (newIdx < 0 || newIdx >= images.length) return;
+    const copy = [...images];
+    [copy[idx], copy[newIdx]] = [copy[newIdx], copy[idx]];
+    onChange({ images: copy });
+  };
+
+  return (
+    <div className="grid gap-4">
+      <div>
+        <label className="field-label">Proporção</label>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {([
+            { value: "square", label: "Quadrado" },
+            { value: "landscape", label: "Paisagem (16:9)" },
+            { value: "wide", label: "Panorâmica" },
+          ] as const).map(({ value, label }) => (
+            <label
+              key={value}
+              className={`flex cursor-pointer items-center justify-center rounded-full border px-3 py-2 text-xs font-medium transition ${
+                (data.aspectRatio ?? "landscape") === value
+                  ? "border-rosa-400 bg-rosa-500 text-white"
+                  : "border-ink-line bg-surface text-ink-soft"
+              }`}
+            >
+              <input
+                type="radio"
+                name="ic-aspect"
+                value={value}
+                checked={(data.aspectRatio ?? "landscape") === value}
+                onChange={() => onChange({ aspectRatio: value })}
+                className="sr-only"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </div>
+      <label className="flex items-center gap-2 text-sm text-ink-soft">
+        <input
+          type="checkbox"
+          checked={data.autoplay ?? true}
+          onChange={(e) => onChange({ autoplay: e.target.checked })}
+        />
+        Avançar slides automaticamente (5s)
+      </label>
+      <div className="grid gap-3">
+        <label className="field-label">Imagens</label>
+        {images.map((img: any, i: number) => (
+          <div key={i} className="rounded-xl border border-ink-line bg-surface p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-muted">#{i + 1}</span>
+              <div className="flex items-center gap-1">
+                <button type="button" onClick={() => moveImage(i, "up")} disabled={i === 0} className="text-ink-muted hover:text-rosa-500 disabled:opacity-30">↑</button>
+                <button type="button" onClick={() => moveImage(i, "down")} disabled={i === images.length - 1} className="text-ink-muted hover:text-rosa-500 disabled:opacity-30">↓</button>
+                <button type="button" onClick={() => removeImage(i)} className="text-ink-muted hover:text-red-500">✕</button>
+              </div>
+            </div>
+            <ImagePicker
+              value={img.url}
+              onChange={(url) => {
+                const next = [...images];
+                next[i] = { ...next[i], url };
+                onChange({ images: next });
+              }}
+            />
+            <div className="mt-3">
+              <input
+                value={img.alt}
+                onChange={(e) => updateAlt(i, e.target.value)}
+                placeholder="Texto alternativo"
+                className="field-input"
+              />
+            </div>
+          </div>
+        ))}
+        <button type="button" onClick={addImage} className="btn-secondary w-fit">
+          + Adicionar imagem
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,32 @@
+---
+import HeroCarousel from "../islands/HeroCarousel";
+
+interface Props {
+  data: {
+    images: Array<{ url: string; alt: string }>;
+    aspectRatio?: "square" | "landscape" | "wide";
+    autoplay?: boolean;
+  };
+}
+
+const { data } = Astro.props;
+const aspect = data.aspectRatio ?? "landscape";
+const aspectClass =
+  aspect === "square" ? "aspect-square"
+  : aspect === "wide" ? "aspect-[16/6]"
+  : "aspect-[16/9]";
+---
+
+{data.images.length > 0 && (
+  <section class="py-10 md:py-16">
+    <div class="section">
+      <div class={`relative w-full overflow-hidden rounded-3xl bg-rosa-50 ${aspectClass}`}>
+        <HeroCarousel
+          client:load
+          slides={data.images}
+          autoplay={data.autoplay ?? true}
+        />
+      </div>
+    </div>
+  </section>
+)}

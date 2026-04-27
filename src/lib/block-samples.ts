@@ -54,6 +54,25 @@ export const SAMPLE_BLOCK_DATA: Record<BlockType, any> = {
       { url: "https://picsum.photos/seed/g3/600/600", alt: "" },
     ],
   },
+  "image-carousel": {
+    images: [
+      { url: "https://picsum.photos/seed/c1/1600/900", alt: "" },
+      { url: "https://picsum.photos/seed/c2/1600/900", alt: "" },
+      { url: "https://picsum.photos/seed/c3/1600/900", alt: "" },
+    ],
+    aspectRatio: "landscape",
+    autoplay: true,
+  },
+  "intro-hero": {
+    title: "Bem-vinda à Drisclub",
+    titleAccent: "feita para ti",
+    subtitle: "Peças únicas, bordadas à mão.",
+    buttonText: "Ver catálogo",
+    buttonUrl: "/catalogo",
+    imageUrl: "https://picsum.photos/seed/intro/1600/1200",
+    overlayOpacity: 40,
+    height: "full",
+  },
   "cta-banner": { title: "Pronta para encomendar?", subtitle: "Envios para Portugal Continental e Ilhas.", buttonText: "Encomendar", buttonUrl: "/catalogo", bgColor: "ink", backgroundImage: "", align: "left" },
   faq: {
     title: "Perguntas frequentes",

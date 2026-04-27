@@ -5,6 +5,8 @@ import Text from "./text";
 import ProductGrid from "./product-grid";
 import CategoryGrid from "./category-grid";
 import ImageGallery from "./image-gallery";
+import ImageCarousel from "./image-carousel";
+import IntroHero from "./intro-hero";
 import CtaBanner from "./cta-banner";
 import Faq from "./faq";
 import ContactInfo from "./contact-info";
@@ -29,6 +31,8 @@ const MAP: Record<BlockType, React.ComponentType> = {
   "product-grid": ProductGrid,
   "category-grid": CategoryGrid,
   "image-gallery": ImageGallery,
+  "image-carousel": ImageCarousel,
+  "intro-hero": IntroHero,
   "cta-banner": CtaBanner,
   faq: Faq,
   "contact-info": ContactInfo,

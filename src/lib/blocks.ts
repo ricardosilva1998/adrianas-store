@@ -59,6 +59,26 @@ const imageGalleryDataSchema = z.object({
   })).default([]),
 });
 
+const imageCarouselDataSchema = z.object({
+  images: z.array(z.object({
+    url: z.string().min(1).refine((s) => !/['")\\]/.test(s), "URL inválido"),
+    alt: z.string().default(""),
+  })).default([]),
+  aspectRatio: z.enum(["square", "landscape", "wide"]).default("landscape"),
+  autoplay: z.boolean().default(true),
+});
+
+const introHeroDataSchema = z.object({
+  title: z.string().default(""),
+  titleAccent: z.string().default(""),
+  subtitle: z.string().default(""),
+  buttonText: z.string().default(""),
+  buttonUrl: z.string().default(""),
+  imageUrl: safeUrl,
+  overlayOpacity: z.number().int().min(0).max(80).default(40),
+  height: z.enum(["medium", "tall", "full"]).default("full"),
+});
+
 const ctaBannerDataSchema = z.object({
   title: z.string().default(""),
   subtitle: z.string().default(""),
@@ -236,6 +256,18 @@ const imageGalleryBlockSchema = z.object({
   data: imageGalleryDataSchema,
 });
 
+const imageCarouselBlockSchema = z.object({
+  id: z.string(),
+  type: z.literal("image-carousel"),
+  data: imageCarouselDataSchema,
+});
+
+const introHeroBlockSchema = z.object({
+  id: z.string(),
+  type: z.literal("intro-hero"),
+  data: introHeroDataSchema,
+});
+
 const ctaBannerBlockSchema = z.object({
   id: z.string(),
   type: z.literal("cta-banner"),
@@ -296,6 +328,8 @@ export const blockSchema = z.discriminatedUnion("type", [
   productGridBlockSchema,
   categoryGridBlockSchema,
   imageGalleryBlockSchema,
+  imageCarouselBlockSchema,
+  introHeroBlockSchema,
   ctaBannerBlockSchema,
   faqBlockSchema,
   contactInfoBlockSchema,
@@ -325,6 +359,8 @@ export type TextData = z.infer<typeof textDataSchema>;
 export type ProductGridData = z.infer<typeof productGridDataSchema>;
 export type CategoryGridData = z.infer<typeof categoryGridDataSchema>;
 export type ImageGalleryData = z.infer<typeof imageGalleryDataSchema>;
+export type ImageCarouselData = z.infer<typeof imageCarouselDataSchema>;
+export type IntroHeroData = z.infer<typeof introHeroDataSchema>;
 export type CtaBannerData = z.infer<typeof ctaBannerDataSchema>;
 export type FaqData = z.infer<typeof faqDataSchema>;
 export type ContactInfoData = z.infer<typeof contactInfoDataSchema>;
@@ -356,6 +392,8 @@ export const BLOCK_TYPES: Array<{
   { type: "product-grid", label: "Grelha de Produtos", description: "Mostra produtos (mais vendidos, por categoria, ou todos)" },
   { type: "category-grid", label: "Grelha de Categorias", description: "Mostra cartoes de categorias" },
   { type: "image-gallery", label: "Galeria de Imagens", description: "Grelha de imagens" },
+  { type: "image-carousel", label: "Carrossel de Imagens", description: "Slideshow de imagens com setas e swipe" },
+  { type: "intro-hero", label: "Cabeçalho Inicial", description: "Cabeçalho de ecrã inteiro que desaparece ao fazer scroll" },
   { type: "cta-banner", label: "Banner CTA", description: "Seccao colorida com texto e botao" },
   { type: "faq", label: "FAQ", description: "Perguntas e respostas em acordeao" },
   { type: "contact-info", label: "Contacto", description: "Email, WhatsApp, Instagram, morada" },
@@ -406,6 +444,10 @@ export function createBlock(type: BlockType): Block {
       return { id, type, data: { title: "", subtitle: "", categories: [] } };
     case "image-gallery":
       return { id, type, data: { images: [] } };
+    case "image-carousel":
+      return { id, type, data: { images: [], aspectRatio: "landscape", autoplay: true } };
+    case "intro-hero":
+      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", overlayOpacity: 40, height: "full" } };
     case "cta-banner":
       return { id, type, data: { title: "", subtitle: "", buttonText: "", buttonUrl: "", bgColor: "ink", backgroundImage: "", align: "left" } };
     case "faq":

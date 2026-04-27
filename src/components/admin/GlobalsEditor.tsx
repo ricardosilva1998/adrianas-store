@@ -108,6 +108,9 @@ function NavForm({ config, setGlobals }: FormProps) {
 
   return (
     <div>
+      <p className="mb-3 text-xs text-ink-muted">
+        Arrasta o ícone <span className="font-semibold text-ink-soft">⠿</span> para reordenar os itens do menu.
+      </p>
       <DragList
         items={nav}
         getId={(_, i) => `nav-${i}`}

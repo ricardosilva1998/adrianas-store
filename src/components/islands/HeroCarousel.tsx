@@ -6,9 +6,10 @@ type Slide = { url: string; alt?: string };
 type Props = {
   slides: Slide[];
   autoplayMs?: number;
+  autoplay?: boolean;
 };
 
-export default function HeroCarousel({ slides, autoplayMs = 5000 }: Props) {
+export default function HeroCarousel({ slides, autoplayMs = 5000, autoplay = true }: Props) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -30,12 +31,12 @@ export default function HeroCarousel({ slides, autoplayMs = 5000 }: Props) {
   }, [emblaApi, onSelect]);
 
   useEffect(() => {
-    if (!emblaApi || isPaused || slides.length <= 1) return;
+    if (!emblaApi || isPaused || !autoplay || slides.length <= 1) return;
     const id = window.setInterval(() => {
       emblaApi.scrollNext();
     }, autoplayMs);
     return () => window.clearInterval(id);
-  }, [emblaApi, isPaused, autoplayMs, slides.length]);
+  }, [emblaApi, isPaused, autoplay, autoplayMs, slides.length]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);

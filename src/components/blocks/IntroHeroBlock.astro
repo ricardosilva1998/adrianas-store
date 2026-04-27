@@ -1,0 +1,32 @@
+---
+import { renderMixedContent } from "../../lib/content";
+import IntroHero from "../islands/IntroHero";
+
+interface Props {
+  data: {
+    title: string;
+    titleAccent?: string;
+    subtitle: string;
+    buttonText: string;
+    buttonUrl: string;
+    imageUrl: string;
+    overlayOpacity?: number;
+    height?: "medium" | "tall" | "full";
+  };
+}
+
+const { data } = Astro.props;
+const subtitleHtml = renderMixedContent(data.subtitle);
+---
+
+<IntroHero
+  client:load
+  title={data.title}
+  titleAccent={data.titleAccent}
+  subtitleHtml={subtitleHtml}
+  buttonText={data.buttonText}
+  buttonUrl={data.buttonUrl}
+  imageUrl={data.imageUrl}
+  overlayOpacity={data.overlayOpacity ?? 40}
+  height={data.height ?? "full"}
+/>
