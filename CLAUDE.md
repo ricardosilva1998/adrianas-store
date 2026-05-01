@@ -88,3 +88,20 @@ Block type definitions, Zod schemas, factories, and the `blocksAllowedIn(context
 - **No HTML in admin inputs**: the user is non-technical. Block form fields must never accept raw HTML. When a rendered element needs styled variants (e.g., an accent color within a heading), add a second field to the block schema rather than letting the admin type `<span class="…">`. Hero does this with `title` + `titleAccent`.
 - **Image fields use `ImagePicker`**: any block or editor form that stores an image URL uses `src/components/admin/ImagePicker.tsx`, never a bare text input. That gives admins gallery picker + upload + URL paste in one control.
 - **Node version**: >= 22.12.0
+
+
+## Team Activity Log
+
+This section is the shared coordination surface for the dev team (team-leader + frontend-dev + backend-dev + team-security + team-qa + team-ux + team-deployment). Every team member reads the last few entries before working and appends one entry after.
+
+Format per entry:
+
+```
+### YYYY-MM-DD HH:MM — <role>
+**Task:** <one line>
+**Files:** <comma-separated paths or "none">
+**Decisions:** <2-4 bullets the next teammate needs to know>
+**Open:** <followups, or "none">
+```
+
+(No entries yet — the next `/dev-team` round will append here.)
