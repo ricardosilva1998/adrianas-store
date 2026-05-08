@@ -8,9 +8,10 @@ interface Props {
   image: string;
   category: CategorySlug;
   bestseller?: boolean;
+  showFromLabel?: boolean;
 }
 
-const { slug, name, price, image, category, bestseller = false } = Astro.props;
+const { slug, name, price, image, category, bestseller = false, showFromLabel = true } = Astro.props;
 ---
 
 <a href={`/catalogo/${slug}`} class="card group">
@@ -37,8 +38,12 @@ const { slug, name, price, image, category, bestseller = false } = Astro.props;
     </h3>
     <div class="mt-auto flex items-center justify-between pt-2">
       <span class="text-lg font-semibold text-ink">
-        <span class="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Desde</span>
-        {" "}
+        {showFromLabel && (
+          <>
+            <span class="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Desde</span>
+            {" "}
+          </>
+        )}
         {formatEuro(price)}
       </span>
       <span class="hidden items-center gap-1 text-xs font-medium text-rosa-500 transition group-hover:gap-2 sm:inline-flex">

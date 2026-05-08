@@ -126,8 +126,12 @@ const breadcrumbJsonLd: Record<string, unknown> = {
                 {product.name}
               </h1>
               <p class="mt-3 text-2xl font-semibold text-ink">
-                <span class="text-sm font-medium uppercase tracking-wide text-ink-muted">Desde</span>
-                {" "}
+                {product.showFromLabel && (
+                  <>
+                    <span class="text-sm font-medium uppercase tracking-wide text-ink-muted">Desde</span>
+                    {" "}
+                  </>
+                )}
                 {formatEuro(product.priceCents)}
               </p>
             </div>
@@ -191,6 +195,7 @@ const breadcrumbJsonLd: Record<string, unknown> = {
                   image={p.images[0]?.url ?? "/placeholders/product.svg"}
                   category={p.category}
                   bestseller={p.bestseller}
+                  showFromLabel={p.showFromLabel}
                 />
               ))}
             </div>

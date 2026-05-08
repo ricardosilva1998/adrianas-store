@@ -15,6 +15,7 @@ export type ProductWithExtras = {
   unlimitedStock: boolean;
   bestseller: boolean;
   personalizable: boolean;
+  showFromLabel: boolean;
   active: boolean;
   sortOrder: number;
   variantColorTitle: string;
@@ -56,6 +57,7 @@ const attachExtras = async (
     unlimitedStock: p.unlimitedStock,
     bestseller: p.bestseller,
     personalizable: p.personalizable,
+    showFromLabel: p.showFromLabel,
     active: p.active,
     sortOrder: p.sortOrder,
     variantColorTitle: p.variantColorTitle,

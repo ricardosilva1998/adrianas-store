@@ -11,12 +11,6 @@ type Props = {
   height?: "medium" | "tall" | "full";
 };
 
-const HEIGHT_CLASS: Record<NonNullable<Props["height"]>, string> = {
-  medium: "h-[60vh] min-h-[420px]",
-  tall: "h-[80vh] min-h-[520px]",
-  full: "h-screen min-h-[560px]",
-};
-
 export default function IntroHero({
   title,
   titleAccent,
@@ -25,7 +19,6 @@ export default function IntroHero({
   buttonUrl,
   imageUrl,
   overlayOpacity = 40,
-  height = "full",
 }: Props) {
   const [opacity, setOpacity] = useState(1);
   const [translateY, setTranslateY] = useState(0);
@@ -51,12 +44,12 @@ export default function IntroHero({
   }, []);
 
   const overlay = Math.max(0, Math.min(80, overlayOpacity)) / 100;
-  const heightClass = HEIGHT_CLASS[height];
 
   return (
     <section
-      className={`relative w-full overflow-hidden bg-ink ${heightClass}`}
+      className="relative w-full overflow-hidden bg-ink"
       style={{
+        aspectRatio: "843 / 300",
         opacity,
         transform: `translate3d(0, ${translateY}px, 0)`,
         willChange: "opacity, transform",

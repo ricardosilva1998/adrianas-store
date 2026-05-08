@@ -73,6 +73,7 @@ export const products = pgTable(
     unlimitedStock: boolean("unlimited_stock").notNull().default(false),
     bestseller: boolean("bestseller").notNull().default(false),
     personalizable: boolean("personalizable").notNull().default(true),
+    showFromLabel: boolean("show_from_label").notNull().default(true),
     active: boolean("active").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),
     variantColorTitle: text("variant_color_title").notNull().default("Cor do produto"),

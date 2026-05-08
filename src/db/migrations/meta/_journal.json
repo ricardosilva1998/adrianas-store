@@ -99,6 +99,13 @@
       "when": 1777990800000,
       "tag": "0013_customers",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1778457600000,
+      "tag": "0014_product_show_from_label",
+      "breakpoints": true
     }
   ]
 }

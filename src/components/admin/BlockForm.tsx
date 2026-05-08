@@ -506,35 +506,6 @@ function IntroHeroForm({ data, onChange }: { data: any; onChange: (d: any) => vo
         </div>
       </div>
       <div>
-        <label className="field-label">Altura</label>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          {([
-            { value: "medium", label: "Média (60vh)" },
-            { value: "tall", label: "Alta (80vh)" },
-            { value: "full", label: "Ecrã inteiro" },
-          ] as const).map(({ value, label }) => (
-            <label
-              key={value}
-              className={`flex cursor-pointer items-center justify-center rounded-full border px-3 py-2 text-xs font-medium transition ${
-                (data.height ?? "full") === value
-                  ? "border-rosa-400 bg-rosa-500 text-white"
-                  : "border-ink-line bg-surface text-ink-soft"
-              }`}
-            >
-              <input
-                type="radio"
-                name="ih-height"
-                value={value}
-                checked={(data.height ?? "full") === value}
-                onChange={() => onChange({ height: value })}
-                className="sr-only"
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-      </div>
-      <div>
         <label className="field-label">Escurecer imagem ({data.overlayOpacity ?? 40}%)</label>
         <input
           type="range"

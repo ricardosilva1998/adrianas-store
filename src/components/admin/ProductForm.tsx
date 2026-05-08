@@ -34,6 +34,7 @@ export type ProductFormData = {
   unlimitedStock: boolean;
   bestseller: boolean;
   personalizable: boolean;
+  showFromLabel: boolean;
   active: boolean;
   sortOrder: number;
   variantColorTitle: string;
@@ -58,6 +59,7 @@ const emptyProduct: ProductFormData = {
   unlimitedStock: true,
   bestseller: false,
   personalizable: true,
+  showFromLabel: true,
   active: true,
   sortOrder: 0,
   variantColorTitle: "Cor do produto",
@@ -580,6 +582,15 @@ export default function ProductForm({ initial, mode }: Props) {
                 className="h-4 w-4 accent-rosa-500"
               />
               Permitir personalização
+            </label>
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={data.showFromLabel}
+                onChange={(e) => update("showFromLabel", e.target.checked)}
+                className="h-4 w-4 accent-rosa-500"
+              />
+              Mostrar "Desde" antes do preço
             </label>
             <div>
               <label className="field-label" htmlFor="sortOrder">Ordem</label>

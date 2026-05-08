@@ -13,6 +13,7 @@ export const SAMPLE_PRODUCT: ProductWithExtras = {
   unlimitedStock: false,
   bestseller: true,
   personalizable: true,
+  showFromLabel: true,
   active: true,
   sortOrder: 0,
   variantColorTitle: "Cor do produto",
