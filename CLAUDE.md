@@ -125,3 +125,13 @@ Format per entry:
 - PageEditor auto-flush publish fix (d224cfd) was NOT reverted — still in place and confirmed in source
 - Railway deployment 521555b2-b0b9-4354-8eab-5d194095e3a1 succeeded; 60s log window clean (only expected migration NOTICEs)
 **Open:** none
+
+### 2026-05-13 21:30 — team-deployment
+**Task:** Deploy mandatory product personalization + customer file upload (PNG/JPG/PDF ≤ 15MB)
+**Files:** src/lib/r2.ts, src/components/islands/stores/cart.ts, src/lib/orders.ts, src/db/schema.ts, src/pages/api/orders.ts, src/components/islands/PersonalizeModal.tsx, src/components/islands/ProductActions.tsx, src/components/islands/CartView.tsx, src/components/islands/CheckoutForm.tsx, src/pages/admin/orders/[id].astro, src/lib/email.ts, src/pages/api/personalization-upload.ts, src/components/islands/ProductActions.test.tsx
+**Decisions:**
+- Commit f35403a — "feat(personalization): personalização obrigatória + upload de imagem/PDF até 15MB"; pushed to origin/main @ f35403a (051401c..f35403a)
+- payment.md left untracked as instructed; secrets scan clean; no .env or secret-pattern matches in staged diff
+- No DB migration required — personalization JSONB column extended type-only (backwards compatible)
+- Railway deployment c2b3d75f-62ed-487e-8cef-32b68f7c87c0 succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs — "already exists, skipping"); /api/personalization-upload is a new SSR route included in the deployed bundle
+**Open:** none
