@@ -2,16 +2,23 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createOrder, sendNewOrderNotifications } from "../../lib/orders";
 import type { PaymentMethodId } from "../../db/schema";
+import {
+  isValidAddress,
+  isValidName,
+  isValidPtPhone,
+  normalizePhone,
+} from "../../lib/customer-validation";
+import { isFormatValid, lookupPostalCode, normalizePostalCode } from "../../lib/postal-code";
 
 export const prerender = false;
 
 const CheckoutSchema = z.object({
   customer: z.object({
-    name: z.string().min(1).max(200),
+    name: z.string().refine(isValidName, "Nome inválido."),
     email: z.string().email(),
-    phone: z.string().min(3).max(50),
-    address: z.string().min(1).max(500),
-    postalCode: z.string().min(3).max(20),
+    phone: z.string().refine(isValidPtPhone, "Telemóvel inválido. Indica 9 dígitos (PT)."),
+    address: z.string().refine(isValidAddress, "Morada inválida (mínimo 5 caracteres)."),
+    postalCode: z.string().refine(isFormatValid, "Código postal inválido (formato 0000-000)."),
     city: z.string().min(1).max(200),
     nif: z.string().optional().nullable(),
   }),
@@ -69,9 +76,29 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  // Postal code existence check (geoapi.pt). Soft-fail: only block on a
+  // confirmed "not-found"; format is already guarded by Zod and a network
+  // error shouldn't punish the customer.
+  const postal = await lookupPostalCode(parsed.data.customer.postalCode);
+  if (!postal.ok && postal.reason === "not-found") {
+    return new Response(
+      JSON.stringify({ error: "Código postal não existe. Verifica e tenta novamente." }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
+  const normalizedCustomer = {
+    ...parsed.data.customer,
+    name: parsed.data.customer.name.trim(),
+    phone: normalizePhone(parsed.data.customer.phone),
+    address: parsed.data.customer.address.trim(),
+    postalCode: normalizePostalCode(parsed.data.customer.postalCode) ?? parsed.data.customer.postalCode,
+    city: parsed.data.customer.city.trim(),
+  };
+
   try {
     const { order, items } = await createOrder({
-      customer: parsed.data.customer,
+      customer: normalizedCustomer,
       paymentMethod: parsed.data.paymentMethod as PaymentMethodId,
       notes: parsed.data.notes,
       couponCode: parsed.data.couponCode ?? null,

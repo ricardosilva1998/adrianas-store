@@ -7,14 +7,30 @@ import {
   createCustomerToken,
   setCustomerCookie,
 } from "../../../lib/customer-auth";
+import {
+  isValidAddress,
+  isValidName,
+  isValidPtPhone,
+  normalizePhone,
+} from "../../../lib/customer-validation";
+import { isFormatValid, lookupPostalCode, normalizePostalCode } from "../../../lib/postal-code";
 
 export const prerender = false;
 
 const Schema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  phone: z.string().max(50).optional(),
-  address: z.string().max(500).optional(),
-  postalCode: z.string().max(20).optional(),
+  name: z.string().refine((v) => v === "" || isValidName(v), "Nome inválido.").optional(),
+  phone: z
+    .string()
+    .refine((v) => v === "" || isValidPtPhone(v), "Telemóvel inválido (9 dígitos PT).")
+    .optional(),
+  address: z
+    .string()
+    .refine((v) => v === "" || isValidAddress(v), "Morada inválida (mínimo 5 caracteres).")
+    .optional(),
+  postalCode: z
+    .string()
+    .refine((v) => v === "" || isFormatValid(v), "Código postal inválido.")
+    .optional(),
   city: z.string().max(200).optional(),
   nif: z.string().max(20).nullable().optional(),
   password: z.string().min(8).max(200).optional(),
@@ -34,18 +50,32 @@ export const PATCH: APIRoute = async ({ request, cookies, locals }) => {
 
   const parsed = Schema.safeParse(body);
   if (!parsed.success) {
+    const first = parsed.error.issues[0]?.message ?? "Dados inválidos.";
     return new Response(
-      JSON.stringify({ error: "Dados inválidos." }),
+      JSON.stringify({ error: first }),
       { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
   const d = parsed.data;
 
+  // Existence check on postal code if it's being changed to a non-empty value.
+  if (d.postalCode && d.postalCode !== "") {
+    const postal = await lookupPostalCode(d.postalCode);
+    if (!postal.ok && postal.reason === "not-found") {
+      return new Response(
+        JSON.stringify({ error: "Código postal não existe." }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+  }
+
   const updates: Record<string, unknown> = { updatedAt: new Date() };
   if (d.name !== undefined) updates.name = d.name.trim();
-  if (d.phone !== undefined) updates.phone = d.phone.trim();
+  if (d.phone !== undefined) updates.phone = d.phone ? normalizePhone(d.phone) : "";
   if (d.address !== undefined) updates.address = d.address.trim();
-  if (d.postalCode !== undefined) updates.postalCode = d.postalCode.trim();
+  if (d.postalCode !== undefined) {
+    updates.postalCode = d.postalCode ? (normalizePostalCode(d.postalCode) ?? d.postalCode) : "";
+  }
   if (d.city !== undefined) updates.city = d.city.trim();
   if (d.nif !== undefined) updates.nif = d.nif ? d.nif.trim() : null;
   if (d.password) updates.passwordHash = await hashCustomerPassword(d.password);

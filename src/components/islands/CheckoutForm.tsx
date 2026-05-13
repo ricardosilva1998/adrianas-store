@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useStore } from "@nanostores/react";
 import { cart, cartSubtotal, clearCart } from "./stores/cart";
+import {
+  isValidAddress,
+  isValidName,
+  isValidPtPhone,
+  normalizePhone,
+} from "../../lib/customer-validation";
+import { isFormatValid, normalizePostalCode } from "../../lib/postal-code";
 
 const formatEuro = (value: number) =>
   new Intl.NumberFormat("pt-PT", {
@@ -41,6 +48,73 @@ export default function CheckoutForm({ initial }: Props = {}) {
 
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [name, setName] = useState(initial?.name ?? "");
+  const [phone, setPhone] = useState(initial?.phone ?? "");
+  const [address, setAddress] = useState(initial?.address ?? "");
+  const [postalCode, setPostalCode] = useState(initial?.postalCode ?? "");
+  const [city, setCity] = useState(initial?.city ?? "");
+
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [addressError, setAddressError] = useState<string | null>(null);
+  const [postalError, setPostalError] = useState<string | null>(null);
+  const [postalBusy, setPostalBusy] = useState(false);
+
+  const validateName = () => {
+    setNameError(isValidName(name) ? null : "Indica o teu nome completo.");
+  };
+  const validatePhone = () => {
+    setPhoneError(isValidPtPhone(phone) ? null : "Telemóvel inválido (9 dígitos PT).");
+  };
+  const validateAddress = () => {
+    setAddressError(
+      isValidAddress(address) ? null : "Indica a morada completa (mín. 5 caracteres).",
+    );
+  };
+  const validatePostal = async () => {
+    setPostalError(null);
+    if (!postalCode) {
+      setPostalError("Indica o código postal.");
+      return;
+    }
+    if (!isFormatValid(postalCode)) {
+      setPostalError("Formato inválido (ex: 0000-000).");
+      return;
+    }
+    const normalized = normalizePostalCode(postalCode);
+    if (normalized && normalized !== postalCode) setPostalCode(normalized);
+    setPostalBusy(true);
+    try {
+      const res = await fetch(
+        `/api/validate-postal-code?code=${encodeURIComponent(normalized ?? postalCode)}`,
+      );
+      const data = (await res.json()) as
+        | { ok: true; locality: string }
+        | { ok: false; reason: "format" | "not-found" | "network" };
+      if (!data.ok) {
+        if (data.reason === "not-found") {
+          setPostalError("Código postal não existe.");
+        }
+        // network/format already covered by previous checks; stay silent
+        return;
+      }
+      // Auto-fill city when empty or when it differs from the lookup result.
+      if (!city.trim() && data.locality) setCity(data.locality);
+    } catch {
+      // Soft-fail: don't block customer on network hiccup.
+    } finally {
+      setPostalBusy(false);
+    }
+  };
+
+  const fieldsValid =
+    isValidName(name) &&
+    isValidPtPhone(phone) &&
+    isValidAddress(address) &&
+    isFormatValid(postalCode) &&
+    city.trim().length > 0 &&
+    !postalError;
 
   const [couponInput, setCouponInput] = useState("");
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
@@ -102,15 +176,28 @@ export default function CheckoutForm({ initial }: Props = {}) {
     setStatus("submitting");
     setErrorMessage(null);
 
+    // Re-run synchronous validators on submit so users can't bypass blur events
+    // by hitting Enter immediately.
+    validateName();
+    validatePhone();
+    validateAddress();
+    if (!fieldsValid) {
+      setStatus("idle");
+      setErrorMessage("Corrige os campos assinalados antes de submeter.");
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
+    const normalizedPhone = normalizePhone(phone);
+    const normalizedPostal = normalizePostalCode(postalCode) ?? postalCode;
     const payload = {
       customer: {
-        name: String(formData.get("name") ?? ""),
+        name: name.trim(),
         email: String(formData.get("email") ?? ""),
-        phone: String(formData.get("phone") ?? ""),
-        address: String(formData.get("address") ?? ""),
-        postalCode: String(formData.get("postalCode") ?? ""),
-        city: String(formData.get("city") ?? ""),
+        phone: normalizedPhone,
+        address: address.trim(),
+        postalCode: normalizedPostal,
+        city: city.trim(),
         nif: (formData.get("nif") as string) || null,
       },
       paymentMethod: String(formData.get("paymentMethod") ?? "mbway"),
@@ -173,7 +260,7 @@ export default function CheckoutForm({ initial }: Props = {}) {
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="name" className="field-label">
-                Nome completo
+                Nome completo <span className="text-red-500" aria-hidden>*</span>
               </label>
               <input
                 id="name"
@@ -181,9 +268,16 @@ export default function CheckoutForm({ initial }: Props = {}) {
                 type="text"
                 required
                 autoComplete="name"
-                defaultValue={initial?.name}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onBlur={validateName}
+                aria-invalid={nameError !== null}
+                aria-describedby={nameError ? "name-error" : undefined}
                 className="field-input"
               />
+              {nameError && (
+                <p id="name-error" className="mt-1 text-xs text-red-600">{nameError}</p>
+              )}
             </div>
             <div>
               <label htmlFor="email" className="field-label">
@@ -201,7 +295,7 @@ export default function CheckoutForm({ initial }: Props = {}) {
             </div>
             <div>
               <label htmlFor="phone" className="field-label">
-                Telefone
+                Telemóvel <span className="text-red-500" aria-hidden>*</span>
               </label>
               <input
                 id="phone"
@@ -209,9 +303,18 @@ export default function CheckoutForm({ initial }: Props = {}) {
                 type="tel"
                 required
                 autoComplete="tel"
-                defaultValue={initial?.phone}
+                inputMode="tel"
+                placeholder="9XX XXX XXX"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                onBlur={validatePhone}
+                aria-invalid={phoneError !== null}
+                aria-describedby={phoneError ? "phone-error" : undefined}
                 className="field-input"
               />
+              {phoneError && (
+                <p id="phone-error" className="mt-1 text-xs text-red-600">{phoneError}</p>
+              )}
             </div>
             <div>
               <label htmlFor="nif" className="field-label">
@@ -234,7 +337,7 @@ export default function CheckoutForm({ initial }: Props = {}) {
           <div className="mt-5 grid gap-4">
             <div>
               <label htmlFor="address" className="field-label">
-                Morada
+                Morada <span className="text-red-500" aria-hidden>*</span>
               </label>
               <input
                 id="address"
@@ -242,14 +345,21 @@ export default function CheckoutForm({ initial }: Props = {}) {
                 type="text"
                 required
                 autoComplete="street-address"
-                defaultValue={initial?.address}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                onBlur={validateAddress}
+                aria-invalid={addressError !== null}
+                aria-describedby={addressError ? "address-error" : undefined}
                 className="field-input"
               />
+              {addressError && (
+                <p id="address-error" className="mt-1 text-xs text-red-600">{addressError}</p>
+              )}
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="postalCode" className="field-label">
-                  Código Postal
+                  Código Postal <span className="text-red-500" aria-hidden>*</span>
                 </label>
                 <input
                   id="postalCode"
@@ -257,14 +367,28 @@ export default function CheckoutForm({ initial }: Props = {}) {
                   type="text"
                   required
                   autoComplete="postal-code"
+                  inputMode="numeric"
                   placeholder="0000-000"
-                  defaultValue={initial?.postalCode}
+                  value={postalCode}
+                  onChange={(e) => {
+                    setPostalCode(e.target.value);
+                    if (postalError) setPostalError(null);
+                  }}
+                  onBlur={validatePostal}
+                  aria-invalid={postalError !== null}
+                  aria-describedby={postalError ? "postal-error" : undefined}
                   className="field-input"
                 />
+                {postalBusy && (
+                  <p className="mt-1 text-xs text-ink-muted">A verificar…</p>
+                )}
+                {postalError && (
+                  <p id="postal-error" className="mt-1 text-xs text-red-600">{postalError}</p>
+                )}
               </div>
               <div>
                 <label htmlFor="city" className="field-label">
-                  Localidade
+                  Localidade <span className="text-red-500" aria-hidden>*</span>
                 </label>
                 <input
                   id="city"
@@ -272,7 +396,8 @@ export default function CheckoutForm({ initial }: Props = {}) {
                   type="text"
                   required
                   autoComplete="address-level2"
-                  defaultValue={initial?.city}
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
                   className="field-input"
                 />
               </div>
@@ -422,7 +547,7 @@ export default function CheckoutForm({ initial }: Props = {}) {
 
         <button
           type="submit"
-          disabled={status === "submitting"}
+          disabled={status === "submitting" || !fieldsValid || postalBusy}
           className="btn-primary mt-6 w-full"
         >
           {status === "submitting" ? "A submeter…" : "Confirmar encomenda"}

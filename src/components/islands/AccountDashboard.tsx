@@ -1,4 +1,11 @@
 import { useState } from "react";
+import {
+  isValidAddress,
+  isValidName,
+  isValidPtPhone,
+  normalizePhone,
+} from "../../lib/customer-validation";
+import { isFormatValid, normalizePostalCode } from "../../lib/postal-code";
 
 type CustomerProfile = {
   id: number;
@@ -45,18 +52,78 @@ export default function AccountDashboard({ customer, orders }: Props) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
 
+  const [name, setName] = useState(customer.name ?? "");
+  const [phone, setPhone] = useState(customer.phone ?? "");
+  const [address, setAddress] = useState(customer.address ?? "");
+  const [postalCode, setPostalCode] = useState(customer.postalCode ?? "");
+  const [city, setCity] = useState(customer.city ?? "");
+
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [addressError, setAddressError] = useState<string | null>(null);
+  const [postalError, setPostalError] = useState<string | null>(null);
+  const [postalBusy, setPostalBusy] = useState(false);
+
+  const validateName = () => setNameError(isValidName(name) ? null : "Indica o teu nome.");
+  const validatePhone = () =>
+    setPhoneError(phone === "" || isValidPtPhone(phone) ? null : "Telemóvel inválido (9 dígitos PT).");
+  const validateAddress = () =>
+    setAddressError(address === "" || isValidAddress(address) ? null : "Morada inválida (mín. 5 caracteres).");
+  const validatePostal = async () => {
+    setPostalError(null);
+    if (postalCode === "") return;
+    if (!isFormatValid(postalCode)) {
+      setPostalError("Formato inválido (ex: 0000-000).");
+      return;
+    }
+    const normalized = normalizePostalCode(postalCode);
+    if (normalized && normalized !== postalCode) setPostalCode(normalized);
+    setPostalBusy(true);
+    try {
+      const res = await fetch(
+        `/api/validate-postal-code?code=${encodeURIComponent(normalized ?? postalCode)}`,
+      );
+      const data = (await res.json()) as
+        | { ok: true; locality: string }
+        | { ok: false; reason: "format" | "not-found" | "network" };
+      if (!data.ok) {
+        if (data.reason === "not-found") setPostalError("Código postal não existe.");
+        return;
+      }
+      if (!city.trim() && data.locality) setCity(data.locality);
+    } catch {
+      // soft-fail
+    } finally {
+      setPostalBusy(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Re-run synchronous validators on submit
+    validateName();
+    validatePhone();
+    validateAddress();
+    if (
+      !isValidName(name) ||
+      (phone !== "" && !isValidPtPhone(phone)) ||
+      (address !== "" && !isValidAddress(address)) ||
+      (postalCode !== "" && !isFormatValid(postalCode)) ||
+      postalError
+    ) {
+      setMessage({ kind: "error", text: "Corrige os campos assinalados." });
+      return;
+    }
     setBusy(true);
     setMessage(null);
     const form = new FormData(e.currentTarget);
     const password = String(form.get("password") ?? "");
     const payload: Record<string, unknown> = {
-      name: String(form.get("name") ?? ""),
-      phone: String(form.get("phone") ?? ""),
-      address: String(form.get("address") ?? ""),
-      postalCode: String(form.get("postalCode") ?? ""),
-      city: String(form.get("city") ?? ""),
+      name: name.trim(),
+      phone: phone ? normalizePhone(phone) : "",
+      address: address.trim(),
+      postalCode: postalCode ? (normalizePostalCode(postalCode) ?? postalCode) : "",
+      city: city.trim(),
       nif: (String(form.get("nif") ?? "") || null) as string | null,
     };
     if (password) payload.password = password;
@@ -69,6 +136,12 @@ export default function AccountDashboard({ customer, orders }: Props) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Erro ${res.status}`);
       setProfile(data.customer);
+      // Sync controlled state with the normalized response (e.g. trimmed values).
+      setName(data.customer.name ?? "");
+      setPhone(data.customer.phone ?? "");
+      setAddress(data.customer.address ?? "");
+      setPostalCode(data.customer.postalCode ?? "");
+      setCity(data.customer.city ?? "");
       setMessage({ kind: "ok", text: password ? "Dados e password atualizados." : "Dados atualizados." });
       const pwInput = document.getElementById("p-pw") as HTMLInputElement | null;
       if (pwInput) pwInput.value = "";
@@ -97,26 +170,83 @@ export default function AccountDashboard({ customer, orders }: Props) {
         <form id="profile-form" onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="field-label" htmlFor="p-name">Nome</label>
-              <input id="p-name" name="name" defaultValue={profile.name} required className="field-input" />
+              <label className="field-label" htmlFor="p-name">
+                Nome <span className="text-red-500" aria-hidden>*</span>
+              </label>
+              <input
+                id="p-name"
+                name="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onBlur={validateName}
+                required
+                className="field-input"
+                aria-invalid={nameError !== null}
+              />
+              {nameError && <p className="mt-1 text-xs text-red-600">{nameError}</p>}
             </div>
             <div>
-              <label className="field-label" htmlFor="p-phone">Telefone</label>
-              <input id="p-phone" name="phone" defaultValue={profile.phone} className="field-input" autoComplete="tel" />
+              <label className="field-label" htmlFor="p-phone">Telemóvel</label>
+              <input
+                id="p-phone"
+                name="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                onBlur={validatePhone}
+                className="field-input"
+                autoComplete="tel"
+                inputMode="tel"
+                placeholder="9XX XXX XXX"
+                aria-invalid={phoneError !== null}
+              />
+              {phoneError && <p className="mt-1 text-xs text-red-600">{phoneError}</p>}
             </div>
           </div>
           <div>
             <label className="field-label" htmlFor="p-addr">Morada</label>
-            <input id="p-addr" name="address" defaultValue={profile.address} className="field-input" autoComplete="street-address" />
+            <input
+              id="p-addr"
+              name="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              onBlur={validateAddress}
+              className="field-input"
+              autoComplete="street-address"
+              aria-invalid={addressError !== null}
+            />
+            {addressError && <p className="mt-1 text-xs text-red-600">{addressError}</p>}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="field-label" htmlFor="p-postal">Código postal</label>
-              <input id="p-postal" name="postalCode" defaultValue={profile.postalCode} className="field-input" autoComplete="postal-code" placeholder="0000-000" />
+              <input
+                id="p-postal"
+                name="postalCode"
+                value={postalCode}
+                onChange={(e) => {
+                  setPostalCode(e.target.value);
+                  if (postalError) setPostalError(null);
+                }}
+                onBlur={validatePostal}
+                className="field-input"
+                autoComplete="postal-code"
+                inputMode="numeric"
+                placeholder="0000-000"
+                aria-invalid={postalError !== null}
+              />
+              {postalBusy && <p className="mt-1 text-xs text-ink-muted">A verificar…</p>}
+              {postalError && <p className="mt-1 text-xs text-red-600">{postalError}</p>}
             </div>
             <div>
               <label className="field-label" htmlFor="p-city">Localidade</label>
-              <input id="p-city" name="city" defaultValue={profile.city} className="field-input" autoComplete="address-level2" />
+              <input
+                id="p-city"
+                name="city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="field-input"
+                autoComplete="address-level2"
+              />
             </div>
           </div>
           <div>
