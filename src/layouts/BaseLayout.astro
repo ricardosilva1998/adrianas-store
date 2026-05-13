@@ -13,6 +13,10 @@ interface Props {
   noindex?: boolean;
   canonical?: string;
   jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+  // When true, <main> has no top padding so a first-block hero can render
+  // edge-to-edge behind the fixed transparent header. Default false reserves
+  // header-height padding for pages without a top banner (catalog, cart…).
+  noHeaderOffset?: boolean;
 }
 
 const config = await getSiteConfig(Astro.locals.previewConfig);
@@ -27,6 +31,7 @@ const {
   noindex = false,
   canonical,
   jsonLd,
+  noHeaderOffset = false,
 } = Astro.props;
 const siteName = browserTitle.trim() || identity.name;
 const pageTitle = title ? `${title} — ${siteName}` : `${siteName} — ${identity.tagline}`;
@@ -84,7 +89,7 @@ const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION;
   </head>
   <body class="flex min-h-dvh flex-col overflow-x-clip bg-white text-ink antialiased">
     <Header config={config} />
-    <main class="flex-1">
+    <main class:list={["flex-1", !noHeaderOffset && "pt-[9rem] md:pt-28"]}>
       <slot />
     </main>
     <Footer config={config} />

@@ -39,6 +39,13 @@ const blocks = (
       : dbPage!.blocks
 ) as Array<{ id?: string; type: string; data: any }>;
 
+// When the page opens with a hero/intro-hero block, the banner extends
+// edge-to-edge behind the fixed transparent header, so <main> must NOT
+// reserve header-height padding-top.
+const firstBlockType = blocks[0]?.type;
+const heroFirst =
+  firstBlockType === "hero" || firstBlockType === "intro-hero";
+
 const config = await getSiteConfig(Astro.locals.previewConfig);
 const { identity } = config.globals;
 const origin = Astro.url.origin;
@@ -83,7 +90,11 @@ if (slug === "home") {
 }
 ---
 
-<BaseLayout title={slug === "home" ? undefined : title} jsonLd={jsonLd}>
+<BaseLayout
+  title={slug === "home" ? undefined : title}
+  jsonLd={jsonLd}
+  noHeaderOffset={heroFirst}
+>
   {isLivePreview && (
     <div class="bg-rosa-50 border-b border-rosa-200 text-rosa-700 text-xs text-center py-2">
       A mostrar pré-visualização ao vivo
