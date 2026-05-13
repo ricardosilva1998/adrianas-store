@@ -1,7 +1,7 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 
-type Slide = { url: string; alt?: string };
+type Slide = { url: string; alt?: string; focal?: { x: number; y: number } };
 
 type Props = {
   slides: Slide[];
@@ -84,6 +84,9 @@ export default function HeroCarousel({ slides, autoplayMs = 5000, autoplay = tru
                 src={slide.url}
                 alt={slide.alt ?? ""}
                 className="h-full w-full object-cover"
+                style={{
+                  objectPosition: `${slide.focal?.x ?? 50}% ${slide.focal?.y ?? 50}%`,
+                }}
                 draggable={false}
               />
             </div>

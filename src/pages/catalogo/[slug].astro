@@ -105,7 +105,7 @@ const breadcrumbJsonLd: Record<string, unknown> = {
           <div class="flex min-w-0 flex-col gap-4">
             <ProductGallery
               client:load
-              images={product.images.map((i) => ({ url: i.url, alt: i.alt, kind: i.kind }))}
+              images={product.images.map((i) => ({ url: i.url, alt: i.alt, kind: i.kind, focalX: i.focalX, focalY: i.focalY }))}
               productName={product.name}
               showBadges={true}
               showThumbs={true}
@@ -193,6 +193,8 @@ const breadcrumbJsonLd: Record<string, unknown> = {
                   name={p.name}
                   price={p.priceCents / 100}
                   image={p.images[0]?.url ?? "/placeholders/product.svg"}
+                  focalX={p.images[0]?.focalX}
+                  focalY={p.images[0]?.focalY}
                   category={p.category}
                   bestseller={p.bestseller}
                   showFromLabel={p.showFromLabel}

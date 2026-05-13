@@ -34,6 +34,8 @@ const ProductSchema = z.object({
         url: z.string(),
         alt: z.string().default(""),
         kind: z.enum(["image", "video"]).default("image"),
+        focalX: z.number().int().min(0).max(100).default(50),
+        focalY: z.number().int().min(0).max(100).default(50),
       }),
     )
     .default([]),
@@ -102,6 +104,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
             alt: img.alt,
             position: i,
             kind: img.kind,
+            focalX: img.focalX,
+            focalY: img.focalY,
           })),
         );
       }

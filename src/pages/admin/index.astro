@@ -3,12 +3,19 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import DailyChart from "../../components/admin/DailyChart.tsx";
 import { getDashboardStats, formatEuro } from "../../lib/queries";
 import { getEmailStatus } from "../../lib/email";
+import { getSiteConfig } from "../../lib/config-server";
 
 const user = Astro.locals.user;
 if (!user) return Astro.redirect("/admin/login");
 
 const stats = await getDashboardStats();
 const emailStatus = getEmailStatus();
+const siteConfig = await getSiteConfig();
+const customNotifyEmails = siteConfig.globals.notifyEmails ?? [];
+const effectiveAdminTo =
+  customNotifyEmails.length > 0
+    ? customNotifyEmails.join(", ")
+    : (emailStatus.adminTo ?? "—");
 
 const pendingTotal =
   stats.pending.new + stats.pending.paid + stats.pending.preparing;
@@ -40,7 +47,9 @@ const revenueDiff = stats.revenue.prevMonth
         </p>
         {emailStatus.configured && (
           <p class="mt-1 text-xs opacity-80">
-            Remetente: <strong>{emailStatus.from}</strong> · Alerta admin para: <strong>{emailStatus.adminTo}</strong>
+            Remetente: <strong>{emailStatus.from}</strong> · Alerta admin para:{" "}
+            <strong>{effectiveAdminTo}</strong>{" "}
+            <a href="/admin/globals#notifications" class="underline">editar</a>
           </p>
         )}
         {!emailStatus.configured && emailStatus.issues.length > 0 && (

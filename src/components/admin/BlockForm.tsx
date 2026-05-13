@@ -1,5 +1,6 @@
 import type { Block, Icon } from "../../lib/blocks";
 import ImagePicker from "./ImagePicker";
+import FocalPointEditor from "./FocalPointEditor";
 import IconPreview from "./IconPreview";
 import { SocialIconPreview } from "./SocialIconPreview";
 import { SOCIAL_ICONS, type SocialIconName } from "../../lib/icons";
@@ -65,7 +66,7 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
   const slides: Array<{ url: string; alt: string }> = data.slides ?? [];
 
   const addSlide = () => {
-    onChange({ slides: [...slides, { url: "", alt: "" }] });
+    onChange({ slides: [...slides, { url: "", alt: "", focal: { x: 50, y: 50 } }] });
   };
   const removeSlide = (idx: number) => {
     onChange({ slides: slides.filter((_, i) => i !== idx) });
@@ -75,6 +76,9 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
   };
   const updateSlideAlt = (idx: number, alt: string) => {
     onChange({ slides: slides.map((s, i) => (i === idx ? { ...s, alt } : s)) });
+  };
+  const updateSlideFocal = (idx: number, focal: { x: number; y: number }) => {
+    onChange({ slides: slides.map((s, i) => (i === idx ? { ...s, focal } : s)) });
   };
   const moveSlide = (idx: number, direction: "up" | "down") => {
     const newIdx = direction === "up" ? idx - 1 : idx + 1;
@@ -163,6 +167,17 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
                 value={slide.url}
                 onChange={(url) => updateSlideUrl(i, url)}
               />
+              {slide.url && (
+                <div className="mt-3">
+                  <FocalPointEditor
+                    label="Ajustar enquadramento"
+                    imageUrl={slide.url}
+                    aspectRatio={843 / 300}
+                    focal={slide.focal}
+                    onChange={(focal) => updateSlideFocal(i, focal)}
+                  />
+                </div>
+              )}
               <div className="mt-3">
                 <input
                   value={slide.alt}
@@ -178,11 +193,22 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
           </button>
         </div>
       ) : (
-        <ImagePicker
-          label="Imagem"
-          value={data.imageUrl}
-          onChange={(imageUrl) => onChange({ imageUrl })}
-        />
+        <div className="space-y-3">
+          <ImagePicker
+            label="Imagem"
+            value={data.imageUrl}
+            onChange={(imageUrl) => onChange({ imageUrl })}
+          />
+          {data.imageUrl && (
+            <FocalPointEditor
+              label="Ajustar enquadramento"
+              imageUrl={data.imageUrl}
+              aspectRatio={data.layout === "background-image" ? 843 / 300 : 4 / 5}
+              focal={data.imageFocal}
+              onChange={(imageFocal) => onChange({ imageFocal })}
+            />
+          )}
+        </div>
       )}
     </div>
   );
@@ -329,10 +355,10 @@ function CategoryGridForm({ data, onChange }: { data: any; onChange: (d: any) =>
 }
 
 function ImageGalleryForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
-  const images: Array<{ url: string; alt: string }> = data.images ?? [];
+  const images: Array<{ url: string; alt: string; focal?: { x: number; y: number } }> = data.images ?? [];
 
   const addImage = () => {
-    onChange({ images: [...images, { url: "", alt: "" }] });
+    onChange({ images: [...images, { url: "", alt: "", focal: { x: 50, y: 50 } }] });
   };
 
   const removeImage = (idx: number) => {
@@ -341,6 +367,10 @@ function ImageGalleryForm({ data, onChange }: { data: any; onChange: (d: any) =>
 
   const updateAlt = (idx: number, alt: string) => {
     onChange({ images: images.map((img: any, i: number) => (i === idx ? { ...img, alt } : img)) });
+  };
+
+  const updateFocal = (idx: number, focal: { x: number; y: number }) => {
+    onChange({ images: images.map((img: any, i: number) => (i === idx ? { ...img, focal } : img)) });
   };
 
   const moveImage = (idx: number, direction: "up" | "down") => {
@@ -372,6 +402,17 @@ function ImageGalleryForm({ data, onChange }: { data: any; onChange: (d: any) =>
               onChange({ images: next });
             }}
           />
+          {img.url && (
+            <div className="mt-3">
+              <FocalPointEditor
+                label="Ajustar enquadramento"
+                imageUrl={img.url}
+                aspectRatio={1}
+                focal={img.focal}
+                onChange={(focal) => updateFocal(i, focal)}
+              />
+            </div>
+          )}
           <div className="mt-3">
             <input
               value={img.alt}
@@ -523,13 +564,17 @@ function IntroHeroForm({ data, onChange }: { data: any; onChange: (d: any) => vo
 }
 
 function ImageCarouselForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
-  const images: Array<{ url: string; alt: string }> = data.images ?? [];
+  const images: Array<{ url: string; alt: string; focal?: { x: number; y: number } }> = data.images ?? [];
+  const aspect = data.aspectRatio ?? "landscape";
+  const aspectRatio = aspect === "square" ? 1 : aspect === "wide" ? 21 / 9 : 16 / 9;
 
-  const addImage = () => onChange({ images: [...images, { url: "", alt: "" }] });
+  const addImage = () => onChange({ images: [...images, { url: "", alt: "", focal: { x: 50, y: 50 } }] });
   const removeImage = (idx: number) =>
     onChange({ images: images.filter((_: any, i: number) => i !== idx) });
   const updateAlt = (idx: number, alt: string) =>
     onChange({ images: images.map((img: any, i: number) => (i === idx ? { ...img, alt } : img)) });
+  const updateFocal = (idx: number, focal: { x: number; y: number }) =>
+    onChange({ images: images.map((img: any, i: number) => (i === idx ? { ...img, focal } : img)) });
   const moveImage = (idx: number, direction: "up" | "down") => {
     const newIdx = direction === "up" ? idx - 1 : idx + 1;
     if (newIdx < 0 || newIdx >= images.length) return;
@@ -597,6 +642,17 @@ function ImageCarouselForm({ data, onChange }: { data: any; onChange: (d: any) =
                 onChange({ images: next });
               }}
             />
+            {img.url && (
+              <div className="mt-3">
+                <FocalPointEditor
+                  label="Ajustar enquadramento"
+                  imageUrl={img.url}
+                  aspectRatio={aspectRatio}
+                  focal={img.focal}
+                  onChange={(focal) => updateFocal(i, focal)}
+                />
+              </div>
+            )}
             <div className="mt-3">
               <input
                 value={img.alt}
@@ -853,6 +909,8 @@ function NewsletterForm({ data, onChange }: { data: any; onChange: (d: any) => v
 
 function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) => void }) {
   const initialValue = data.html ?? data.markdown ?? "";
+  const aspect = data.imageAspect ?? "landscape";
+  const aspectRatio = aspect === "square" ? 1 : aspect === "portrait" ? 4 / 5 : 16 / 9;
   return (
     <div className="grid gap-4">
       <ImagePicker
@@ -860,6 +918,15 @@ function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) 
         value={data.imageUrl}
         onChange={(imageUrl) => onChange({ imageUrl })}
       />
+      {data.imageUrl && (
+        <FocalPointEditor
+          label="Ajustar enquadramento"
+          imageUrl={data.imageUrl}
+          aspectRatio={aspectRatio}
+          focal={data.imageFocal}
+          onChange={(imageFocal) => onChange({ imageFocal })}
+        />
+      )}
       <div>
         <label className="field-label">Texto alternativo da imagem</label>
         <input value={data.imageAlt} onChange={(e) => onChange({ imageAlt: e.target.value })} className="field-input" />

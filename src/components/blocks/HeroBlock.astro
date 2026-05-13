@@ -1,6 +1,7 @@
 ---
 import { renderMixedContent } from "../../lib/content";
 import HeroCarousel from "../islands/HeroCarousel";
+import { focalToCss } from "../../lib/focal-point";
 
 interface Props {
   data: {
@@ -10,7 +11,8 @@ interface Props {
     buttonText: string;
     buttonUrl: string;
     imageUrl: string;
-    slides?: { url: string; alt?: string }[];
+    imageFocal?: { x: number; y: number };
+    slides?: { url: string; alt?: string; focal?: { x: number; y: number } }[];
     layout?: "image-right" | "image-left" | "background-image" | "centered" | "carousel";
   };
 }
@@ -24,6 +26,7 @@ const layout = (data.layout === "background-image" && !data.imageUrl)
     : (data.layout ?? "image-right");
 const subtitleHtml = renderMixedContent(data.subtitle);
 const hasOverlayText = !!(data.title || data.titleAccent || subtitleHtml || (data.buttonText && data.buttonUrl));
+const imageFocalCss = focalToCss(data.imageFocal);
 ---
 
 {layout === "carousel" ? (
@@ -61,8 +64,8 @@ const hasOverlayText = !!(data.title || data.titleAccent || subtitleHtml || (dat
   </section>
 ) : layout === "background-image" ? (
   <section
-    class="relative w-full overflow-hidden bg-cover bg-center"
-    style={`background-image:url('${data.imageUrl}'); aspect-ratio: 843 / 300;`}
+    class="relative w-full overflow-hidden bg-cover"
+    style={`background-image:url('${data.imageUrl}'); aspect-ratio: 843 / 300; background-position: ${imageFocalCss};`}
   >
     <div class="relative mx-auto flex h-full max-w-3xl flex-col items-center justify-center px-6 text-center text-white sm:px-10 lg:px-16">
       {(data.title || data.titleAccent) && (
@@ -135,7 +138,7 @@ const hasOverlayText = !!(data.title || data.titleAccent || subtitleHtml || (dat
               <div class="relative mx-auto aspect-[4/5] w-full max-w-lg">
                 <div class="absolute inset-0 rounded-[40px] bg-rosa-100"></div>
                 <div class="absolute inset-6 overflow-hidden rounded-[32px] border-8 border-white bg-white shadow-2xl">
-                  <img src={data.imageUrl} alt={data.title || data.titleAccent} class="h-full w-full object-cover" />
+                  <img src={data.imageUrl} alt={data.title || data.titleAccent} class="h-full w-full object-cover" style={`object-position: ${imageFocalCss};`} />
                 </div>
               </div>
             </div>
@@ -194,7 +197,7 @@ const hasOverlayText = !!(data.title || data.titleAccent || subtitleHtml || (dat
               <div class="relative mx-auto aspect-[4/5] w-full max-w-lg">
                 <div class="absolute inset-0 rounded-[40px] bg-rosa-100"></div>
                 <div class="absolute inset-6 overflow-hidden rounded-[32px] border-8 border-white bg-white shadow-2xl">
-                  <img src={data.imageUrl} alt={data.title || data.titleAccent} class="h-full w-full object-cover" />
+                  <img src={data.imageUrl} alt={data.title || data.titleAccent} class="h-full w-full object-cover" style={`object-position: ${imageFocalCss};`} />
                 </div>
               </div>
             </div>

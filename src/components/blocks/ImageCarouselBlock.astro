@@ -3,7 +3,7 @@ import HeroCarousel from "../islands/HeroCarousel";
 
 interface Props {
   data: {
-    images: Array<{ url: string; alt: string }>;
+    images: Array<{ url: string; alt: string; focal?: { x: number; y: number } }>;
     aspectRatio?: "square" | "landscape" | "wide";
     autoplay?: boolean;
   };

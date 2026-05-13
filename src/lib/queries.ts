@@ -19,7 +19,7 @@ export type ProductWithExtras = {
   active: boolean;
   sortOrder: number;
   variantColorTitle: string;
-  images: Array<{ url: string; alt: string; position: number; kind: "image" | "video" }>;
+  images: Array<{ url: string; alt: string; position: number; kind: "image" | "video"; focalX: number; focalY: number }>;
   colors: Array<{ name: string; hex: string; position: number }>;
   variantColors: Array<{ name: string; hex: string; position: number }>;
   shippingMethods: Array<{ id: string; label: string; costCents: number; description: string }>;
@@ -71,6 +71,8 @@ const attachExtras = async (
         alt: i.alt,
         position: i.position,
         kind: (i.kind === "video" ? "video" : "image") as "image" | "video",
+        focalX: i.focalX ?? 50,
+        focalY: i.focalY ?? 50,
       })),
     colors: allColors
       .filter((c) => c.productId === p.id)

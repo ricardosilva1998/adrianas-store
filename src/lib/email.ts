@@ -9,6 +9,25 @@ export const emailConfigured = Boolean(apiKey);
 
 const resend = apiKey ? new Resend(apiKey) : null;
 
+/**
+ * Resolve the list of admin recipients for order alerts. site_config.globals
+ * .notifyEmails takes precedence; if empty, fall back to the env var.
+ */
+const resolveAdminRecipients = async (): Promise<string[]> => {
+  try {
+    const { getSiteConfig } = await import("./config-server");
+    const cfg = await getSiteConfig();
+    const list = Array.isArray(cfg.globals.notifyEmails) ? cfg.globals.notifyEmails : [];
+    const cleaned = list
+      .map((e) => (typeof e === "string" ? e.trim() : ""))
+      .filter((e) => e.length > 0);
+    if (cleaned.length > 0) return cleaned;
+  } catch (err) {
+    console.error("[email] Falha ao ler notifyEmails do site_config:", err);
+  }
+  return adminEmail ? [adminEmail] : [];
+};
+
 export type EmailStatus = {
   configured: boolean;
   hasResendKey: boolean;
@@ -260,7 +279,9 @@ export const notifyAdmin = async (params: {
   order: Order;
   items: OrderItem[];
 }) => {
-  if (!resend || !adminEmail) return;
+  if (!resend) return;
+  const recipients = await resolveAdminRecipients();
+  if (recipients.length === 0) return;
 
   const paymentInstructions = await loadPaymentInstructions(params.order.paymentMethod);
   const { subject, html } = buildOrderEmail({
@@ -273,7 +294,7 @@ export const notifyAdmin = async (params: {
   try {
     await resend.emails.send({
       from: fromEmail,
-      to: [adminEmail],
+      to: recipients,
       subject: `[ADMIN] ${subject}`,
       html,
     });

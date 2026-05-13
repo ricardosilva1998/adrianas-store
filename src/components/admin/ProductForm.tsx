@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { RichTextEditor } from "./RichTextEditor";
+import FocalPointEditor from "./FocalPointEditor";
 
 type Category =
   | "tote-bags"
@@ -38,7 +39,7 @@ export type ProductFormData = {
   active: boolean;
   sortOrder: number;
   variantColorTitle: string;
-  images: Array<{ url: string; alt: string; kind: "image" | "video" }>;
+  images: Array<{ url: string; alt: string; kind: "image" | "video"; focalX: number; focalY: number }>;
   colors: Array<{ name: string; hex: string }>;
   variantColors: Array<{ name: string; hex: string }>;
   shippingMethods: Array<{ id: string; label: string; costCents: number; description: string }>;
@@ -112,7 +113,7 @@ export default function ProductForm({ initial, mode }: Props) {
       const body = (await res.json()) as { url: string; kind?: "image" | "video" };
       update("images", [
         ...data.images,
-        { url: body.url, alt: "", kind: body.kind ?? kind },
+        { url: body.url, alt: "", kind: body.kind ?? kind, focalX: 50, focalY: 50 },
       ]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha no upload");
@@ -124,7 +125,13 @@ export default function ProductForm({ initial, mode }: Props) {
   const handleImageUrlAdd = () => {
     const url = prompt("URL da imagem:");
     if (!url) return;
-    update("images", [...data.images, { url, alt: "", kind: "image" }]);
+    update("images", [...data.images, { url, alt: "", kind: "image", focalX: 50, focalY: 50 }]);
+  };
+
+  const updateImageFocal = (idx: number, focal: { x: number; y: number }) => {
+    const next = [...data.images];
+    next[idx] = { ...next[idx], focalX: Math.round(focal.x), focalY: Math.round(focal.y) };
+    update("images", next);
   };
 
   const removeImage = (i: number) => {
@@ -322,7 +329,8 @@ export default function ProductForm({ initial, mode }: Props) {
 
           <div className="mt-5 grid gap-3">
             {data.images.map((img, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-2xl border border-ink-line p-3">
+              <div key={i} className="rounded-2xl border border-ink-line p-3">
+                <div className="flex items-center gap-3">
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-rosa-50">
                   {img.kind === "video" ? (
                     <>
@@ -382,6 +390,18 @@ export default function ProductForm({ initial, mode }: Props) {
                 >
                   Remover
                 </button>
+                </div>
+                {img.kind === "image" && img.url && (
+                  <div className="mt-3 max-w-sm">
+                    <FocalPointEditor
+                      label="Ajustar enquadramento"
+                      imageUrl={img.url}
+                      aspectRatio={1}
+                      focal={{ x: img.focalX ?? 50, y: img.focalY ?? 50 }}
+                      onChange={(focal) => updateImageFocal(i, focal)}
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -1,10 +1,12 @@
 ---
 import { renderBlockContent } from "../../lib/content";
+import { focalToCss } from "../../lib/focal-point";
 
 interface Props {
   data: {
     imageUrl: string;
     imageAlt: string;
+    imageFocal?: { x: number; y: number };
     title: string;
     html?: string;
     markdown?: string;
@@ -17,6 +19,7 @@ const { data } = Astro.props;
 const html = renderBlockContent({ html: data.html, markdown: data.markdown });
 const isStacked = data.layout === "image-top" || data.layout === "image-bottom";
 const imageFirst = data.layout !== "image-right" && data.layout !== "image-bottom";
+const focalCss = focalToCss(data.imageFocal);
 
 const aspectClass =
   data.imageAspect === "square"
@@ -40,6 +43,7 @@ const capClass = isStacked ? "max-h-[32rem]" : "";
                   src={data.imageUrl}
                   alt={data.imageAlt || data.title}
                   class="h-full w-full object-cover"
+                  style={`object-position: ${focalCss};`}
                 />
               </div>
             )}
@@ -74,6 +78,7 @@ const capClass = isStacked ? "max-h-[32rem]" : "";
                   src={data.imageUrl}
                   alt={data.imageAlt || data.title}
                   class="h-full w-full object-cover"
+                  style={`object-position: ${focalCss};`}
                 />
               </div>
             )}
@@ -90,6 +95,7 @@ const capClass = isStacked ? "max-h-[32rem]" : "";
                   src={data.imageUrl}
                   alt={data.imageAlt || data.title}
                   class="h-full w-full object-cover"
+                  style={`object-position: ${focalCss};`}
                 />
               </div>
             )}
@@ -124,6 +130,7 @@ const capClass = isStacked ? "max-h-[32rem]" : "";
                   src={data.imageUrl}
                   alt={data.imageAlt || data.title}
                   class="h-full w-full object-cover"
+                  style={`object-position: ${focalCss};`}
                 />
               </div>
             )}

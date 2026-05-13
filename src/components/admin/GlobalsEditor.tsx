@@ -8,13 +8,14 @@ interface Props {
   initialConfig: SiteConfig;
 }
 
-type Tab = "identity" | "nav" | "footer" | "banner" | "payments";
+type Tab = "identity" | "nav" | "footer" | "banner" | "payments" | "notifications";
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: "identity", label: "Identidade" },
   { id: "nav", label: "Navegação" },
   { id: "footer", label: "Footer" },
   { id: "banner", label: "Banner" },
   { id: "payments", label: "Pagamentos" },
+  { id: "notifications", label: "Alertas admin" },
 ];
 
 export default function GlobalsEditor({ initialConfig }: Props) {
@@ -72,6 +73,7 @@ export default function GlobalsEditor({ initialConfig }: Props) {
         {tab === "footer" && <FooterForm config={config} setGlobals={setGlobals} />}
         {tab === "banner" && <BannerForm config={config} setGlobals={setGlobals} />}
         {tab === "payments" && <PaymentsForm config={config} setGlobals={setGlobals} />}
+        {tab === "notifications" && <NotificationsForm config={config} setGlobals={setGlobals} />}
       </div>
     </PreviewShell>
   );
@@ -92,7 +94,7 @@ function IdentityForm({ config, setGlobals }: FormProps) {
       <Textarea label="Descrição" value={identity.description} onChange={(description) => patch({ description })} />
       <Field label="Email" value={identity.email} onChange={(email) => patch({ email })} />
       <Field label="WhatsApp" value={identity.whatsapp} onChange={(whatsapp) => patch({ whatsapp })} />
-      <Field label="Instagram" value={identity.instagram} onChange={(instagram) => patch({ instagram })} />
+      <Field label="Redes sociais" value={identity.instagram} onChange={(instagram) => patch({ instagram })} />
       <Field label="Transportadora" value={identity.shippingProvider} onChange={(shippingProvider) => patch({ shippingProvider })} />
       <Field label="Dias de preparação" value={identity.preparationDays} onChange={(preparationDays) => patch({ preparationDays })} />
     </div>
@@ -311,6 +313,58 @@ function PaymentsForm({ config, setGlobals }: FormProps) {
         </div>
       )}
     />
+  );
+}
+
+function NotificationsForm({ config, setGlobals }: FormProps) {
+  const emails = config.globals.notifyEmails ?? [];
+  const setEmails = (next: string[]) => setGlobals({ notifyEmails: next });
+
+  const update = (i: number, value: string) => {
+    const next = [...emails];
+    next[i] = value.trim();
+    setEmails(next);
+  };
+  const remove = (i: number) => setEmails(emails.filter((_, idx) => idx !== i));
+  const add = () => setEmails([...emails, ""]);
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-ink-muted">
+        Cada encomenda nova envia um email de alerta para os administradores listados aqui.
+        Se a lista estiver vazia, é usado o destinatário configurado em <code>ADMIN_NOTIFY_EMAIL</code>.
+      </p>
+      {emails.length === 0 && (
+        <p className="text-xs italic text-ink-muted">
+          Sem destinatários — apenas o do <code>.env</code> recebe alertas.
+        </p>
+      )}
+      {emails.map((email, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => update(i, e.target.value)}
+            placeholder="admin@example.com"
+            className="field-input flex-1"
+          />
+          <button
+            type="button"
+            onClick={() => remove(i)}
+            className="rounded-full border border-ink-line px-3 py-2 text-xs font-medium text-ink-soft hover:border-red-300 hover:text-red-500"
+          >
+            Remover
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={add}
+        className="rounded-full border border-ink-line px-4 py-2 text-xs font-medium text-ink-soft hover:border-rosa-300 hover:text-rosa-500"
+      >
+        + Adicionar destinatário
+      </button>
+    </div>
   );
 }
 

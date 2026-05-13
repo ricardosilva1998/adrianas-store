@@ -74,6 +74,9 @@ export const globalsSchema = z.object({
       instructions: z.string().min(1).max(500),
     }),
   ).min(1).max(3),
+  // Admins notified when a new order comes in. Falls back to
+  // process.env.ADMIN_NOTIFY_EMAIL when this list is empty.
+  notifyEmails: z.array(z.string().email().max(200)).max(10).default([]),
 });
 
 export const siteConfigSchema = z.object({
@@ -155,6 +158,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
           "Envia o pagamento para drisclub.shop@gmail.com (opção 'Family & Friends') indicando o teu nome e número de encomenda.",
       },
     ],
+    notifyEmails: [],
   },
 };
 

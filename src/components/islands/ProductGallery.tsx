@@ -1,7 +1,13 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-type MediaItem = { url: string; alt?: string; kind?: "image" | "video" };
+type MediaItem = {
+  url: string;
+  alt?: string;
+  kind?: "image" | "video";
+  focalX?: number;
+  focalY?: number;
+};
 
 type Props = {
   images: MediaItem[];
@@ -22,6 +28,10 @@ export default function ProductGallery({
     images.length > 0
       ? images
       : [{ url: "/placeholders/product.svg", alt: productName, kind: "image" }];
+
+  const focalStyle = (m: MediaItem) => ({
+    objectPosition: `${m.focalX ?? 50}% ${m.focalY ?? 50}%`,
+  });
   const single = safeMedia.length <= 1;
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: "start", containScroll: "trimSnaps" });
@@ -98,6 +108,7 @@ export default function ProductGallery({
               src={media.url}
               alt={media.alt || productName}
               className="h-full w-full object-cover"
+              style={focalStyle(media)}
             />
           )}
           {showBadges && <Badges {...badges} />}
@@ -145,6 +156,7 @@ export default function ProductGallery({
                     src={media.url}
                     alt={media.alt || productName}
                     className="h-full w-full object-cover"
+                    style={focalStyle(media)}
                     draggable={false}
                   />
                 )}
@@ -232,6 +244,7 @@ export default function ProductGallery({
                     src={media.url}
                     alt={media.alt || productName}
                     className="h-full w-full object-cover"
+                    style={focalStyle(media)}
                   />
                 )}
               </button>

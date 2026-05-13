@@ -105,6 +105,8 @@ export const productImages = pgTable(
     alt: text("alt").notNull().default(""),
     position: integer("position").notNull().default(0),
     kind: text("kind").notNull().default("image"),
+    focalX: integer("focal_x").notNull().default(50),
+    focalY: integer("focal_y").notNull().default(50),
   },
   (t) => [index("product_images_product_idx").on(t.productId)],
 );

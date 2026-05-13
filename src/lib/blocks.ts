@@ -13,9 +13,17 @@ const safeUrl = z
 
 // --- Block data schemas ---
 
+const focalSchema = z
+  .object({
+    x: z.number().min(0).max(100).default(50),
+    y: z.number().min(0).max(100).default(50),
+  })
+  .default({ x: 50, y: 50 });
+
 const heroSlideSchema = z.object({
   url: z.string().min(1).refine((s) => !/['")\\]/.test(s), "URL inválido"),
   alt: z.string().default(""),
+  focal: focalSchema,
 });
 
 const heroDataSchema = z.object({
@@ -25,6 +33,7 @@ const heroDataSchema = z.object({
   buttonText: z.string().default(""),
   buttonUrl: z.string().default(""),
   imageUrl: safeUrl,
+  imageFocal: focalSchema,
   slides: z.array(heroSlideSchema).default([]),
   layout: z.enum(["image-right", "image-left", "background-image", "centered", "carousel"]).default("image-right"),
 });
@@ -56,6 +65,7 @@ const imageGalleryDataSchema = z.object({
   images: z.array(z.object({
     url: z.string().min(1).refine((s) => !/['")\\]/.test(s), "URL inválido"),
     alt: z.string().default(""),
+    focal: focalSchema,
   })).default([]),
 });
 
@@ -63,6 +73,7 @@ const imageCarouselDataSchema = z.object({
   images: z.array(z.object({
     url: z.string().min(1).refine((s) => !/['")\\]/.test(s), "URL inválido"),
     alt: z.string().default(""),
+    focal: focalSchema,
   })).default([]),
   aspectRatio: z.enum(["square", "landscape", "wide"]).default("landscape"),
   autoplay: z.boolean().default(true),
@@ -134,6 +145,7 @@ const newsletterDataSchema = z.object({
 const imageTextSplitDataSchema = z.object({
   imageUrl: safeUrl,
   imageAlt: z.string().default(""),
+  imageFocal: focalSchema,
   title: z.string().default(""),
   html: z.string().default(""),
   markdown: z.string().optional(),
@@ -455,7 +467,7 @@ export function createBlock(type: BlockType): Block {
   const id = nanoid(10);
   switch (type) {
     case "hero":
-      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", slides: [], layout: "image-right" } };
+      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", imageFocal: { x: 50, y: 50 }, slides: [], layout: "image-right" } };
     case "text":
       return { id, type, data: { html: "" } };
     case "product-grid":
@@ -481,7 +493,7 @@ export function createBlock(type: BlockType): Block {
     case "newsletter":
       return { id, type, data: { title: "", description: "", buttonText: "Subscrever", actionUrl: "" } };
     case "image-text-split":
-      return { id, type, data: { imageUrl: "", imageAlt: "", title: "", html: "", layout: "image-left", imageAspect: "landscape" } };
+      return { id, type, data: { imageUrl: "", imageAlt: "", imageFocal: { x: 50, y: 50 }, title: "", html: "", layout: "image-left", imageAspect: "landscape" } };
     case "video-embed":
       return { id, type, data: { url: "", title: "", caption: "" } };
     case "divider":
