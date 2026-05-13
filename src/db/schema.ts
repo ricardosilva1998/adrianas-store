@@ -331,6 +331,7 @@ export const orderItems = pgTable(
       colors: string[];
       description: string;
       variantColor?: { name: string; hex: string };
+      attachment?: { url: string; name: string; kind: "image" | "pdf" };
     } | null>(),
   },
   (t) => [index("order_items_order_idx").on(t.orderId)],

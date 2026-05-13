@@ -121,6 +121,22 @@ export default function CartView() {
                       ))}
                     </div>
                   )}
+                  {item.personalization.attachment && (
+                    <p className="mt-2">
+                      Ficheiro:{" "}
+                      <a
+                        href={item.personalization.attachment.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-medium text-rosa-500 underline"
+                      >
+                        {item.personalization.attachment.name}
+                      </a>{" "}
+                      <span className="uppercase tracking-wide text-ink-muted">
+                        ({item.personalization.attachment.kind})
+                      </span>
+                    </p>
+                  )}
                 </div>
               )}
 

@@ -50,3 +50,32 @@ export const uploadMedia = async (
 };
 
 export const uploadImage = uploadMedia;
+
+export const uploadPersonalizationFile = async (
+  file: Buffer,
+  contentType: string,
+  filename: string,
+): Promise<string> => {
+  if (!client || !bucket || !publicUrl) {
+    throw new Error(
+      "Cloudflare R2 não configurado. Define R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET e R2_PUBLIC_URL.",
+    );
+  }
+
+  const safeName = filename.replace(/[^a-zA-Z0-9.\-_]/g, "_").slice(0, 80) || "file";
+  const key = `personalizations/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
+
+  await client.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: file,
+      ContentType: contentType,
+      // Customer attachments are not immutable assets; keep cache short so we
+      // can repurpose keys safely in the future.
+      CacheControl: "private, max-age=86400",
+    }),
+  );
+
+  return `${publicUrl.replace(/\/$/, "")}/${key}`;
+};

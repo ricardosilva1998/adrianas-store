@@ -31,6 +31,13 @@ const CheckoutSchema = z.object({
             phrase: z.string(),
             colors: z.array(z.string()),
             description: z.string(),
+            attachment: z
+              .object({
+                url: z.string().url(),
+                name: z.string().min(1).max(200),
+                kind: z.enum(["image", "pdf"]),
+              })
+              .optional(),
           })
           .optional()
           .nullable(),

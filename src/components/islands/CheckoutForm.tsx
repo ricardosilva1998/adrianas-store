@@ -340,6 +340,14 @@ export default function CheckoutForm({ initial }: Props = {}) {
                 {item.personalization && (
                   <p className="mt-0.5 text-xs italic text-ink-muted">
                     Personalizado
+                    {item.personalization.attachment && (
+                      <>
+                        {" · ficheiro "}
+                        <span className="not-italic uppercase tracking-wide">
+                          {item.personalization.attachment.kind}
+                        </span>
+                      </>
+                    )}
                   </p>
                 )}
               </div>

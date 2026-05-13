@@ -72,12 +72,16 @@ const renderItems = (items: OrderItem[]): string => {
       const personalizationLine = hasPersonalization
         ? `<div style="font-size:12px;color:#6b7280;margin-top:4px"><em>Personalizado: "${p!.phrase || "—"}" ${p!.description ? `— ${p!.description}` : ""}</em></div>`
         : "";
+      const attachmentLine = p?.attachment
+        ? `<div style="font-size:12px;color:#6b7280;margin-top:4px">Ficheiro: <a href="${p.attachment.url}" style="color:#ED7396;text-decoration:underline">${p.attachment.name}</a> (${p.attachment.kind.toUpperCase()})</div>`
+        : "";
       return `
         <tr>
           <td style="padding:12px 0;border-top:1px solid #f1e1e9;color:#111">
             <strong>${item.quantity}× ${item.productName}</strong>
             ${variantLine}
             ${personalizationLine}
+            ${attachmentLine}
           </td>
           <td style="padding:12px 0;border-top:1px solid #f1e1e9;text-align:right;color:#111">
             ${formatEuro(item.unitPriceCents * item.quantity)}

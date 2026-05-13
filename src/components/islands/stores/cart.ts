@@ -1,9 +1,16 @@
 import { persistentAtom } from "@nanostores/persistent";
 
+export type PersonalizationAttachment = {
+  url: string;
+  name: string;
+  kind: "image" | "pdf";
+};
+
 export type Personalization = {
   phrase: string;
   colors: string[];
   description: string;
+  attachment?: PersonalizationAttachment;
 };
 
 export type VariantColor = { name: string; hex: string };

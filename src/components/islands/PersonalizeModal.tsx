@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import type { Personalization } from "./stores/cart";
+import { useEffect, useRef, useState } from "react";
+import type { Personalization, PersonalizationAttachment } from "./stores/cart";
 
 type ColorOption = {
   name: string;
@@ -15,6 +15,8 @@ interface Props {
 }
 
 const MAX_CHARS = 100;
+const MAX_FILE_BYTES = 15 * 1024 * 1024;
+const ACCEPTED_TYPES = ["image/png", "image/jpeg", "application/pdf"];
 
 export default function PersonalizeModal({
   productName,
@@ -26,6 +28,12 @@ export default function PersonalizeModal({
   const [phrase, setPhrase] = useState(initial?.phrase ?? "");
   const [colors, setColors] = useState<string[]>(initial?.colors ?? []);
   const [description, setDescription] = useState(initial?.description ?? "");
+  const [attachment, setAttachment] = useState<PersonalizationAttachment | undefined>(
+    initial?.attachment,
+  );
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => {
@@ -45,13 +53,63 @@ export default function PersonalizeModal({
     );
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file) return;
+
+    setUploadError(null);
+
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      setUploadError("Só são aceites ficheiros PNG, JPG ou PDF.");
+      return;
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      setUploadError("O ficheiro tem mais de 15 MB.");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/personalization-upload", {
+        method: "POST",
+        body: form,
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? `Erro ${res.status}`);
+      }
+      const data = (await res.json()) as { url: string; kind: "image" | "pdf"; name: string };
+      setAttachment({ url: data.url, kind: data.kind, name: data.name });
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Erro no upload");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeAttachment = () => {
+    setAttachment(undefined);
+    setUploadError(null);
+  };
+
   const remaining = MAX_CHARS - phrase.length;
-  const isValid = phrase.trim().length > 0 || description.trim().length > 0;
+  const isValid =
+    phrase.trim().length > 0 ||
+    description.trim().length > 0 ||
+    attachment !== undefined;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid) return;
-    onConfirm({ phrase: phrase.trim(), colors, description: description.trim() });
+    onConfirm({
+      phrase: phrase.trim(),
+      colors,
+      description: description.trim(),
+      attachment,
+    });
   };
 
   return (
@@ -174,19 +232,104 @@ export default function PersonalizeModal({
               placeholder="Ex: um pequeno doodle de um gato com chapéu, no canto inferior direito"
               className="field-input resize-none"
             />
+          </div>
+
+          <div className="mt-6">
+            <label className="field-label">Imagem ou PDF de referência (opcional)</label>
             <p className="mt-1 text-xs text-ink-muted">
-              Se tiveres uma imagem de referência, podes enviar depois por email.
+              Aceita PNG, JPG ou PDF. Máx. 15 MB.
             </p>
+
+            {attachment ? (
+              <div className="mt-3 flex items-start gap-4 rounded-2xl border border-ink-line bg-rosa-50/40 p-3">
+                {attachment.kind === "image" ? (
+                  <img
+                    src={attachment.url}
+                    alt={attachment.name}
+                    className="h-20 w-20 flex-shrink-0 rounded-xl object-cover"
+                  />
+                ) : (
+                  <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-xl bg-rosa-100 text-rosa-600">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-8 w-8"
+                      aria-hidden="true"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <path d="M14 2v6h6" />
+                      <path d="M9 13h6M9 17h6" />
+                    </svg>
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-ink" title={attachment.name}>
+                    {attachment.name}
+                  </p>
+                  <p className="mt-0.5 text-xs uppercase tracking-wide text-ink-muted">
+                    {attachment.kind}
+                  </p>
+                  <a
+                    href={attachment.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-block text-xs font-medium text-rosa-500 underline"
+                  >
+                    Ver ficheiro
+                  </a>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeAttachment}
+                  className="text-xs font-medium text-rosa-500 underline"
+                >
+                  Remover
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="mt-3 inline-flex items-center gap-2 rounded-full border border-dashed border-ink-line px-4 py-2 text-sm font-medium text-ink-soft transition hover:border-rosa-300 hover:text-rosa-500 disabled:opacity-50"
+              >
+                {uploading ? "A carregar…" : "Adicionar imagem ou PDF"}
+              </button>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf"
+              onChange={handleFileChange}
+              className="hidden"
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+
+            {uploadError && (
+              <p className="mt-2 text-xs font-medium text-red-600">{uploadError}</p>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-ink-line px-6 py-4">
-          <button type="button" className="btn-ghost" onClick={onCancel}>
-            Cancelar
-          </button>
-          <button type="submit" className="btn-primary" disabled={!isValid}>
-            Guardar personalização
-          </button>
+        <div className="flex items-center justify-between gap-3 border-t border-ink-line px-6 py-4">
+          <p className="text-xs text-ink-muted">
+            Preenche frase, descrição ou envia ficheiro.
+          </p>
+          <div className="flex items-center gap-3">
+            <button type="button" className="btn-ghost" onClick={onCancel}>
+              Cancelar
+            </button>
+            <button type="submit" className="btn-primary" disabled={!isValid || uploading}>
+              Guardar personalização
+            </button>
+          </div>
         </div>
       </form>
     </div>

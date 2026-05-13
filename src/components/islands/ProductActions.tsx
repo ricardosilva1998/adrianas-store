@@ -33,11 +33,18 @@ export default function ProductActions({ product }: Props) {
   const [selectedVariant, setSelectedVariant] = useState<VariantColor | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const canAdd = !requireVariant || selectedVariant !== null;
+  const variantOk = !requireVariant || selectedVariant !== null;
+  const personalizationOk = !product.personalizable || personalization !== undefined;
+  const canAdd = variantOk && personalizationOk;
 
-  const handleAdd = (includePersonalization: boolean) => {
-    if (!canAdd) {
+  const handleAdd = () => {
+    if (!variantOk) {
       setFeedback("Escolhe uma cor antes de adicionar.");
+      window.setTimeout(() => setFeedback(null), 3000);
+      return;
+    }
+    if (!personalizationOk) {
+      setFeedback("Personaliza primeiro antes de adicionar ao carrinho.");
       window.setTimeout(() => setFeedback(null), 3000);
       return;
     }
@@ -48,12 +55,11 @@ export default function ProductActions({ product }: Props) {
       quantity,
       image: product.image,
       category: product.category,
-      personalization:
-        includePersonalization && personalization ? personalization : undefined,
+      personalization: personalization,
       variantColor: selectedVariant ?? undefined,
     });
     setFeedback(
-      includePersonalization && personalization
+      personalization
         ? "Adicionado ao carrinho com personalização."
         : "Adicionado ao carrinho.",
     );
@@ -126,11 +132,20 @@ export default function ProductActions({ product }: Props) {
         <button
           type="button"
           className="btn-primary flex-1 disabled:opacity-60 disabled:cursor-not-allowed"
-          onClick={() => handleAdd(Boolean(personalization))}
+          onClick={handleAdd}
           disabled={!canAdd}
-          title={!canAdd ? "Escolhe uma cor primeiro" : undefined}
+          title={
+            !variantOk
+              ? "Escolhe uma cor primeiro"
+              : !personalizationOk
+                ? "Personaliza primeiro"
+                : undefined
+          }
         >
           Adicionar ao carrinho
+          {product.personalizable && !personalization && (
+            <span className="ml-1 text-red-500" aria-hidden="true">*</span>
+          )}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -155,6 +170,9 @@ export default function ProductActions({ product }: Props) {
             onClick={() => setModalOpen(true)}
           >
             {personalization ? "Editar personalização" : "Personalizar"}
+            {!personalization && (
+              <span className="ml-1 text-red-500" aria-label="obrigatório">*</span>
+            )}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -171,6 +189,12 @@ export default function ProductActions({ product }: Props) {
           </button>
         )}
       </div>
+
+      {product.personalizable && !personalization && (
+        <p className="text-xs text-ink-muted">
+          <span className="text-red-500" aria-hidden="true">*</span> A personalização é obrigatória para este artigo.
+        </p>
+      )}
 
       {personalization && (
         <div className="rounded-2xl border border-rosa-200 bg-rosa-50/60 p-4 text-sm">
@@ -200,6 +224,22 @@ export default function ProductActions({ product }: Props) {
                     />
                   ))}
                 </div>
+              )}
+              {personalization.attachment && (
+                <p className="mt-2 text-xs text-ink-soft">
+                  Ficheiro:{" "}
+                  <a
+                    href={personalization.attachment.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium text-rosa-500 underline"
+                  >
+                    {personalization.attachment.name}
+                  </a>{" "}
+                  <span className="uppercase tracking-wide text-ink-muted">
+                    ({personalization.attachment.kind})
+                  </span>
+                </p>
               )}
             </div>
             <button

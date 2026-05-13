@@ -63,6 +63,7 @@ export type NewOrderInput = {
       phrase: string;
       colors: string[];
       description: string;
+      attachment?: { url: string; name: string; kind: "image" | "pdf" };
     } | null;
     variantColor?: { name: string; hex: string } | null;
   }>;
