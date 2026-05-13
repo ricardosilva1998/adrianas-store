@@ -165,3 +165,23 @@ Format per entry:
 - Migration 0016 confirmed applied: logs show `[migrate] ✔ Migrations concluídas.` — focalX/focalY (INT DEFAULT 50) on product_images are live
 - Railway deployment c6eb438f-db74-4d02-9ddb-015e362ee66a succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs)
 **Open:** Existing product images will have focalX=50/focalY=50 (centre) by default — no action needed unless admin wants to re-frame specific images. notifyEmails defaults to [] so ADMIN_NOTIFY_EMAIL env fallback remains active until admin populates the list in /admin/globals "Alertas admin" tab.
+
+### 2026-05-13 22:50 — team-deployment
+**Task:** UX tweaks — footer "Redes sociais" label + mobile horizontal scroll for category blocks (CategoryPills + CategoryGridBlock)
+**Files:** src/components/Footer.astro, src/components/CategoryPills.astro, src/components/blocks/CategoryGridBlock.astro
+**Decisions:**
+- Commit b5d3e55 — "ux: footer 'Redes sociais' + mobile horizontal scroll for category blocks"; pushed to origin/main @ b5d3e55
+- payment.md left untracked as instructed; secrets scan clean
+- QA sign-off overridden by explicit user authorization (build passed, 131/131 tests passing per user's pre-deploy notes)
+- Railway deployment e2a785a3-dad3-4ef7-af8e-c500f06838b1 succeeded; server listening on port 3000; 60s log window clean (only expected migration NOTICEs — "already exists, skipping", no new migrations this round)
+**Open:** none
+
+### 2026-05-14 00:01 — team-deployment
+**Task:** Deploy hero mobile image variant (4:5, per-slide) + personalization modal auto-add to cart with red-border validation
+**Files:** src/lib/blocks.ts, src/components/admin/BlockForm.tsx, src/styles/global.css, src/components/blocks/HeroBlock.astro, src/components/islands/HeroCarousel.tsx, src/components/islands/PersonalizeModal.tsx, src/components/islands/ProductActions.tsx
+**Decisions:**
+- Commit dc8a40e — "feat(hero+personalization): imagem mobile no hero (4:5) + modal auto-adiciona ao carrinho"; pushed to origin/main @ dc8a40e (b5d3e55..dc8a40e)
+- payment.md left untracked as instructed; secrets scan clean (no API_KEY/SECRET/TOKEN/PASSWORD patterns in staged diff)
+- QA sign-off overridden by explicit user authorization (npm test -- --run 131 passed / 1 pre-existing skipped; npm run build success — per user pre-deploy notes)
+- No DB migration, no env-var changes required; Railway deployment b5a0751c-9ba1-4ea6-8ff1-ee1c3cbba722 succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs — "already exists, skipping")
+**Open:** none
