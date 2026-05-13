@@ -20,11 +20,11 @@ const selectedCategories = data.categories.length > 0
       </div>
     )}
 
-    <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+    <div class="-mx-6 flex gap-4 overflow-x-auto px-6 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0 md:pb-0 [&::-webkit-scrollbar]:hidden">
       {selectedCategories.map((c) => (
         <a
           href={`/catalogo?categoria=${c.slug}`}
-          class="group flex flex-col items-center rounded-3xl border border-ink-line bg-white p-6 text-center transition hover:-translate-y-0.5 hover:border-rosa-300 hover:shadow-lg"
+          class="group flex w-32 shrink-0 flex-col items-center rounded-3xl border border-ink-line bg-white p-4 text-center transition hover:-translate-y-0.5 hover:border-rosa-300 hover:shadow-lg md:w-auto md:p-6"
         >
           <div class="flex h-20 w-20 items-center justify-center rounded-full bg-rosa-100 text-2xl text-rosa-500 transition group-hover:bg-rosa-400 group-hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8">
