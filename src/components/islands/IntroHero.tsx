@@ -47,7 +47,7 @@ export default function IntroHero({
 
   return (
     <section
-      className="relative w-full overflow-hidden bg-ink"
+      className="relative mx-auto w-full max-w-[843px] overflow-hidden bg-ink"
       style={{
         aspectRatio: "843 / 300",
         opacity,

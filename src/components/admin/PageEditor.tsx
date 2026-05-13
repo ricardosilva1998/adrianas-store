@@ -196,13 +196,18 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
 
   const removeBlock = async (id: string) => {
     const prev = blocks;
+    const prevDirty = dirtyBlockIds.has(id);
     setBlocks((cur) => cur.filter((b) => b.id !== id));
+    // Removed blocks can never become un-dirty themselves, so clear their id
+    // from the dirty set right away — otherwise Publicar stays blocked forever.
+    if (prevDirty) handleDirtyChange(id, false);
     try {
       const res = await fetch(`/api/admin/pages/${slug}/blocks/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(`Erro ${res.status}`);
       setHasDraft(true);
     } catch {
       setBlocks(prev);
+      if (prevDirty) handleDirtyChange(id, true);
       alert("Erro ao remover bloco. Tenta novamente.");
     }
   };
@@ -229,11 +234,45 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
   const handlePublish = async () => {
     setPublishing(true);
     try {
+      // Auto-flush any pending block edits so the user does not have to click
+      // "Guardar bloco" on each card before Publicar. We patch from `blocks`
+      // (the live source of truth fed by upsertBlock) rather than touching
+      // BlockCard internals.
+      const pendingIds = Array.from(dirtyBlockIds).filter((id) =>
+        blocks.some((b) => b.id === id),
+      );
+      for (const id of pendingIds) {
+        const block = blocks.find((b) => b.id === id);
+        if (!block) continue;
+        const res = await fetch(`/api/admin/pages/${slug}/blocks/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: block.data }),
+        });
+        if (!res.ok) {
+          const { error: msg } = await res.json().catch(() => ({ error: `Erro ${res.status}` }));
+          throw new Error(`Não foi possível guardar um bloco: ${msg ?? res.status}`);
+        }
+        handleDirtyChange(id, false);
+      }
+
+      // Same for an unsaved title.
+      const trimmedTitle = title.trim();
+      if (trimmedTitle && trimmedTitle !== savedTitle) {
+        const res = await fetch(`/api/admin/pages/${slug}/title`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: trimmedTitle }),
+        });
+        if (!res.ok) throw new Error(`Não foi possível guardar o título (Erro ${res.status})`);
+        setSavedTitle(trimmedTitle);
+      }
+
       const res = await fetch(`/api/admin/pages/${slug}/publish`, { method: "POST" });
       if (!res.ok) throw new Error(`Erro ${res.status}`);
       window.location.reload();
-    } catch {
-      alert("Erro ao publicar. Tenta novamente.");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erro ao publicar. Tenta novamente.");
     } finally {
       setPublishing(false);
     }
@@ -254,7 +293,9 @@ export default function PageEditor({ slug, title: initialTitle, initialBlocks, p
   };
 
   const titleDirty = title.trim() !== savedTitle;
-  const publishBlocked = dirtyBlockIds.size > 0 || titleDirty;
+  // Publish auto-flushes pending block edits and unsaved title, so the button
+  // no longer needs to be gated by `dirtyBlockIds.size > 0 || titleDirty`.
+  const publishBlocked = false;
 
   return (
     <PagePreviewShell
