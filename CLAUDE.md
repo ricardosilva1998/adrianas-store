@@ -198,3 +198,13 @@ Format per entry:
 - Homepage canonical confirmed: <link rel="canonical" href="https://drisclub.com/"> and Organization JSON-LD includes alternateName:["Drisclub","Dris Club"] and url:"https://drisclub.com/"
 - robots.txt still returned localhost:3000 for Sitemap line even with Cache-Control:no-cache header — this is a Railway edge/proxy cache serving the old response (robots.txt has max-age=3600); code is correct and identical pattern to sitemap.xml.ts; will self-resolve within 1 hour as cache expires
 **Open:** robots.txt Sitemap line cache will clear within ~1 hour; no code change needed. No DB migration, no env-var changes required.
+
+### 2026-05-14 00:41 — team-deployment
+**Task:** Deploy fix: hero carousel switches to 4:5 mobile ratio when ANY slide has a mobile variant (was: ALL)
+**Files:** src/components/blocks/HeroBlock.astro, CLAUDE.md
+**Decisions:**
+- Commit a9e1902 — "fix(hero): carrossel troca para 4:5 em mobile quando algum slide tem versão mobile"; pushed to origin/main @ a9e1902 (a5a9c44..a9e1902)
+- payment.md left untracked as instructed; secrets scan clean (both working-tree and staged-diff scans)
+- QA sign-off overridden by explicit user authorization (npm test -- --run: 131 passed / 1 pre-existing skipped; npm run build: success — per user pre-deploy notes)
+- Railway deployment 40068b45-0c00-477b-a163-85d6dc313ca0 succeeded; service listening on port 3000 at 23:41:01; 60s log window clean (only expected migration NOTICEs — "already exists, skipping"); no new migration; no env-var changes
+**Open:** none
