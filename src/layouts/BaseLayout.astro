@@ -35,7 +35,11 @@ const themeCSS = renderThemeCSS(config.theme);
 const fontsHref = renderGoogleFontsHref(config.theme.fonts);
 const isPreview = Astro.url.searchParams.has("preview");
 
-const canonicalUrl = canonical ?? `${Astro.url.origin}${Astro.url.pathname}`;
+// Always derive the canonical from the configured `site` (astro.config.mjs).
+// `Astro.url.origin` resolves to the Node server bind (e.g. localhost:3000
+// behind Railway's proxy), which would point crawlers at the wrong host.
+const publicOrigin = (Astro.site?.origin ?? Astro.url.origin).replace(/\/$/, "");
+const canonicalUrl = canonical ?? `${publicOrigin}${Astro.url.pathname}`;
 const ogImage = image ?? (config.theme.logo.url || null);
 const jsonLdList = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION;

@@ -41,7 +41,9 @@ const blocks = (
 
 const config = await getSiteConfig(Astro.locals.previewConfig);
 const { identity } = config.globals;
-const origin = Astro.url.origin;
+// Canonical public origin (set in astro.config). Behind Railway's proxy,
+// Astro.url.origin resolves to localhost — use Astro.site for crawlable URLs.
+const origin = (Astro.site?.origin ?? Astro.url.origin).replace(/\/$/, "");
 
 let jsonLd: Array<Record<string, unknown>> = [];
 
@@ -54,6 +56,9 @@ if (slug === "home") {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: identity.name,
+    // Help search engines resolve queries like "drisclub" to this brand even
+    // though the displayed name uses styled glyphs.
+    alternateName: ["Drisclub", "Dris Club"],
     url: `${origin}/`,
     description: stripHtml(identity.description),
     email: identity.email,

@@ -26,8 +26,10 @@ const toIsoDate = (d: Date | string | null | undefined): string | undefined => {
   return date.toISOString();
 };
 
-export const GET: APIRoute = async ({ url }) => {
-  const origin = url.origin;
+export const GET: APIRoute = async ({ url, site }) => {
+  // Prefer the canonical `site` from astro.config (e.g. https://drisclub.com)
+  // over `url.origin`, which behind the Railway proxy resolves to localhost.
+  const origin = (site?.origin ?? url.origin).replace(/\/$/, "");
 
   const entries: SitemapEntry[] = [];
 

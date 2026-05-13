@@ -25,13 +25,17 @@ const breadcrumbJsonLd: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: [
-    { "@type": "ListItem", position: 1, name: "Início", item: `${Astro.url.origin}/` },
-    { "@type": "ListItem", position: 2, name: "Catálogo", item: `${Astro.url.origin}/catalogo` },
+    { "@type": "ListItem", position: 1, name: "Início", item: `${(Astro.site?.origin ?? Astro.url.origin).replace(/\/$/, "")}/` },
+    { "@type": "ListItem", position: 2, name: "Catálogo", item: `${(Astro.site?.origin ?? Astro.url.origin).replace(/\/$/, "")}/catalogo` },
   ],
 };
 ---
 
-<BaseLayout title="Catálogo" jsonLd={breadcrumbJsonLd}>
+<BaseLayout
+  title="Catálogo"
+  description="Catálogo Drisclub — personalizações e presentes únicos. Tote bags, t-shirts, garrafas, porta-chaves e mais artigos personalizados feitos à mão em Portugal."
+  jsonLd={breadcrumbJsonLd}
+>
   {templateBlocks.length > 0 ? (
     templateBlocks.map((block) => (
       <BlockRenderer

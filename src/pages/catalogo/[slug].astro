@@ -27,9 +27,12 @@ const templateBlocks: Array<{ type: string; data: any }> =
     ? (template.blocks as Array<{ type: string; data: any }>)
     : [];
 
-const productUrl = `${Astro.url.origin}/catalogo/${product.slug}`;
+// Use the canonical public origin so structured-data URLs match what's in
+// the sitemap and the live host (not the local server bind).
+const origin = (Astro.site?.origin ?? Astro.url.origin).replace(/\/$/, "");
+const productUrl = `${origin}/catalogo/${product.slug}`;
 const productImage = product.images[0]?.url
-  ? new URL(product.images[0].url, Astro.url.origin).href
+  ? new URL(product.images[0].url, origin).href
   : undefined;
 
 const productJsonLd: Record<string, unknown> = {
@@ -38,8 +41,10 @@ const productJsonLd: Record<string, unknown> = {
   name: product.name,
   description: descriptionText,
   sku: product.slug,
+  mpn: product.slug,
   category: categoryLabel(product.category),
-  ...(productImage ? { image: product.images.map((i) => new URL(i.url, Astro.url.origin).href) } : {}),
+  brand: { "@type": "Brand", name: "Drisclub" },
+  ...(productImage ? { image: product.images.map((i) => new URL(i.url, origin).href) } : {}),
   offers: {
     "@type": "Offer",
     url: productUrl,
@@ -56,13 +61,13 @@ const breadcrumbJsonLd: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: [
-    { "@type": "ListItem", position: 1, name: "Início", item: `${Astro.url.origin}/` },
-    { "@type": "ListItem", position: 2, name: "Catálogo", item: `${Astro.url.origin}/catalogo` },
+    { "@type": "ListItem", position: 1, name: "Início", item: `${origin}/` },
+    { "@type": "ListItem", position: 2, name: "Catálogo", item: `${origin}/catalogo` },
     {
       "@type": "ListItem",
       position: 3,
       name: categoryLabel(product.category),
-      item: `${Astro.url.origin}/catalogo?categoria=${product.category}`,
+      item: `${origin}/catalogo?categoria=${product.category}`,
     },
     { "@type": "ListItem", position: 4, name: product.name, item: productUrl },
   ],
