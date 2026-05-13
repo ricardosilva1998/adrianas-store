@@ -26,9 +26,6 @@ const templateBlocks: Array<{ type: string; data: any }> =
   template && Array.isArray(template.blocks) && template.blocks.length > 0
     ? (template.blocks as Array<{ type: string; data: any }>)
     : [];
-const firstProductBlockType = templateBlocks[0]?.type;
-const heroFirstProduct =
-  firstProductBlockType === "hero" || firstProductBlockType === "intro-hero";
 
 const productUrl = `${Astro.url.origin}/catalogo/${product.slug}`;
 const productImage = product.images[0]?.url
@@ -77,7 +74,6 @@ const breadcrumbJsonLd: Record<string, unknown> = {
   description={descriptionText}
   image={productImage}
   jsonLd={[productJsonLd, breadcrumbJsonLd]}
-  noHeaderOffset={heroFirstProduct}
 >
   {templateBlocks.length > 0 ? (
     templateBlocks.map((block) => (

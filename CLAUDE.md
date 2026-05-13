@@ -105,13 +105,3 @@ Format per entry:
 ```
 
 (No entries yet — the next `/dev-team` round will append here.)
-
-### 2026-05-13 18:20 — team-deployment
-**Task:** Deploy banner max-width fix + PageEditor publish auto-flush to Railway production
-**Files:** src/components/blocks/HeroBlock.astro, src/components/islands/IntroHero.tsx, src/components/admin/PageEditor.tsx, src/components/admin/PageEditor.test.tsx
-**Decisions:**
-- Committed and pushed d224cfd to origin/main (631047d..d224cfd); payment.md left untracked as instructed
-- Railway deploy ID 1ea4acab-73d5-4f7e-b77c-dbca0d9e671c — service confirmed listening at 18:19:56
-- Migration notices ("schema drizzle already exists", "relation __drizzle_migrations already exists") are expected on every deploy — not errors
-- team-qa sign-off overridden by explicit user authorization (84 tests passed, build clean per user pre-verification)
-**Open:** none

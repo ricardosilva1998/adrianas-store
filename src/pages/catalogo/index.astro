@@ -20,9 +20,6 @@ const templateBlocks: Array<{ type: string; data: any }> =
   template && Array.isArray(template.blocks) && template.blocks.length > 0
     ? (template.blocks as Array<{ type: string; data: any }>)
     : [];
-const firstCatalogBlockType = templateBlocks[0]?.type;
-const heroFirstCatalog =
-  firstCatalogBlockType === "hero" || firstCatalogBlockType === "intro-hero";
 
 const breadcrumbJsonLd: Record<string, unknown> = {
   "@context": "https://schema.org",
@@ -34,7 +31,7 @@ const breadcrumbJsonLd: Record<string, unknown> = {
 };
 ---
 
-<BaseLayout title="Catálogo" jsonLd={breadcrumbJsonLd} noHeaderOffset={heroFirstCatalog}>
+<BaseLayout title="Catálogo" jsonLd={breadcrumbJsonLd}>
   {templateBlocks.length > 0 ? (
     templateBlocks.map((block) => (
       <BlockRenderer
