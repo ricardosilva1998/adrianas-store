@@ -106,6 +106,16 @@ Format per entry:
 
 (No entries yet — the next `/dev-team` round will append here.)
 
+### 2026-05-13 18:37 — team-deployment
+**Task:** Deploy banner full-bleed + transparent fixed header to Railway production
+**Files:** CLAUDE.md, src/components/Header.astro, src/components/blocks/HeroBlock.astro, src/components/islands/IntroHero.tsx, src/layouts/BaseLayout.astro, src/pages/[...slug].astro, src/pages/catalogo/index.astro, src/pages/catalogo/[slug].astro
+**Decisions:**
+- Committed 7b22fa2 "feat(ui): banner full-bleed edge-to-edge + transparent fixed header sobreposto" and pushed to origin/main (d224cfd..7b22fa2)
+- Railway deployment ID 9c26c5da-6ac7-4770-9804-0aa8a2928f19 — service started and listening at 18:35:59
+- 60s log window clean: only expected migration NOTICE messages, no errors or warnings
+- team-qa sign-off overridden by explicit user authorization (84 tests passed, build clean per user pre-verification); payment.md left untracked as instructed
+**Open:** none
+
 ### 2026-05-13 18:20 — team-deployment
 **Task:** Deploy banner max-width fix + PageEditor publish auto-flush to Railway production
 **Files:** src/components/blocks/HeroBlock.astro, src/components/islands/IntroHero.tsx, src/components/admin/PageEditor.tsx, src/components/admin/PageEditor.test.tsx
