@@ -145,3 +145,13 @@ Format per entry:
 - No DB migration required — pure logic change (new lib modules + API validation, no schema changes)
 - Railway deployment e8a8185c-2167-456a-8d6c-29833b9584b6 succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs — "already exists, skipping"); /api/validate-postal-code is a new public SSR route included in the deployed bundle
 **Open:** none
+
+### 2026-05-13 21:45 — team-deployment
+**Task:** Deploy per-product shipping methods, mandatory checkout selector, free shipping ≥€20, payment procedures in confirmation email (migration 0015)
+**Files:** src/components/admin/ProductForm.tsx, src/components/islands/CheckoutForm.tsx, src/db/migrations/0015_shipping_methods.sql, src/db/migrations/meta/_journal.json, src/db/schema.ts, src/lib/email.ts, src/lib/orders.ts, src/lib/queries.ts, src/lib/shipping.ts, src/lib/shipping.test.ts, src/pages/admin/orders/[id].astro, src/pages/admin/products/[id].astro, src/pages/api/admin/products/[id].ts, src/pages/api/admin/products/index.ts, src/pages/api/orders.ts, src/pages/api/products/[slug]/shipping.ts
+**Decisions:**
+- Commit c8c7c43 — "feat(shipping): métodos de envio por produto + envio grátis ≥20€ + pagamento no e-mail"; pushed to origin/main @ c8c7c43 (08dc84a..c8c7c43)
+- payment.md left untracked as instructed; secrets scan clean on both file list and staged diff content
+- Migration 0015 confirmed applied: logs show `[migrate] A correr migrations...` then `[migrate] ✔ Migrations concluídas.` — all ADD COLUMN IF NOT EXISTS columns are live
+- Railway deployment 2e19b0c2-6b3f-4f03-8b23-1c3a98196ac3 succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs — "already exists, skipping")
+**Open:** Existing products will have shipping_methods = '[]' — checkout will block purchase until admin configures at least one shipping method per product via /admin/products/[id]. Admin must action this before storefront purchases can complete.
