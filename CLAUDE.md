@@ -106,6 +106,16 @@ Format per entry:
 
 (No entries yet — the next `/dev-team` round will append here.)
 
+### 2026-05-13 20:18 — team-deployment
+**Task:** Deploy banner edge-to-edge change (remove mx-auto max-w-[843px] from Hero + IntroHero)
+**Files:** src/components/blocks/HeroBlock.astro, src/components/islands/IntroHero.tsx
+**Decisions:**
+- Commit f6a2170 — "feat(hero): banner stretches edge-to-edge at 843/300 aspect ratio"
+- Staged exactly the 2 in-scope files; payment.md left untracked as instructed
+- Secrets scan clean; no .env or secret-pattern matches in staged diff
+- Railway deployment 96811e4e-6110-4e6e-9b2d-773b7235cabc succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs)
+**Open:** none
+
 ### 2026-05-13 21:08 — team-deployment
 **Task:** Revert banner full-bleed + transparent fixed header (commits 7b22fa2 + 16f5c8e) via two new revert commits
 **Files:** CLAUDE.md, src/components/Header.astro, src/components/blocks/HeroBlock.astro, src/components/islands/IntroHero.tsx, src/layouts/BaseLayout.astro, src/pages/[...slug].astro, src/pages/catalogo/index.astro, src/pages/catalogo/[slug].astro
