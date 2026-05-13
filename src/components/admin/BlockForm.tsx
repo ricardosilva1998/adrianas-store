@@ -66,7 +66,18 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
   const slides: Array<{ url: string; alt: string }> = data.slides ?? [];
 
   const addSlide = () => {
-    onChange({ slides: [...slides, { url: "", alt: "", focal: { x: 50, y: 50 } }] });
+    onChange({
+      slides: [
+        ...slides,
+        {
+          url: "",
+          alt: "",
+          focal: { x: 50, y: 50 },
+          urlMobile: "",
+          focalMobile: { x: 50, y: 50 },
+        },
+      ],
+    });
   };
   const removeSlide = (idx: number) => {
     onChange({ slides: slides.filter((_, i) => i !== idx) });
@@ -79,6 +90,12 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
   };
   const updateSlideFocal = (idx: number, focal: { x: number; y: number }) => {
     onChange({ slides: slides.map((s, i) => (i === idx ? { ...s, focal } : s)) });
+  };
+  const updateSlideMobileUrl = (idx: number, urlMobile: string) => {
+    onChange({ slides: slides.map((s, i) => (i === idx ? { ...s, urlMobile } : s)) });
+  };
+  const updateSlideMobileFocal = (idx: number, focalMobile: { x: number; y: number }) => {
+    onChange({ slides: slides.map((s, i) => (i === idx ? { ...s, focalMobile } : s)) });
   };
   const moveSlide = (idx: number, direction: "up" | "down") => {
     const newIdx = direction === "up" ? idx - 1 : idx + 1;
@@ -170,7 +187,7 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
               {slide.url && (
                 <div className="mt-3">
                   <FocalPointEditor
-                    label="Ajustar enquadramento"
+                    label="Ajustar enquadramento (desktop)"
                     imageUrl={slide.url}
                     aspectRatio={843 / 300}
                     focal={slide.focal}
@@ -178,6 +195,30 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
                   />
                 </div>
               )}
+              <div className="mt-4 rounded-xl border border-dashed border-ink-line p-3">
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
+                  Versão mobile (opcional)
+                </p>
+                <ImagePicker
+                  label="Imagem mobile"
+                  value={slide.urlMobile ?? ""}
+                  onChange={(url) => updateSlideMobileUrl(i, url)}
+                />
+                {slide.urlMobile && (
+                  <div className="mt-3">
+                    <FocalPointEditor
+                      label="Ajustar enquadramento (mobile · 4:5)"
+                      imageUrl={slide.urlMobile}
+                      aspectRatio={4 / 5}
+                      focal={slide.focalMobile}
+                      onChange={(focalMobile) => updateSlideMobileFocal(i, focalMobile)}
+                    />
+                  </div>
+                )}
+                <p className="mt-2 text-[11px] text-ink-muted">
+                  Se vazio, em mobile mostra-se a imagem desktop com o mesmo enquadramento panorâmico.
+                </p>
+              </div>
               <div className="mt-3">
                 <input
                   value={slide.alt}
@@ -201,13 +242,37 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
           />
           {data.imageUrl && (
             <FocalPointEditor
-              label="Ajustar enquadramento"
+              label="Ajustar enquadramento (desktop)"
               imageUrl={data.imageUrl}
               aspectRatio={data.layout === "background-image" ? 843 / 300 : 4 / 5}
               focal={data.imageFocal}
               onChange={(imageFocal) => onChange({ imageFocal })}
             />
           )}
+          <div className="mt-4 rounded-xl border border-dashed border-ink-line p-3">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
+              Versão mobile (opcional)
+            </p>
+            <ImagePicker
+              label="Imagem mobile"
+              value={data.imageUrlMobile ?? ""}
+              onChange={(imageUrlMobile) => onChange({ imageUrlMobile })}
+            />
+            {data.imageUrlMobile && (
+              <div className="mt-3">
+                <FocalPointEditor
+                  label="Ajustar enquadramento (mobile · 4:5)"
+                  imageUrl={data.imageUrlMobile}
+                  aspectRatio={4 / 5}
+                  focal={data.imageFocalMobile}
+                  onChange={(imageFocalMobile) => onChange({ imageFocalMobile })}
+                />
+              </div>
+            )}
+            <p className="mt-2 text-[11px] text-ink-muted">
+              Se vazio, em mobile mostra-se a imagem desktop com o mesmo enquadramento.
+            </p>
+          </div>
         </div>
       )}
     </div>

@@ -12,7 +12,15 @@ interface Props {
     buttonUrl: string;
     imageUrl: string;
     imageFocal?: { x: number; y: number };
-    slides?: { url: string; alt?: string; focal?: { x: number; y: number } }[];
+    imageUrlMobile?: string;
+    imageFocalMobile?: { x: number; y: number };
+    slides?: {
+      url: string;
+      alt?: string;
+      focal?: { x: number; y: number };
+      urlMobile?: string;
+      focalMobile?: { x: number; y: number };
+    }[];
     layout?: "image-right" | "image-left" | "background-image" | "centered" | "carousel";
   };
 }
@@ -27,11 +35,24 @@ const layout = (data.layout === "background-image" && !data.imageUrl)
 const subtitleHtml = renderMixedContent(data.subtitle);
 const hasOverlayText = !!(data.title || data.titleAccent || subtitleHtml || (data.buttonText && data.buttonUrl));
 const imageFocalCss = focalToCss(data.imageFocal);
+
+const hasMobileImage = !!data.imageUrlMobile;
+const mobileImageUrl = data.imageUrlMobile || data.imageUrl;
+const mobileImageFocalCss = focalToCss(data.imageFocalMobile);
+const mobileRatio = hasMobileImage ? "4 / 5" : "843 / 300";
+
+// Carousel container ratio: if every slide has a mobile variant, use 4/5 on
+// mobile; otherwise stick to 843/300 so non-mobile slides aren't over-cropped.
+const allSlidesHaveMobile = slides.length > 0 && slides.every((s) => !!s.urlMobile);
+const carouselRatioM = allSlidesHaveMobile ? "4 / 5" : "843 / 300";
 ---
 
 {layout === "carousel" ? (
   <section class="relative w-full overflow-hidden bg-black">
-    <div class="relative w-full" style="aspect-ratio: 843 / 300;">
+    <div
+      class="relative w-full hero-aspect-responsive"
+      style={`--ratio-d: 843 / 300; --ratio-m: ${carouselRatioM};`}
+    >
       <HeroCarousel client:load slides={slides} />
       {hasOverlayText && (
         <div class="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center">
@@ -64,8 +85,8 @@ const imageFocalCss = focalToCss(data.imageFocal);
   </section>
 ) : layout === "background-image" ? (
   <section
-    class="relative w-full overflow-hidden bg-cover"
-    style={`background-image:url('${data.imageUrl}'); aspect-ratio: 843 / 300; background-position: ${imageFocalCss};`}
+    class="relative w-full overflow-hidden hero-bg-responsive"
+    style={`--bg-d: url('${data.imageUrl}'); --bg-m: url('${mobileImageUrl}'); --pos-d: ${imageFocalCss}; --pos-m: ${mobileImageFocalCss}; --ratio-d: 843 / 300; --ratio-m: ${mobileRatio};`}
   >
     <div class="relative mx-auto flex h-full max-w-3xl flex-col items-center justify-center px-6 text-center text-white sm:px-10 lg:px-16">
       {(data.title || data.titleAccent) && (
@@ -138,7 +159,15 @@ const imageFocalCss = focalToCss(data.imageFocal);
               <div class="relative mx-auto aspect-[4/5] w-full max-w-lg">
                 <div class="absolute inset-0 rounded-[40px] bg-rosa-100"></div>
                 <div class="absolute inset-6 overflow-hidden rounded-[32px] border-8 border-white bg-white shadow-2xl">
-                  <img src={data.imageUrl} alt={data.title || data.titleAccent} class="h-full w-full object-cover" style={`object-position: ${imageFocalCss};`} />
+                  <picture>
+                    {hasMobileImage && <source media="(max-width: 767px)" srcset={data.imageUrlMobile} />}
+                    <img
+                      src={data.imageUrl}
+                      alt={data.title || data.titleAccent}
+                      class="h-full w-full object-cover hero-img-responsive"
+                      style={`--pos-d: ${imageFocalCss}; --pos-m: ${mobileImageFocalCss};`}
+                    />
+                  </picture>
                 </div>
               </div>
             </div>
@@ -197,7 +226,15 @@ const imageFocalCss = focalToCss(data.imageFocal);
               <div class="relative mx-auto aspect-[4/5] w-full max-w-lg">
                 <div class="absolute inset-0 rounded-[40px] bg-rosa-100"></div>
                 <div class="absolute inset-6 overflow-hidden rounded-[32px] border-8 border-white bg-white shadow-2xl">
-                  <img src={data.imageUrl} alt={data.title || data.titleAccent} class="h-full w-full object-cover" style={`object-position: ${imageFocalCss};`} />
+                  <picture>
+                    {hasMobileImage && <source media="(max-width: 767px)" srcset={data.imageUrlMobile} />}
+                    <img
+                      src={data.imageUrl}
+                      alt={data.title || data.titleAccent}
+                      class="h-full w-full object-cover hero-img-responsive"
+                      style={`--pos-d: ${imageFocalCss}; --pos-m: ${mobileImageFocalCss};`}
+                    />
+                  </picture>
                 </div>
               </div>
             </div>

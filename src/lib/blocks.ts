@@ -24,6 +24,9 @@ const heroSlideSchema = z.object({
   url: z.string().min(1).refine((s) => !/['")\\]/.test(s), "URL inválido"),
   alt: z.string().default(""),
   focal: focalSchema,
+  // Optional mobile-only variant — when set, replaces `url` at viewports <768px.
+  urlMobile: z.string().refine((s) => s === "" || !/['")\\]/.test(s), "URL inválido").default(""),
+  focalMobile: focalSchema,
 });
 
 const heroDataSchema = z.object({
@@ -34,6 +37,8 @@ const heroDataSchema = z.object({
   buttonUrl: z.string().default(""),
   imageUrl: safeUrl,
   imageFocal: focalSchema,
+  imageUrlMobile: safeUrl,
+  imageFocalMobile: focalSchema,
   slides: z.array(heroSlideSchema).default([]),
   layout: z.enum(["image-right", "image-left", "background-image", "centered", "carousel"]).default("image-right"),
 });
@@ -467,7 +472,7 @@ export function createBlock(type: BlockType): Block {
   const id = nanoid(10);
   switch (type) {
     case "hero":
-      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", imageFocal: { x: 50, y: 50 }, slides: [], layout: "image-right" } };
+      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", imageFocal: { x: 50, y: 50 }, imageUrlMobile: "", imageFocalMobile: { x: 50, y: 50 }, slides: [], layout: "image-right" } };
     case "text":
       return { id, type, data: { html: "" } };
     case "product-grid":

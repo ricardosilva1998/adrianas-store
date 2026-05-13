@@ -37,13 +37,18 @@ export default function ProductActions({ product }: Props) {
   const personalizationOk = !product.personalizable || personalization !== undefined;
   const canAdd = variantOk && personalizationOk;
 
-  const handleAdd = () => {
+  const handleAdd = (override?: Personalization) => {
+    // Allow the modal to pass the freshly-confirmed personalization without
+    // waiting for the state update to settle.
+    const effective = override ?? personalization;
+    const hasPersonalization =
+      !product.personalizable || effective !== undefined;
     if (!variantOk) {
       setFeedback("Escolhe uma cor antes de adicionar.");
       window.setTimeout(() => setFeedback(null), 3000);
       return;
     }
-    if (!personalizationOk) {
+    if (!hasPersonalization) {
       setFeedback("Personaliza primeiro antes de adicionar ao carrinho.");
       window.setTimeout(() => setFeedback(null), 3000);
       return;
@@ -55,11 +60,11 @@ export default function ProductActions({ product }: Props) {
       quantity,
       image: product.image,
       category: product.category,
-      personalization: personalization,
+      personalization: effective,
       variantColor: selectedVariant ?? undefined,
     });
     setFeedback(
-      personalization
+      effective
         ? "Adicionado ao carrinho com personalização."
         : "Adicionado ao carrinho.",
     );
@@ -271,6 +276,9 @@ export default function ProductActions({ product }: Props) {
           onConfirm={(p) => {
             setPersonalization(p);
             setModalOpen(false);
+            // Auto-add to cart now that the personalization is complete.
+            // Pass `p` explicitly so we don't race the state update.
+            handleAdd(p);
           }}
         />
       )}

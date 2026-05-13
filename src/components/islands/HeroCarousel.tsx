@@ -1,7 +1,13 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 
-type Slide = { url: string; alt?: string; focal?: { x: number; y: number } };
+type Slide = {
+  url: string;
+  alt?: string;
+  focal?: { x: number; y: number };
+  urlMobile?: string;
+  focalMobile?: { x: number; y: number };
+};
 
 type Props = {
   slides: Slide[];
@@ -80,15 +86,25 @@ export default function HeroCarousel({ slides, autoplayMs = 5000, autoplay = tru
               aria-roledescription="slide"
               aria-label={`${i + 1} de ${slides.length}`}
             >
-              <img
-                src={slide.url}
-                alt={slide.alt ?? ""}
-                className="h-full w-full object-cover"
-                style={{
-                  objectPosition: `${slide.focal?.x ?? 50}% ${slide.focal?.y ?? 50}%`,
-                }}
-                draggable={false}
-              />
+              <picture>
+                {slide.urlMobile && (
+                  <source media="(max-width: 767px)" srcSet={slide.urlMobile} />
+                )}
+                <img
+                  src={slide.url}
+                  alt={slide.alt ?? ""}
+                  className="h-full w-full object-cover hero-img-responsive"
+                  style={
+                    {
+                      "--pos-d": `${slide.focal?.x ?? 50}% ${slide.focal?.y ?? 50}%`,
+                      "--pos-m": slide.urlMobile
+                        ? `${slide.focalMobile?.x ?? 50}% ${slide.focalMobile?.y ?? 50}%`
+                        : `${slide.focal?.x ?? 50}% ${slide.focal?.y ?? 50}%`,
+                    } as React.CSSProperties
+                  }
+                  draggable={false}
+                />
+              </picture>
             </div>
           ))}
         </div>

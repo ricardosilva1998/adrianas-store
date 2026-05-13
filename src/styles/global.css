@@ -131,3 +131,38 @@ html.dark body {
     @apply mt-1 block w-full rounded-xl border border-ink-line bg-surface px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus:border-rosa-400 focus:outline-none focus:ring-2 focus:ring-rosa-200;
   }
 }
+
+/* Responsive hero helpers — values come from inline CSS vars per instance.
+ * Mobile values apply by default; the md+ media query swaps to desktop. */
+.hero-bg-responsive {
+  background-image: var(--bg-m);
+  background-position: var(--pos-m);
+  background-size: cover;
+  background-repeat: no-repeat;
+  aspect-ratio: var(--ratio-m);
+}
+@media (min-width: 768px) {
+  .hero-bg-responsive {
+    background-image: var(--bg-d);
+    background-position: var(--pos-d);
+    aspect-ratio: var(--ratio-d);
+  }
+}
+
+.hero-img-responsive {
+  object-position: var(--pos-m);
+}
+@media (min-width: 768px) {
+  .hero-img-responsive {
+    object-position: var(--pos-d);
+  }
+}
+
+.hero-aspect-responsive {
+  aspect-ratio: var(--ratio-m);
+}
+@media (min-width: 768px) {
+  .hero-aspect-responsive {
+    aspect-ratio: var(--ratio-d);
+  }
+}

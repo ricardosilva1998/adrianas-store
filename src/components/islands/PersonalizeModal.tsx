@@ -33,6 +33,7 @@ export default function PersonalizeModal({
   );
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -83,6 +84,7 @@ export default function PersonalizeModal({
       }
       const data = (await res.json()) as { url: string; kind: "image" | "pdf"; name: string };
       setAttachment({ url: data.url, kind: data.kind, name: data.name });
+      setAttemptedSubmit(false);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Erro no upload");
     } finally {
@@ -103,7 +105,10 @@ export default function PersonalizeModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValid) return;
+    if (!isValid) {
+      setAttemptedSubmit(true);
+      return;
+    }
     onConfirm({
       phrase: phrase.trim(),
       colors,
@@ -111,6 +116,11 @@ export default function PersonalizeModal({
       attachment,
     });
   };
+
+  // Show red-border + error message only after a failed submit attempt, so the
+  // form doesn't yell at the user before they have a chance to fill anything.
+  const showInvalid = attemptedSubmit && !isValid;
+  const invalidFieldClass = "border-red-500 focus:border-red-500 focus:ring-red-200";
 
   return (
     <div
@@ -169,9 +179,13 @@ export default function PersonalizeModal({
               value={phrase}
               maxLength={MAX_CHARS}
               rows={3}
-              onChange={(e) => setPhrase(e.target.value)}
+              onChange={(e) => {
+                setPhrase(e.target.value);
+                if (e.target.value.trim()) setAttemptedSubmit(false);
+              }}
               placeholder="Ex: 'Mantém a calma e bebe café'"
-              className="field-input resize-none"
+              aria-invalid={showInvalid}
+              className={`field-input resize-none ${showInvalid ? invalidFieldClass : ""}`}
             />
             <div className="mt-1 flex items-center justify-between">
               <span className="text-xs text-ink-muted">
@@ -228,9 +242,13 @@ export default function PersonalizeModal({
               id="description"
               value={description}
               rows={4}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                if (e.target.value.trim()) setAttemptedSubmit(false);
+              }}
               placeholder="Ex: um pequeno doodle de um gato com chapéu, no canto inferior direito"
-              className="field-input resize-none"
+              aria-invalid={showInvalid}
+              className={`field-input resize-none ${showInvalid ? invalidFieldClass : ""}`}
             />
           </div>
 
@@ -296,7 +314,12 @@ export default function PersonalizeModal({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="mt-3 inline-flex items-center gap-2 rounded-full border border-dashed border-ink-line px-4 py-2 text-sm font-medium text-ink-soft transition hover:border-rosa-300 hover:text-rosa-500 disabled:opacity-50"
+                aria-invalid={showInvalid}
+                className={`mt-3 inline-flex items-center gap-2 rounded-full border border-dashed px-4 py-2 text-sm font-medium text-ink-soft transition hover:text-rosa-500 disabled:opacity-50 ${
+                  showInvalid
+                    ? "border-red-500 hover:border-red-500"
+                    : "border-ink-line hover:border-rosa-300"
+                }`}
               >
                 {uploading ? "A carregar…" : "Adicionar imagem ou PDF"}
               </button>
@@ -318,15 +341,20 @@ export default function PersonalizeModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t border-ink-line px-6 py-4">
-          <p className="text-xs text-ink-muted">
-            Preenche frase, descrição ou envia ficheiro.
+        <div className="flex flex-col gap-2 border-t border-ink-line px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <p
+            role={showInvalid ? "alert" : undefined}
+            className={`text-xs ${showInvalid ? "font-medium text-red-600" : "text-ink-muted"}`}
+          >
+            {showInvalid
+              ? "Preenche pelo menos um destes campos: frase, descrição ou ficheiro."
+              : "Preenche frase, descrição ou envia ficheiro."}
           </p>
           <div className="flex items-center gap-3">
             <button type="button" className="btn-ghost" onClick={onCancel}>
               Cancelar
             </button>
-            <button type="submit" className="btn-primary" disabled={!isValid || uploading}>
+            <button type="submit" className="btn-primary" disabled={uploading}>
               Guardar personalização
             </button>
           </div>
