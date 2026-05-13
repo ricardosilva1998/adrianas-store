@@ -105,3 +105,13 @@ Format per entry:
 ```
 
 (No entries yet — the next `/dev-team` round will append here.)
+
+### 2026-05-13 21:08 — team-deployment
+**Task:** Revert banner full-bleed + transparent fixed header (commits 7b22fa2 + 16f5c8e) via two new revert commits
+**Files:** CLAUDE.md, src/components/Header.astro, src/components/blocks/HeroBlock.astro, src/components/islands/IntroHero.tsx, src/layouts/BaseLayout.astro, src/pages/[...slug].astro, src/pages/catalogo/index.astro, src/pages/catalogo/[slug].astro
+**Decisions:**
+- Reverted with `git revert --no-edit 16f5c8e 7b22fa2`; two new commits a09bfc4 + aa042ff — history intact, no reset or force-push used
+- Banner is back to `max-w-[843px] mx-auto`; header back to `sticky bg-white/95 backdrop-blur`; `noHeaderOffset` prop and `heroFirst*` logic fully removed
+- PageEditor auto-flush publish fix (d224cfd) was NOT reverted — still in place and confirmed in source
+- Railway deployment 521555b2-b0b9-4354-8eab-5d194095e3a1 succeeded; 60s log window clean (only expected migration NOTICEs)
+**Open:** none
