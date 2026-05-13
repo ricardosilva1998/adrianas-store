@@ -135,3 +135,13 @@ Format per entry:
 - No DB migration required — personalization JSONB column extended type-only (backwards compatible)
 - Railway deployment c2b3d75f-62ed-487e-8cef-32b68f7c87c0 succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs — "already exists, skipping"); /api/personalization-upload is a new SSR route included in the deployed bundle
 **Open:** none
+
+### 2026-05-13 20:54 — team-deployment
+**Task:** Deploy stronger customer-field validation in checkout + account profile (nome, telemóvel 9 dígitos PT, morada, código postal com verificação de existência via geoapi.pt)
+**Files:** src/components/islands/AccountDashboard.tsx, src/components/islands/CheckoutForm.tsx, src/pages/api/account/update-profile.ts, src/pages/api/orders.ts, src/lib/customer-validation.ts, src/lib/customer-validation.test.ts, src/lib/postal-code.ts, src/lib/postal-code.test.ts, src/pages/api/validate-postal-code.ts
+**Decisions:**
+- Commit f510dbb — "feat(validation): validação reforçada de campos de cliente no checkout e perfil"; pushed to origin/main @ f510dbb (09561c2..f510dbb)
+- payment.md left untracked as instructed; secrets scan clean on both file list and staged diff
+- No DB migration required — pure logic change (new lib modules + API validation, no schema changes)
+- Railway deployment e8a8185c-2167-456a-8d6c-29833b9584b6 succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs — "already exists, skipping"); /api/validate-postal-code is a new public SSR route included in the deployed bundle
+**Open:** none
