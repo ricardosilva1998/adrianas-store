@@ -41,10 +41,13 @@ const mobileImageUrl = data.imageUrlMobile || data.imageUrl;
 const mobileImageFocalCss = focalToCss(data.imageFocalMobile);
 const mobileRatio = hasMobileImage ? "4 / 5" : "843 / 300";
 
-// Carousel container ratio: if every slide has a mobile variant, use 4/5 on
-// mobile; otherwise stick to 843/300 so non-mobile slides aren't over-cropped.
-const allSlidesHaveMobile = slides.length > 0 && slides.every((s) => !!s.urlMobile);
-const carouselRatioM = allSlidesHaveMobile ? "4 / 5" : "843 / 300";
+// Carousel container ratio: as soon as ANY slide has a mobile variant we
+// assume the admin wants a portrait-friendly hero on phones. Slides without
+// their own mobile URL fall back to the desktop image (via <picture>) and
+// will be center-cropped to 4/5 — admins can compensate with per-slide
+// focalMobile or by uploading mobile versions.
+const anySlideHasMobile = slides.some((s) => !!s.urlMobile);
+const carouselRatioM = anySlideHasMobile ? "4 / 5" : "843 / 300";
 ---
 
 {layout === "carousel" ? (
