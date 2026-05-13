@@ -155,3 +155,13 @@ Format per entry:
 - Migration 0015 confirmed applied: logs show `[migrate] A correr migrations...` then `[migrate] ✔ Migrations concluídas.` — all ADD COLUMN IF NOT EXISTS columns are live
 - Railway deployment 2e19b0c2-6b3f-4f03-8b23-1c3a98196ac3 succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs — "already exists, skipping")
 **Open:** Existing products will have shipping_methods = '[]' — checkout will block purchase until admin configures at least one shipping method per product via /admin/products/[id]. Admin must action this before storefront purchases can complete.
+
+### 2026-05-13 22:05 — team-deployment
+**Task:** Deploy focal-point drag (A), "Redes sociais" label (B), editable admin alert emails (C) + migration 0016
+**Files:** src/components/ProductCard.astro, src/components/admin/BlockForm.tsx, src/components/admin/FocalPointEditor.tsx, src/components/admin/GlobalsEditor.tsx, src/components/admin/ProductForm.tsx, src/components/blocks/CatalogGridBoundBlock.astro, src/components/blocks/HeroBlock.astro, src/components/blocks/ImageCarouselBlock.astro, src/components/blocks/ImageGalleryBlock.astro, src/components/blocks/ImageTextSplitBlock.astro, src/components/blocks/ProductGalleryBlock.astro, src/components/blocks/ProductGridBlock.astro, src/components/blocks/ProductRelatedBlock.astro, src/components/islands/HeroCarousel.tsx, src/components/islands/ProductGallery.tsx, src/db/migrations/0016_product_image_focal.sql, src/db/migrations/meta/_journal.json, src/db/schema.ts, src/lib/blocks.ts, src/lib/config.ts, src/lib/email.ts, src/lib/focal-point.test.ts, src/lib/focal-point.ts, src/lib/queries.ts, src/pages/admin/index.astro, src/pages/admin/products/[id].astro, src/pages/api/admin/products/[id].ts, src/pages/api/admin/products/index.ts, src/pages/catalogo/[slug].astro, src/pages/catalogo/index.astro
+**Decisions:**
+- Commit b891e91 — "feat: focal-point drag, 'Redes sociais' label, editable admin alerts"; pushed to origin/main @ b891e91
+- payment.md left untracked as instructed; secrets scan clean (no API_KEY/SECRET/TOKEN/PASSWORD patterns in staged diff)
+- Migration 0016 confirmed applied: logs show `[migrate] ✔ Migrations concluídas.` — focalX/focalY (INT DEFAULT 50) on product_images are live
+- Railway deployment c6eb438f-db74-4d02-9ddb-015e362ee66a succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs)
+**Open:** Existing product images will have focalX=50/focalY=50 (centre) by default — no action needed unless admin wants to re-frame specific images. notifyEmails defaults to [] so ADMIN_NOTIFY_EMAIL env fallback remains active until admin populates the list in /admin/globals "Alertas admin" tab.
