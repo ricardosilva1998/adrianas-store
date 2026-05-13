@@ -77,6 +77,10 @@ export const products = pgTable(
     active: boolean("active").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),
     variantColorTitle: text("variant_color_title").notNull().default("Cor do produto"),
+    shippingMethods: jsonb("shipping_methods")
+      .$type<Array<{ id: string; label: string; costCents: number; description: string }>>()
+      .notNull()
+      .default([]),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -242,6 +246,9 @@ export const orders = pgTable(
     subtotalCents: integer("subtotal_cents").notNull(),
     couponCode: text("coupon_code"),
     discountCents: integer("discount_cents").notNull().default(0),
+    shippingCents: integer("shipping_cents").notNull().default(0),
+    shippingMethodLabel: text("shipping_method_label"),
+    shippingMethodDescription: text("shipping_method_description"),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

@@ -118,10 +118,13 @@ export const buildOrderEmail = ({
   order,
   items,
   status,
+  paymentInstructions,
 }: {
   order: Order;
   items: OrderItem[];
   status: OrderStatus;
+  /** Pre-formatted HTML for the chosen payment method's instructions. */
+  paymentInstructions?: string;
 }): { subject: string; html: string } => {
   const subject = `${statusSubject[status]} — Encomenda #${order.number}`;
 
@@ -132,22 +135,92 @@ export const buildOrderEmail = ({
        </p>`
     : "";
 
+  const subtotalCents = order.subtotalCents;
+  const discountCents = order.discountCents ?? 0;
+  const shippingCents = order.shippingCents ?? 0;
+  const totalCents = Math.max(0, subtotalCents - discountCents + shippingCents);
+
+  const discountRow = discountCents > 0
+    ? `<tr>
+         <td style="padding-top:6px;color:#6b7280;font-size:13px">Desconto${order.couponCode ? ` (${order.couponCode})` : ""}</td>
+         <td style="padding-top:6px;text-align:right;color:#059669;font-size:13px">−${formatEuro(discountCents)}</td>
+       </tr>`
+    : "";
+
+  const shippingLabel = order.shippingMethodLabel ?? "Envio";
+  const shippingValue =
+    shippingCents === 0
+      ? `<span style="color:#059669">Grátis</span>`
+      : formatEuro(shippingCents);
+  const shippingRow = `
+    <tr>
+      <td style="padding-top:6px;color:#6b7280;font-size:13px">${shippingLabel}</td>
+      <td style="padding-top:6px;text-align:right;color:#111;font-size:13px">${shippingValue}</td>
+    </tr>
+    ${
+      order.shippingMethodDescription
+        ? `<tr><td colspan="2" style="padding-top:2px;color:#9ca3af;font-size:12px;font-style:italic">${order.shippingMethodDescription}</td></tr>`
+        : ""
+    }`;
+
+  const paymentBlock = paymentInstructions
+    ? `<div style="margin-top:24px;padding:16px;background:#fdf2f8;border-radius:12px;font-size:13px;color:#111;line-height:1.6">
+         <p style="margin:0 0 8px 0;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9ca3af"><strong>Como pagar</strong></p>
+         ${paymentInstructions}
+       </div>`
+    : "";
+
   const inner = `
     <h1 style="margin:8px 0 16px 0;font-size:24px;color:#111">${statusSubject[status]}</h1>
     <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#4b5563">Olá ${order.customerName.split(" ")[0] || ""}, ${statusIntro[status]}</p>
     ${tracking}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px">
-      <tr><td style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;padding-bottom:8px"><strong>Resumo da encomenda</strong></td></tr>
+      <tr><td style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;padding-bottom:8px" colspan="2"><strong>Resumo da encomenda</strong></td></tr>
       ${renderItems(items)}
       <tr>
-        <td style="padding-top:16px;border-top:2px solid #111;color:#111"><strong>Total</strong></td>
-        <td style="padding-top:16px;border-top:2px solid #111;text-align:right;color:#111"><strong>${formatEuro(order.subtotalCents)}</strong></td>
+        <td style="padding-top:14px;color:#6b7280;font-size:13px;border-top:1px solid #fbcfe8">Subtotal</td>
+        <td style="padding-top:14px;text-align:right;color:#111;font-size:13px;border-top:1px solid #fbcfe8">${formatEuro(subtotalCents)}</td>
+      </tr>
+      ${discountRow}
+      ${shippingRow}
+      <tr>
+        <td style="padding-top:14px;border-top:2px solid #111;color:#111"><strong>Total</strong></td>
+        <td style="padding-top:14px;border-top:2px solid #111;text-align:right;color:#111"><strong>${formatEuro(totalCents)}</strong></td>
       </tr>
     </table>
+    ${paymentBlock}
     <p style="margin:24px 0 0 0;font-size:12px;color:#9ca3af">Encomenda #${order.number} · ${new Date(order.createdAt).toLocaleDateString("pt-PT")}</p>
   `;
 
   return { subject, html: baseLayout(subject, inner) };
+};
+
+/**
+ * Plain-text payment instructions → safe HTML (escape + line-breaks).
+ * Used to embed the chosen method's procedures inside the confirmation email.
+ */
+const renderPaymentInstructions = (raw: string): string => {
+  const escaped = raw
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  return escaped.replace(/\n/g, "<br />");
+};
+
+const loadPaymentInstructions = async (
+  method: string,
+): Promise<string | undefined> => {
+  try {
+    const { getSiteConfig } = await import("./config-server");
+    const config = await getSiteConfig();
+    const entry = config.globals.payments.find((p) => p.id === method);
+    if (!entry) return undefined;
+    const heading = `<strong>${entry.label}</strong>`;
+    return `${heading}<br />${renderPaymentInstructions(entry.instructions)}`;
+  } catch (err) {
+    console.error("[email] Falha a carregar instruções de pagamento:", err);
+    return undefined;
+  }
 };
 
 export const sendOrderEmail = async (params: {
@@ -162,7 +235,13 @@ export const sendOrderEmail = async (params: {
     return;
   }
 
-  const { subject, html } = buildOrderEmail(params);
+  // Payment instructions are only useful while the customer still has to pay
+  // — show them on the initial confirmation, not on later transitions.
+  const paymentInstructions =
+    params.status === "new"
+      ? await loadPaymentInstructions(params.order.paymentMethod)
+      : undefined;
+  const { subject, html } = buildOrderEmail({ ...params, paymentInstructions });
 
   try {
     await resend.emails.send({
@@ -183,10 +262,12 @@ export const notifyAdmin = async (params: {
 }) => {
   if (!resend || !adminEmail) return;
 
+  const paymentInstructions = await loadPaymentInstructions(params.order.paymentMethod);
   const { subject, html } = buildOrderEmail({
     order: params.order,
     items: params.items,
     status: "new",
+    paymentInstructions,
   });
 
   try {

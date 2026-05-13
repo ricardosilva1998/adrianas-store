@@ -123,9 +123,26 @@ const paymentLabels: Record<string, string> = {
               <span class="font-semibold">−{formatEuro(order.discountCents)}</span>
             </div>
           )}
+          <div class="mt-2 flex items-center justify-between text-ink-soft">
+            <span>{order.shippingMethodLabel ?? "Envio"}</span>
+            <span class={order.shippingCents === 0 ? "font-semibold text-emerald-700" : "text-ink"}>
+              {order.shippingCents === 0 ? "Grátis" : formatEuro(order.shippingCents)}
+            </span>
+          </div>
+          {order.shippingMethodDescription && (
+            <p class="mt-1 text-xs italic text-ink-muted">
+              {order.shippingMethodDescription}
+            </p>
+          )}
           <div class="mt-3 flex items-center justify-between border-t border-ink-line pt-3">
             <span class="font-semibold text-ink-soft">Total</span>
-            <span class="text-xl font-semibold text-ink">{formatEuro(order.subtotalCents - (order.discountCents ?? 0))}</span>
+            <span class="text-xl font-semibold text-ink">
+              {formatEuro(
+                order.subtotalCents -
+                  (order.discountCents ?? 0) +
+                  (order.shippingCents ?? 0),
+              )}
+            </span>
           </div>
         </div>
       </section>

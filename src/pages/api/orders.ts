@@ -25,6 +25,15 @@ const CheckoutSchema = z.object({
   paymentMethod: z.enum(["mbway", "transferencia", "paypal"]),
   notes: z.string().max(2000).optional().nullable(),
   couponCode: z.string().min(1).max(60).optional().nullable(),
+  shipping: z
+    .object({
+      id: z.string().min(1).max(60),
+      label: z.string().min(1).max(120),
+      description: z.string().max(2000).default(""),
+      costCents: z.number().int().nonnegative(),
+    })
+    .optional()
+    .nullable(),
   items: z
     .array(
       z.object({
@@ -102,6 +111,7 @@ export const POST: APIRoute = async ({ request }) => {
       paymentMethod: parsed.data.paymentMethod as PaymentMethodId,
       notes: parsed.data.notes,
       couponCode: parsed.data.couponCode ?? null,
+      shipping: parsed.data.shipping ?? null,
       items: parsed.data.items,
     });
 

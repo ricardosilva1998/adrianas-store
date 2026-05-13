@@ -41,6 +41,7 @@ export type ProductFormData = {
   images: Array<{ url: string; alt: string; kind: "image" | "video" }>;
   colors: Array<{ name: string; hex: string }>;
   variantColors: Array<{ name: string; hex: string }>;
+  shippingMethods: Array<{ id: string; label: string; costCents: number; description: string }>;
 };
 
 interface Props {
@@ -66,6 +67,7 @@ const emptyProduct: ProductFormData = {
   images: [],
   colors: [],
   variantColors: [],
+  shippingMethods: [],
 };
 
 const slugify = (value: string) =>
@@ -173,6 +175,35 @@ export default function ProductForm({ initial, mode }: Props) {
       data.variantColors.filter((_, idx) => idx !== i),
     );
   };
+
+  const addShippingMethod = () => {
+    update("shippingMethods", [
+      ...data.shippingMethods,
+      {
+        id: `m-${Math.random().toString(36).slice(2, 8)}`,
+        label: "",
+        costCents: 0,
+        description: "",
+      },
+    ]);
+  };
+
+  const updateShippingMethod = (
+    i: number,
+    field: "label" | "costCents" | "description",
+    value: string | number,
+  ) => {
+    const next = [...data.shippingMethods];
+    next[i] = { ...next[i], [field]: value } as typeof next[number];
+    update("shippingMethods", next);
+  };
+
+  const removeShippingMethod = (i: number) => {
+    update("shippingMethods", data.shippingMethods.filter((_, idx) => idx !== i));
+  };
+
+  const formatCentsText = (cents: number) =>
+    cents > 0 ? (cents / 100).toFixed(2) : "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -480,6 +511,78 @@ export default function ProductForm({ initial, mode }: Props) {
             className="mt-4 rounded-full border border-ink-line px-4 py-2 text-xs font-medium text-ink-soft hover:border-rosa-300 hover:text-rosa-500"
           >
             + Adicionar cor
+          </button>
+        </section>
+
+        <section className="rounded-3xl border border-ink-line bg-surface p-6">
+          <h2 className="text-lg font-semibold text-ink">Métodos de envio</h2>
+          <p className="mt-1 text-xs text-ink-muted">
+            Cada produto pode ter um ou mais métodos. No checkout, são oferecidos os
+            métodos do artigo mais caro do carrinho. Acima de 20€ (após desconto), o
+            envio é gratuito independentemente do método escolhido.
+          </p>
+
+          {data.shippingMethods.map((m, i) => (
+            <div
+              key={m.id}
+              className="mt-4 rounded-2xl border border-ink-line bg-rosa-50/30 p-4"
+            >
+              <div className="grid gap-3 sm:grid-cols-[1fr_140px_auto]">
+                <input
+                  value={m.label}
+                  onChange={(e) => updateShippingMethod(i, "label", e.target.value)}
+                  placeholder="Ex: CTT Normal"
+                  className="rounded-xl border border-ink-line px-3 py-2 text-sm"
+                />
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={formatCentsText(m.costCents)}
+                  onChange={(e) => {
+                    const cleaned = e.target.value.replace(",", ".").trim();
+                    if (cleaned === "") {
+                      updateShippingMethod(i, "costCents", 0);
+                      return;
+                    }
+                    const n = parseFloat(cleaned);
+                    if (!isNaN(n) && n >= 0) {
+                      updateShippingMethod(i, "costCents", Math.round(n * 100));
+                    }
+                  }}
+                  placeholder="0,00"
+                  className="rounded-xl border border-ink-line px-3 py-2 text-sm text-right"
+                  aria-label="Custo em €"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeShippingMethod(i)}
+                  className="self-start text-xs text-rosa-500 hover:underline"
+                >
+                  Remover
+                </button>
+              </div>
+              <textarea
+                value={m.description}
+                onChange={(e) => updateShippingMethod(i, "description", e.target.value)}
+                placeholder="Descrição / procedimentos (ex: prazo, transportadora, instruções)"
+                rows={2}
+                className="mt-3 w-full resize-none rounded-xl border border-ink-line px-3 py-2 text-sm"
+              />
+            </div>
+          ))}
+
+          {data.shippingMethods.length === 0 && (
+            <p className="mt-3 text-xs italic text-ink-muted">
+              Sem métodos configurados — o cliente não poderá finalizar a compra.
+            </p>
+          )}
+
+          <button
+            type="button"
+            onClick={addShippingMethod}
+            className="mt-4 rounded-full border border-ink-line px-4 py-2 text-xs font-medium text-ink-soft hover:border-rosa-300 hover:text-rosa-500"
+          >
+            + Adicionar método de envio
           </button>
         </section>
       </div>

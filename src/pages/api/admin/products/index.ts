@@ -43,6 +43,16 @@ const ProductSchema = z.object({
   variantColors: z
     .array(z.object({ name: z.string(), hex: z.string() }))
     .default([]),
+  shippingMethods: z
+    .array(
+      z.object({
+        id: z.string().min(1).max(60),
+        label: z.string().min(1).max(120),
+        costCents: z.number().int().nonnegative(),
+        description: z.string().max(2000).default(""),
+      }),
+    )
+    .default([]),
 });
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -80,6 +90,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
           active: parsed.data.active,
           sortOrder: parsed.data.sortOrder,
           variantColorTitle: parsed.data.variantColorTitle,
+          shippingMethods: parsed.data.shippingMethods,
         })
         .returning();
 

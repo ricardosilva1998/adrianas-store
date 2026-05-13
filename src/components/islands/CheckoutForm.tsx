@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "@nanostores/react";
 import { cart, cartSubtotal, clearCart } from "./stores/cart";
 import {
@@ -8,6 +8,12 @@ import {
   normalizePhone,
 } from "../../lib/customer-validation";
 import { isFormatValid, normalizePostalCode } from "../../lib/postal-code";
+import {
+  applyShippingRules,
+  FREE_SHIPPING_THRESHOLD_CENTS,
+  mostExpensiveIndex,
+  type ShippingMethod,
+} from "../../lib/shipping";
 
 const formatEuro = (value: number) =>
   new Intl.NumberFormat("pt-PT", {
@@ -123,7 +129,67 @@ export default function CheckoutForm({ initial }: Props = {}) {
 
   const subtotalCents = Math.round(subtotal * 100);
   const discountCents = coupon?.discountCents ?? 0;
-  const totalCents = Math.max(0, subtotalCents - discountCents);
+  const payableBeforeShipping = Math.max(0, subtotalCents - discountCents);
+
+  // Shipping methods come from the most-expensive item in the cart.
+  const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
+  const [selectedShippingId, setSelectedShippingId] = useState<string | null>(null);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingError, setShippingError] = useState<string | null>(null);
+  const shippingSlug = (() => {
+    const idx = mostExpensiveIndex(items);
+    return idx === -1 ? null : items[idx].productSlug;
+  })();
+
+  useEffect(() => {
+    if (!shippingSlug) {
+      setShippingMethods([]);
+      setSelectedShippingId(null);
+      return;
+    }
+    let cancelled = false;
+    setShippingLoading(true);
+    setShippingError(null);
+    fetch(`/api/products/${encodeURIComponent(shippingSlug)}/shipping`)
+      .then((res) => res.json())
+      .then((data: { methods?: ShippingMethod[]; error?: string }) => {
+        if (cancelled) return;
+        const list = Array.isArray(data.methods) ? data.methods : [];
+        setShippingMethods(list);
+        // Pre-select cheapest method so the total is meaningful from the start.
+        if (list.length > 0) {
+          const cheapest = list.reduce((m, n) => (n.costCents < m.costCents ? n : m), list[0]);
+          setSelectedShippingId(cheapest.id);
+        } else {
+          setSelectedShippingId(null);
+        }
+        if (data.error) setShippingError(data.error);
+      })
+      .catch(() => {
+        if (!cancelled) setShippingError("Não foi possível obter os métodos de envio.");
+      })
+      .finally(() => {
+        if (!cancelled) setShippingLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [shippingSlug]);
+
+  const selectedShipping =
+    shippingMethods.find((m) => m.id === selectedShippingId) ?? null;
+  const shippingRule = applyShippingRules(
+    selectedShipping?.costCents ?? 0,
+    payableBeforeShipping,
+  );
+  const shippingCents = shippingRule.cents;
+  const freeShipping = shippingRule.freeShipping;
+  const totalCents = Math.max(0, payableBeforeShipping + shippingCents);
+
+  const noShippingAvailable =
+    !shippingLoading && shippingMethods.length === 0;
+  const needsShippingChoice =
+    shippingMethods.length > 1 && selectedShipping === null;
 
   const applyCoupon = async () => {
     const code = couponInput.trim();
@@ -203,6 +269,16 @@ export default function CheckoutForm({ initial }: Props = {}) {
       paymentMethod: String(formData.get("paymentMethod") ?? "mbway"),
       notes: (formData.get("notes") as string) || null,
       couponCode: coupon?.code ?? null,
+      shipping: selectedShipping
+        ? {
+            id: selectedShipping.id,
+            label: selectedShipping.label,
+            description: selectedShipping.description,
+            // Client-suggested cents; the server re-applies the free-shipping
+            // rule against its own subtotal/discount calculation.
+            costCents: selectedShipping.costCents,
+          }
+        : null,
       items: items.map((item) => ({
         productSlug: item.productSlug,
         name: item.name,
@@ -406,6 +482,75 @@ export default function CheckoutForm({ initial }: Props = {}) {
         </section>
 
         <section>
+          <h2 className="text-lg font-semibold text-ink">Método de envio</h2>
+          <p className="mt-1 text-xs text-ink-muted">
+            {freeShipping
+              ? "Envio grátis para encomendas iguais ou superiores a 20€."
+              : items.length > 1
+                ? "Escolhe o método de envio. Aplica-se ao artigo mais caro do carrinho."
+                : "Escolhe o método de envio."}
+          </p>
+          {shippingLoading ? (
+            <p className="mt-4 text-xs text-ink-muted">A carregar métodos de envio…</p>
+          ) : noShippingAvailable ? (
+            <p className="mt-4 rounded-2xl border border-red-300 bg-red-50 p-4 text-xs text-red-700">
+              Este produto não tem métodos de envio configurados. Contacta-nos
+              para finalizar a encomenda.
+            </p>
+          ) : (
+            <fieldset className="mt-5 grid gap-3">
+              {shippingMethods.map((m) => {
+                const checked = selectedShippingId === m.id;
+                return (
+                  <label
+                    key={m.id}
+                    className="relative flex cursor-pointer items-start gap-3 rounded-2xl border border-ink-line bg-white p-4 text-sm text-ink transition has-[:checked]:border-rosa-400 has-[:checked]:bg-rosa-50"
+                  >
+                    <input
+                      type="radio"
+                      name="shippingMethodId"
+                      value={m.id}
+                      checked={checked}
+                      onChange={() => setSelectedShippingId(m.id)}
+                      className="mt-0.5 accent-rosa-500"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <span className="font-medium">{m.label}</span>
+                        <span className="text-sm font-semibold text-ink">
+                          {freeShipping ? (
+                            <span>
+                              <span className="line-through text-ink-muted">
+                                {formatEuro(m.costCents / 100)}
+                              </span>{" "}
+                              <span className="text-emerald-600">Grátis</span>
+                            </span>
+                          ) : (
+                            formatEuro(m.costCents / 100)
+                          )}
+                        </span>
+                      </div>
+                      {m.description && (
+                        <p className="mt-1 text-xs text-ink-muted">{m.description}</p>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
+            </fieldset>
+          )}
+          {shippingError && (
+            <p className="mt-3 text-xs text-red-600">{shippingError}</p>
+          )}
+          {!freeShipping && payableBeforeShipping > 0 && (
+            <p className="mt-3 text-xs text-ink-muted">
+              Faltam {formatEuro((FREE_SHIPPING_THRESHOLD_CENTS - payableBeforeShipping) / 100)}{" "}
+              para envio grátis.
+            </p>
+          )}
+        </section>
+
+        <section>
           <h2 className="text-lg font-semibold text-ink">Método de pagamento</h2>
           <p className="mt-1 text-xs text-ink-muted">
             Recebes as instruções de pagamento por email após a submissão.
@@ -534,20 +679,36 @@ export default function CheckoutForm({ initial }: Props = {}) {
             </span>
           </div>
         )}
-        <div className="mt-2 flex items-center justify-between text-xs text-ink-muted">
-          <span>Envio</span>
-          <span>A combinar</span>
+        <div className="mt-2 flex items-center justify-between text-sm">
+          <span className="text-ink-soft">Envio</span>
+          {shippingLoading ? (
+            <span className="text-xs text-ink-muted">a calcular…</span>
+          ) : freeShipping ? (
+            <span className="font-semibold text-emerald-600">Grátis</span>
+          ) : selectedShipping ? (
+            <span className="font-semibold text-ink">
+              {formatEuro(shippingCents / 100)}
+            </span>
+          ) : (
+            <span className="text-xs text-ink-muted">—</span>
+          )}
         </div>
-        {coupon && (
-          <div className="mt-3 flex items-center justify-between border-t border-ink-line pt-3 text-sm">
-            <span className="font-semibold text-ink">Total</span>
-            <span className="font-semibold text-ink">{formatEuro(totalCents / 100)}</span>
-          </div>
-        )}
+
+        <div className="mt-3 flex items-center justify-between border-t border-ink-line pt-3 text-sm">
+          <span className="font-semibold text-ink">Total</span>
+          <span className="font-semibold text-ink">{formatEuro(totalCents / 100)}</span>
+        </div>
 
         <button
           type="submit"
-          disabled={status === "submitting" || !fieldsValid || postalBusy}
+          disabled={
+            status === "submitting" ||
+            !fieldsValid ||
+            postalBusy ||
+            shippingLoading ||
+            noShippingAvailable ||
+            needsShippingChoice
+          }
           className="btn-primary mt-6 w-full"
         >
           {status === "submitting" ? "A submeter…" : "Confirmar encomenda"}

@@ -3,6 +3,7 @@ import { eq, sql as drizzleSql } from "drizzle-orm";
 import type { OrderStatus, PaymentMethodId } from "../db/schema";
 import { sendOrderEmail, notifyAdmin } from "./email";
 import { validateCoupon } from "./coupons";
+import { applyShippingRules } from "./shipping";
 
 export const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   new: ["paid", "cancelled"],
@@ -53,6 +54,12 @@ export type NewOrderInput = {
   paymentMethod: PaymentMethodId;
   notes?: string | null;
   couponCode?: string | null;
+  shipping?: {
+    id: string;
+    label: string;
+    description: string;
+    costCents: number;
+  } | null;
   items: Array<{
     productSlug: string;
     name: string;
@@ -93,6 +100,15 @@ export const createOrder = async (input: NewOrderInput) => {
       }
     }
 
+    // Server-side recomputation of shipping cost so the customer-supplied
+    // amount can never override the free-shipping rule or be tampered with.
+    const payableBeforeShipping = Math.max(0, subtotal - discountCents);
+    const shippingRule = applyShippingRules(
+      input.shipping?.costCents ?? 0,
+      payableBeforeShipping,
+    );
+    const shippingCents = input.shipping ? shippingRule.cents : 0;
+
     const [order] = await tx
       .insert(schema.orders)
       .values({
@@ -108,6 +124,9 @@ export const createOrder = async (input: NewOrderInput) => {
         subtotalCents: subtotal,
         couponCode: appliedCouponCode,
         discountCents,
+        shippingCents,
+        shippingMethodLabel: input.shipping?.label ?? null,
+        shippingMethodDescription: input.shipping?.description ?? null,
         notes: input.notes ?? null,
         status: "new",
       })
