@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PasswordInput from "../admin/PasswordInput";
 
 type Mode = "login" | "register";
 
@@ -81,13 +82,11 @@ export default function AccountForm() {
         </div>
         <div>
           <label className="field-label" htmlFor="acc-pw">Password</label>
-          <input
+          <PasswordInput
             id="acc-pw"
             name="password"
-            type="password"
             required
             minLength={mode === "register" ? 8 : 1}
-            className="field-input"
             autoComplete={mode === "login" ? "current-password" : "new-password"}
           />
           {mode === "register" && (

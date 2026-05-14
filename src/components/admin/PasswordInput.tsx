@@ -4,6 +4,7 @@ type Props = {
   id?: string;
   name: string;
   required?: boolean;
+  minLength?: number;
   autoComplete?: string;
   defaultValue?: string;
   value?: string;
@@ -17,6 +18,7 @@ export default function PasswordInput({
   id,
   name,
   required,
+  minLength,
   autoComplete,
   defaultValue,
   value,
@@ -35,6 +37,7 @@ export default function PasswordInput({
         name={name}
         type={visible ? "text" : "password"}
         required={required}
+        minLength={minLength}
         autoComplete={autoComplete}
         {...(isControlled
           ? { value, onChange: (e) => onChange?.(e.target.value) }
