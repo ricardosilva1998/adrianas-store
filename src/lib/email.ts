@@ -123,7 +123,7 @@ const baseLayout = (title: string, inner: string) => `
               <td>
                 <p style="margin:0 0 4px 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#ED7396"><strong>Drisclub</strong></p>
                 ${inner}
-                <p style="margin:32px 0 0 0;font-size:12px;color:#9ca3af">Em caso de dúvida, responde diretamente a este email.</p>
+                <p style="margin:32px 0 0 0;font-size:12px;color:#9ca3af">Em caso de dúvida, responde diretamente a este email ou envie e-mail para <a href="mailto:drisclub.shop@gmail.com" style="color:#ED7396">drisclub.shop@gmail.com</a>.</p>
               </td>
             </tr>
           </table>
