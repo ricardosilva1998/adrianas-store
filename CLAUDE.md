@@ -208,3 +208,14 @@ Format per entry:
 - QA sign-off overridden by explicit user authorization (npm test -- --run: 131 passed / 1 pre-existing skipped; npm run build: success — per user pre-deploy notes)
 - Railway deployment 40068b45-0c00-477b-a163-85d6dc313ca0 succeeded; service listening on port 3000 at 23:41:01; 60s log window clean (only expected migration NOTICEs — "already exists, skipping"); no new migration; no env-var changes
 **Open:** none
+
+### 2026-05-14 23:44 — team-deployment
+**Task:** Deploy one-line email copy change — alternative contact in transactional email footer
+**Files:** src/lib/email.ts
+**Decisions:**
+- Commit 8b63d5e — "feat(email): contacto alternativo drisclub.shop@gmail.com no rodapé dos e-mails"; pushed to origin/main @ 8b63d5e (8079d39..8b63d5e)
+- payment.md left untracked as instructed; secrets scan clean (no API_KEY/SECRET/TOKEN/PASSWORD patterns in staged diff)
+- Change is in baseLayout — propagates to all transactional emails: new/paid/preparing/shipped/delivered/cancelled status emails and [ADMIN] notification
+- QA sign-off overridden by explicit user authorization ("deploy" reply; npm test -- --run: 131 passed / 1 pre-existing skipped; npm run build: success — per user pre-deploy notes)
+- Railway deployment 73b15a01-64eb-4e97-a62a-b83ea9bd47a6 succeeded; service listening on port 3000 at 23:43:49; 60s log window clean (only expected migration NOTICEs — "already exists, skipping"); no new migration; no env-var changes
+**Open:** none
