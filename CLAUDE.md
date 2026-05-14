@@ -219,3 +219,15 @@ Format per entry:
 - QA sign-off overridden by explicit user authorization ("deploy" reply; npm test -- --run: 131 passed / 1 pre-existing skipped; npm run build: success — per user pre-deploy notes)
 - Railway deployment 73b15a01-64eb-4e97-a62a-b83ea9bd47a6 succeeded; service listening on port 3000 at 23:43:49; 60s log window clean (only expected migration NOTICEs — "already exists, skipping"); no new migration; no env-var changes
 **Open:** none
+
+### 2026-05-14 18:36 — team-deployment
+**Task:** Deploy password show/hide toggle on customer AccountForm + commit product-colour data-fix scripts + push pre-existing spec commit
+**Files:** src/components/admin/PasswordInput.tsx, src/components/admin/PasswordInput.test.tsx, src/components/islands/AccountForm.tsx, src/components/islands/AccountForm.test.tsx, scripts/inspect-variant-colors.ts, scripts/copy-estampa-colors.ts, scripts/swap-capa-colors.ts
+**Decisions:**
+- Commit 1f83265 — "docs(spec): design — esconder hero na versão mobile" (pre-existing local commit, now pushed)
+- Commit 600f41d — "feat(conta): toggle mostrar/esconder palavra-passe no formulário de conta"; PasswordInput gains optional `minLength` prop; AccountForm swaps bare <input type="password"> for <PasswordInput>; 7 new tests (4 + 3)
+- Commit 435164d — "chore(scripts): scripts de cores de produto (inspeção, cópia, troca)"; one-off DB tooling for read-only audit + data fixes already applied to production; committed for documentation per scripts/migrate-*.ts precedent
+- Pushed origin/main @ 435164d (a133e49..435164d); payment.md left untracked; secrets scan clean on all staged diffs
+- QA sign-off overridden by explicit user authorization (npm test -- --run: 138 passed / 1 skipped; npm run build: success)
+- Railway deployment b1410f37-595d-4f2b-9a8b-14d3d80b5683 succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs — "already exists, skipping"); no new migration; no env-var changes
+**Open:** none
