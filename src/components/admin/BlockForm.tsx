@@ -132,6 +132,19 @@ function HeroForm({ data, onChange }: { data: any; onChange: (d: any) => void })
         </div>
       </div>
       <div>
+        <label className="flex items-center gap-2 text-sm text-ink-soft">
+          <input
+            type="checkbox"
+            checked={data.hideOnMobile ?? false}
+            onChange={(e) => onChange({ hideOnMobile: e.target.checked })}
+          />
+          Esconder na versão mobile
+        </label>
+        <p className="mt-1 text-xs text-ink-muted">
+          O hero deixa de aparecer em telemóveis (ecrãs com menos de 768px de largura). No computador continua visível normalmente.
+        </p>
+      </div>
+      <div>
         <label className="field-label">Titulo</label>
         <input value={data.title} onChange={(e) => onChange({ title: e.target.value })} className="field-input" />
       </div>

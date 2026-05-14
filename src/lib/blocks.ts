@@ -41,6 +41,7 @@ const heroDataSchema = z.object({
   imageFocalMobile: focalSchema,
   slides: z.array(heroSlideSchema).default([]),
   layout: z.enum(["image-right", "image-left", "background-image", "centered", "carousel"]).default("image-right"),
+  hideOnMobile: z.boolean().default(false),
 });
 
 const textDataSchema = z.object({
@@ -472,7 +473,7 @@ export function createBlock(type: BlockType): Block {
   const id = nanoid(10);
   switch (type) {
     case "hero":
-      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", imageFocal: { x: 50, y: 50 }, imageUrlMobile: "", imageFocalMobile: { x: 50, y: 50 }, slides: [], layout: "image-right" } };
+      return { id, type, data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", imageFocal: { x: 50, y: 50 }, imageUrlMobile: "", imageFocalMobile: { x: 50, y: 50 }, slides: [], layout: "image-right", hideOnMobile: false } };
     case "text":
       return { id, type, data: { html: "" } };
     case "product-grid":

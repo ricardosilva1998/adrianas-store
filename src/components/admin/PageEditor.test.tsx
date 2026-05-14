@@ -22,7 +22,7 @@ describe("PageEditor", () => {
 
   it("renders a block card per block", () => {
     render(<PageEditor slug="home" title="Home" initialBlocks={[hero]} published hasDraft={false} />);
-    expect(screen.getByText(/hero/i)).toBeInTheDocument();
+    expect(screen.getByText("Hero")).toBeInTheDocument();
   });
 
   it("auto-saves a dirty block when Publicar is clicked, then publishes", async () => {

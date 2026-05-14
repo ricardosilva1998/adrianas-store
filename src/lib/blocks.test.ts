@@ -36,6 +36,24 @@ describe("backward compat on existing blocks", () => {
     }
   });
 
+  it("hero block parses without hideOnMobile and gets default false", () => {
+    const old = { id: "h", type: "hero" as const, data: { title: "x", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "" } };
+    const parsed = blockSchema.safeParse(old);
+    expect(parsed.success).toBe(true);
+    if (parsed.success && parsed.data.type === "hero") {
+      expect(parsed.data.data.hideOnMobile).toBe(false);
+    }
+  });
+
+  it("hero block accepts hideOnMobile set to true", () => {
+    const block = { id: "h", type: "hero" as const, data: { title: "x", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", hideOnMobile: true } };
+    const parsed = blockSchema.safeParse(block);
+    expect(parsed.success).toBe(true);
+    if (parsed.success && parsed.data.type === "hero") {
+      expect(parsed.data.data.hideOnMobile).toBe(true);
+    }
+  });
+
   it("cta-banner block parses without backgroundImage/align and gets defaults", () => {
     const old = { id: "c", type: "cta-banner" as const, data: { title: "x", subtitle: "", buttonText: "", buttonUrl: "", bgColor: "ink" } };
     const parsed = blockSchema.safeParse(old);

@@ -18,6 +18,21 @@ describe("BlockForm(hero)", () => {
     await user.type(titleInput, "Olá");
     expect(onChange).toHaveBeenCalled();
   });
+
+  it("toggles hideOnMobile when the 'esconder na versão mobile' checkbox is clicked", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const block: Block = {
+      id: "a",
+      type: "hero",
+      data: { title: "", titleAccent: "", subtitle: "", buttonText: "", buttonUrl: "", imageUrl: "", slides: [], layout: "image-right" as const, hideOnMobile: false },
+    };
+    render(<BlockForm block={block} onChange={onChange} />);
+    const checkbox = screen.getByRole("checkbox", { name: /esconder na versão mobile/i });
+    expect(checkbox).not.toBeChecked();
+    await user.click(checkbox);
+    expect(onChange).toHaveBeenCalledWith({ hideOnMobile: true });
+  });
 });
 
 describe("BlockForm(faq)", () => {
