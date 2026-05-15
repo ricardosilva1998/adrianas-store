@@ -7,7 +7,7 @@ interface Props {
 }
 
 const { config } = Astro.props;
-const { identity, nav, banner } = config.globals;
+const { identity, nav } = config.globals;
 const { logo } = config.theme;
 const customer = Astro.locals.customer;
 const accountInitial = customer?.name?.trim().charAt(0).toUpperCase() || "";
@@ -15,19 +15,7 @@ const accountInitial = customer?.name?.trim().charAt(0).toUpperCase() || "";
 const currentPath = Astro.url.pathname;
 const isActive = (href: string) =>
   href === "/" ? currentPath === "/" : currentPath.startsWith(href);
-
-const bannerBg = banner.bgColor === "rosa" ? "bg-rosa-400 text-white" : "bg-ink text-white";
 ---
-
-{banner.enabled && banner.text && (
-  <div class={`${bannerBg} text-center text-xs font-medium px-4 py-2`}>
-    {banner.linkUrl ? (
-      <a href={banner.linkUrl} class="underline underline-offset-2">{banner.text}</a>
-    ) : (
-      <span>{banner.text}</span>
-    )}
-  </div>
-)}
 
 <header class="sticky top-0 z-40 border-b border-ink-line bg-white/95 backdrop-blur">
   <div class="section flex h-24 items-center justify-between gap-6 md:h-28">
