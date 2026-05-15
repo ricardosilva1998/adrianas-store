@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   escapeHtml,
   hashContentSync,
-  hashContentAsync,
   legacyBannerMigration,
 } from "./legacy-banner";
+import { hashContentAsync } from "./banner-hash";
 import { globalsSchema } from "./config";
 
 describe("escapeHtml", () => {

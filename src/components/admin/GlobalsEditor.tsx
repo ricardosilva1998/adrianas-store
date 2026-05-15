@@ -3,6 +3,9 @@ import type { Globals, SiteConfig } from "../../lib/config";
 import DragList from "./DragList";
 import PreviewShell from "./PreviewShell";
 import { RichTextEditor } from "./RichTextEditor";
+import ColorPicker from "./ColorPicker";
+import { hashContentAsync } from "../../lib/banner-hash";
+import { sanitizeAnnouncement } from "../../lib/sanitize";
 
 interface Props {
   initialConfig: SiteConfig;
@@ -250,36 +253,103 @@ function FooterForm({ config, setGlobals }: FormProps) {
 
 function BannerForm({ config, setGlobals }: FormProps) {
   const { banner } = config.globals;
-  const patch = (p: Partial<Globals["banner"]>) => setGlobals({ banner: { ...banner, ...p } });
+  const patch = (p: Partial<Globals["banner"]>) =>
+    setGlobals({ banner: { ...banner, ...p } });
+
+  const brandingPresets = useMemo(() => {
+    const presets: Array<{ label: string; hex: string }> = [
+      { label: "Primária", hex: config.theme.colors.primary },
+      { label: "Neutra", hex: config.theme.colors.neutral },
+    ];
+    if (config.theme.colors.accent) {
+      presets.push({ label: "Destaque", hex: config.theme.colors.accent });
+    }
+    presets.push(
+      { label: "Branco", hex: "#FFFFFF" },
+      { label: "Preto", hex: "#111111" },
+    );
+    return presets;
+  }, [
+    config.theme.colors.primary,
+    config.theme.colors.neutral,
+    config.theme.colors.accent,
+  ]);
+
+  const handleContentChange = (html: string) => {
+    patch({ contentHtml: html });
+    void hashContentAsync(html).then((v) => patch({ contentVersion: v }));
+  };
+
+  const previewHtml = useMemo(
+    () => sanitizeAnnouncement(banner.contentHtml),
+    [banner.contentHtml],
+  );
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      <h3 className="text-sm font-semibold text-ink">Barra de anúncio</h3>
+
       <label className="flex items-center gap-2 text-sm text-ink-soft">
-        <input type="checkbox" checked={banner.enabled} onChange={(e) => patch({ enabled: e.target.checked })} />
-        Mostrar banner
+        <input
+          type="checkbox"
+          checked={banner.enabled}
+          onChange={(e) => patch({ enabled: e.target.checked })}
+        />
+        Mostrar barra
       </label>
-      <Field label="Texto" value={banner.text} onChange={(text) => patch({ text })} />
-      <Field label="Link (opcional)" value={banner.linkUrl ?? ""} onChange={(v) => patch({ linkUrl: v || null })} />
+
       <div>
-        <label className="field-label">Cor de fundo</label>
-        <div className="mt-1 flex gap-2">
-          {(["rosa", "ink"] as const).map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => patch({ bgColor: c })}
-              className={`flex-1 rounded-lg border px-3 py-2 text-xs ${
-                banner.bgColor === c ? "border-rosa-400 bg-rosa-50 dark:bg-rosa-500/15" : "border-ink-line"
-              }`}
-            >
-              {c === "rosa" ? "Rosa" : "Escuro"}
-            </button>
-          ))}
+        <label className="field-label">Conteúdo</label>
+        <div className="mt-1">
+          <RichTextEditor
+            mode="inline"
+            value={banner.contentHtml}
+            onChange={handleContentChange}
+            minHeight={56}
+            placeholder="Frete grátis ≥ €20 · Ver coleção…"
+          />
         </div>
+        <p className="mt-1 text-xs text-ink-muted">
+          Apenas negrito, itálico, sublinhado, cor e links são suportados.
+        </p>
       </div>
+
+      <ColorPicker
+        label="Cor de fundo"
+        value={banner.bgHex}
+        onChange={(bgHex) => patch({ bgHex })}
+        showScale={false}
+        presets={brandingPresets}
+      />
+
+      <ColorPicker
+        label="Cor de texto"
+        value={banner.textHex}
+        onChange={(textHex) => patch({ textHex })}
+        showScale={false}
+        presets={brandingPresets}
+      />
+
       <label className="flex items-center gap-2 text-sm text-ink-soft">
-        <input type="checkbox" checked={banner.dismissible} onChange={(e) => patch({ dismissible: e.target.checked })} />
-        Permitir fechar
+        <input
+          type="checkbox"
+          checked={banner.dismissible}
+          onChange={(e) => patch({ dismissible: e.target.checked })}
+        />
+        Permitir fechar (reaparece quando o conteúdo mudar)
       </label>
+
+      <div>
+        <label className="field-label">Pré-visualização</label>
+        <div
+          className="mt-1 rounded-lg border border-ink-line px-4 py-2 text-center text-xs [&_a]:underline [&_a]:underline-offset-2"
+          style={{ background: banner.bgHex, color: banner.textHex }}
+          dangerouslySetInnerHTML={{ __html: previewHtml || "&nbsp;" }}
+        />
+        <p className="mt-1 text-xs text-ink-muted">
+          Assim aparece na loja (sem o botão de fechar).
+        </p>
+      </div>
     </div>
   );
 }
