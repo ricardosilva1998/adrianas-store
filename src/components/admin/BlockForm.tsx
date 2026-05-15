@@ -1,5 +1,6 @@
 import type { Block, Icon } from "../../lib/blocks";
 import ImagePicker from "./ImagePicker";
+import MediaPicker from "./MediaPicker";
 import FocalPointEditor from "./FocalPointEditor";
 import IconPreview from "./IconPreview";
 import { SocialIconPreview } from "./SocialIconPreview";
@@ -989,14 +990,16 @@ function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) 
   const initialValue = data.html ?? data.markdown ?? "";
   const aspect = data.imageAspect ?? "landscape";
   const aspectRatio = aspect === "square" ? 1 : aspect === "portrait" ? 4 / 5 : 16 / 9;
+  const mediaKind: "image" | "video" = data.mediaKind ?? "image";
   return (
     <div className="grid gap-4">
-      <ImagePicker
-        label="Imagem"
+      <MediaPicker
+        label="Imagem ou vídeo"
         value={data.imageUrl}
-        onChange={(imageUrl) => onChange({ imageUrl })}
+        kind={mediaKind}
+        onChange={(imageUrl, kind) => onChange({ imageUrl, mediaKind: kind })}
       />
-      {data.imageUrl && (
+      {data.imageUrl && mediaKind === "image" && (
         <FocalPointEditor
           label="Ajustar enquadramento"
           imageUrl={data.imageUrl}
@@ -1006,7 +1009,9 @@ function ImageTextSplitForm({ data, onChange }: { data: any; onChange: (d: any) 
         />
       )}
       <div>
-        <label className="field-label">Texto alternativo da imagem</label>
+        <label className="field-label">
+          {mediaKind === "video" ? "Descrição do vídeo (aria-label)" : "Texto alternativo da imagem"}
+        </label>
         <input value={data.imageAlt} onChange={(e) => onChange({ imageAlt: e.target.value })} className="field-input" />
       </div>
       <div>

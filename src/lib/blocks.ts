@@ -157,6 +157,7 @@ const imageTextSplitDataSchema = z.object({
   markdown: z.string().optional(),
   layout: z.enum(["image-left", "image-right", "image-top", "image-bottom"]).default("image-left"),
   imageAspect: z.enum(["square", "landscape", "portrait"]).default("landscape"),
+  mediaKind: z.enum(["image", "video"]).default("image"),
 });
 
 const videoEmbedDataSchema = z.object({

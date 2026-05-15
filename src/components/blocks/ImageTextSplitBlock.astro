@@ -12,6 +12,7 @@ interface Props {
     markdown?: string;
     layout: "image-left" | "image-right" | "image-top" | "image-bottom";
     imageAspect?: "square" | "landscape" | "portrait";
+    mediaKind?: "image" | "video";
   };
 }
 
@@ -20,6 +21,7 @@ const html = renderBlockContent({ html: data.html, markdown: data.markdown });
 const isStacked = data.layout === "image-top" || data.layout === "image-bottom";
 const imageFirst = data.layout !== "image-right" && data.layout !== "image-bottom";
 const focalCss = focalToCss(data.imageFocal);
+const isVideo = data.mediaKind === "video";
 
 const aspectClass =
   data.imageAspect === "square"
@@ -39,12 +41,25 @@ const capClass = isStacked ? "max-h-[32rem]" : "";
           <>
             {data.imageUrl && (
               <div class={`w-full overflow-hidden rounded-3xl ${aspectClass} ${capClass}`}>
-                <img
-                  src={data.imageUrl}
-                  alt={data.imageAlt || data.title}
-                  class="h-full w-full object-cover"
-                  style={`object-position: ${focalCss};`}
-                />
+                {isVideo ? (
+                  <video
+                    src={data.imageUrl}
+                    class="h-full w-full object-cover"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                    aria-label={data.imageAlt || data.title}
+                  />
+                ) : (
+                  <img
+                    src={data.imageUrl}
+                    alt={data.imageAlt || data.title}
+                    class="h-full w-full object-cover"
+                    style={`object-position: ${focalCss};`}
+                  />
+                )}
               </div>
             )}
             <div>
@@ -74,12 +89,25 @@ const capClass = isStacked ? "max-h-[32rem]" : "";
             </div>
             {data.imageUrl && (
               <div class={`w-full overflow-hidden rounded-3xl ${aspectClass} ${capClass}`}>
-                <img
-                  src={data.imageUrl}
-                  alt={data.imageAlt || data.title}
-                  class="h-full w-full object-cover"
-                  style={`object-position: ${focalCss};`}
-                />
+                {isVideo ? (
+                  <video
+                    src={data.imageUrl}
+                    class="h-full w-full object-cover"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                    aria-label={data.imageAlt || data.title}
+                  />
+                ) : (
+                  <img
+                    src={data.imageUrl}
+                    alt={data.imageAlt || data.title}
+                    class="h-full w-full object-cover"
+                    style={`object-position: ${focalCss};`}
+                  />
+                )}
               </div>
             )}
           </>
@@ -91,12 +119,25 @@ const capClass = isStacked ? "max-h-[32rem]" : "";
           <>
             {data.imageUrl && (
               <div class={`overflow-hidden rounded-3xl ${aspectClass}`}>
-                <img
-                  src={data.imageUrl}
-                  alt={data.imageAlt || data.title}
-                  class="h-full w-full object-cover"
-                  style={`object-position: ${focalCss};`}
-                />
+                {isVideo ? (
+                  <video
+                    src={data.imageUrl}
+                    class="h-full w-full object-cover"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                    aria-label={data.imageAlt || data.title}
+                  />
+                ) : (
+                  <img
+                    src={data.imageUrl}
+                    alt={data.imageAlt || data.title}
+                    class="h-full w-full object-cover"
+                    style={`object-position: ${focalCss};`}
+                  />
+                )}
               </div>
             )}
             <div>
@@ -126,12 +167,25 @@ const capClass = isStacked ? "max-h-[32rem]" : "";
             </div>
             {data.imageUrl && (
               <div class={`overflow-hidden rounded-3xl ${aspectClass}`}>
-                <img
-                  src={data.imageUrl}
-                  alt={data.imageAlt || data.title}
-                  class="h-full w-full object-cover"
-                  style={`object-position: ${focalCss};`}
-                />
+                {isVideo ? (
+                  <video
+                    src={data.imageUrl}
+                    class="h-full w-full object-cover"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                    aria-label={data.imageAlt || data.title}
+                  />
+                ) : (
+                  <img
+                    src={data.imageUrl}
+                    alt={data.imageAlt || data.title}
+                    class="h-full w-full object-cover"
+                    style={`object-position: ${focalCss};`}
+                  />
+                )}
               </div>
             )}
           </>

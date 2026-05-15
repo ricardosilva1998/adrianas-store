@@ -73,6 +73,24 @@ describe("backward compat on existing blocks", () => {
     }
   });
 
+  it("image-text-split parses legacy data without mediaKind and defaults to image", () => {
+    const old = { id: "i", type: "image-text-split" as const, data: { imageUrl: "https://example.com/x.jpg", imageAlt: "", title: "", html: "", layout: "image-left", imageAspect: "landscape" } };
+    const parsed = blockSchema.safeParse(old);
+    expect(parsed.success).toBe(true);
+    if (parsed.success && parsed.data.type === "image-text-split") {
+      expect(parsed.data.data.mediaKind).toBe("image");
+    }
+  });
+
+  it("image-text-split accepts mediaKind=video", () => {
+    const next = { id: "i", type: "image-text-split" as const, data: { imageUrl: "https://example.com/clip.mp4", imageAlt: "", title: "", html: "", layout: "image-left", imageAspect: "landscape", mediaKind: "video" } };
+    const parsed = blockSchema.safeParse(next);
+    expect(parsed.success).toBe(true);
+    if (parsed.success && parsed.data.type === "image-text-split") {
+      expect(parsed.data.data.mediaKind).toBe("video");
+    }
+  });
+
   it("product-grid parses without columns/layout and gets defaults", () => {
     const old = { id: "p", type: "product-grid" as const, data: { title: "", subtitle: "", filter: "bestsellers" } };
     const parsed = blockSchema.safeParse(old);
