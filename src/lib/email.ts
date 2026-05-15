@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import type { Order, OrderItem, OrderStatus } from "../db/schema";
+import { sanitizeHtml } from "./sanitize";
 
 const apiKey = process.env.RESEND_API_KEY;
 const fromEmail = process.env.EMAIL_FROM ?? "Drisclub <no-reply@drisclub.com>";
@@ -123,7 +124,7 @@ const baseLayout = (title: string, inner: string) => `
               <td>
                 <p style="margin:0 0 4px 0;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#ED7396"><strong>Drisclub</strong></p>
                 ${inner}
-                <p style="margin:32px 0 0 0;font-size:12px;color:#9ca3af">Em caso de dúvida, responde diretamente a este email ou envie e-mail para <a href="mailto:drisclub.shop@gmail.com" style="color:#ED7396">drisclub.shop@gmail.com</a>.</p>
+                <p style="margin:32px 0 0 0;font-size:12px;color:#9ca3af">Em caso de dúvida, responde diretamente a este email ou envia e-mail para <a href="mailto:drisclub.shop@gmail.com" style="color:#ED7396">drisclub.shop@gmail.com</a>.</p>
               </td>
             </tr>
           </table>
@@ -215,10 +216,18 @@ export const buildOrderEmail = ({
 };
 
 /**
- * Plain-text payment instructions → safe HTML (escape + line-breaks).
- * Used to embed the chosen method's procedures inside the confirmation email.
+ * Render payment instructions for the order confirmation email.
+ *
+ * Admins edit `payments[].instructions` via the RichTextEditor in
+ * /admin/globals → Pagamentos, so the value is HTML (e.g. <p>…</p>). For
+ * legacy rows that still hold plain text with \n, the regex check falls back
+ * to entity-escaping + nl2br so line breaks keep rendering.
  */
+const HTML_TAG_RE = /<[a-z][\s\S]*?>/i;
 const renderPaymentInstructions = (raw: string): string => {
+  if (HTML_TAG_RE.test(raw)) {
+    return sanitizeHtml(raw);
+  }
   const escaped = raw
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
