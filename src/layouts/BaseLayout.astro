@@ -51,11 +51,15 @@ const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION;
   <head>
     <meta charset="utf-8" />
     {favicon.url ? (
-      <link rel="icon" href={favicon.url} />
+      <>
+        <link rel="icon" href={favicon.url} />
+        <link rel="apple-touch-icon" href={favicon.url} />
+      </>
     ) : (
       <>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/favicon.svg" />
       </>
     )}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
