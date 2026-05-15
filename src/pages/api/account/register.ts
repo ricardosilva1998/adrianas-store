@@ -7,6 +7,7 @@ import {
   createCustomerToken,
   setCustomerCookie,
 } from "../../../lib/customer-auth";
+import { sendWelcomeEmail } from "../../../lib/email";
 
 export const prerender = false;
 
@@ -59,6 +60,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   const token = await createCustomerToken(created);
   setCustomerCookie(cookies, token);
+
+  // Fire-and-forget: welcome email failures should never block account
+  // creation. The email module swallows errors and logs internally.
+  void sendWelcomeEmail({ name: created.name, email: created.email });
 
   return new Response(
     JSON.stringify({ success: true, customer: created }),

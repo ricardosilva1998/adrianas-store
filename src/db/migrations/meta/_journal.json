@@ -120,6 +120,13 @@
       "when": 1778783000000,
       "tag": "0016_product_image_focal",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1778857704000,
+      "tag": "0017_password_reset_tokens",
+      "breakpoints": true
     }
   ]
 }

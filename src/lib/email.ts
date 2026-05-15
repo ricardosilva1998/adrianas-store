@@ -275,6 +275,94 @@ export const sendOrderEmail = async (params: {
   }
 };
 
+export const sendWelcomeEmail = async (params: {
+  name: string;
+  email: string;
+}) => {
+  if (!resend) {
+    console.warn(
+      `[email] Resend não configurado — skip welcome email para ${params.email}`,
+    );
+    return;
+  }
+
+  const firstName = params.name.trim().split(/\s+/)[0] || "";
+  const subject = "Bem-vindo(a) ao Drisclub 💌";
+  const inner = `
+    <h1 style="margin:8px 0 16px 0;font-size:24px;color:#111">Agora já fazes parte do clube ✨</h1>
+    <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#4b5563">
+      Olá ${firstName}, obrigada por criares conta na Drisclub!
+    </p>
+    <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#4b5563">
+      Cada peça é feita à mão no nosso atelier, personalizada para ti.
+      Aproveita para explorar a coleção e descobrir as novidades.
+    </p>
+    <p style="margin:24px 0 0 0">
+      <a href="https://drisclub.com/catalogo" style="display:inline-block;padding:12px 24px;border-radius:999px;background:#ED7396;color:#fff;text-decoration:none;font-weight:600;font-size:14px">
+        Ver coleção
+      </a>
+    </p>
+  `;
+  try {
+    await resend.emails.send({
+      from: fromEmail,
+      to: [params.email],
+      subject,
+      html: baseLayout(subject, inner),
+      replyTo: adminEmail ? [adminEmail] : undefined,
+    });
+  } catch (err) {
+    console.error("[email] Falha a enviar welcome email:", err);
+  }
+};
+
+export const sendPasswordResetEmail = async (params: {
+  name: string;
+  email: string;
+  resetUrl: string;
+}) => {
+  if (!resend) {
+    console.warn(
+      `[email] Resend não configurado — skip password-reset email para ${params.email}`,
+    );
+    return;
+  }
+
+  const firstName = params.name.trim().split(/\s+/)[0] || "";
+  const subject = "Repor palavra-passe — Drisclub";
+  const inner = `
+    <h1 style="margin:8px 0 16px 0;font-size:24px;color:#111">Repor palavra-passe</h1>
+    <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#4b5563">
+      Olá ${firstName}, recebemos um pedido para repor a palavra-passe da tua conta.
+    </p>
+    <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#4b5563">
+      Clica no botão abaixo para escolher uma nova palavra-passe. O link é válido durante <strong>1 hora</strong>.
+    </p>
+    <p style="margin:24px 0 0 0">
+      <a href="${params.resetUrl}" style="display:inline-block;padding:12px 24px;border-radius:999px;background:#ED7396;color:#fff;text-decoration:none;font-weight:600;font-size:14px">
+        Definir nova palavra-passe
+      </a>
+    </p>
+    <p style="margin:24px 0 0 0;font-size:12px;line-height:1.6;color:#9ca3af">
+      Se não pediste a reposição, podes ignorar este email — a tua palavra-passe atual continua válida.
+    </p>
+    <p style="margin:12px 0 0 0;font-size:11px;line-height:1.5;color:#9ca3af;word-break:break-all">
+      Se o botão não funcionar, copia este link:<br />${params.resetUrl}
+    </p>
+  `;
+  try {
+    await resend.emails.send({
+      from: fromEmail,
+      to: [params.email],
+      subject,
+      html: baseLayout(subject, inner),
+      replyTo: adminEmail ? [adminEmail] : undefined,
+    });
+  } catch (err) {
+    console.error("[email] Falha a enviar password-reset email:", err);
+  }
+};
+
 export const notifyAdmin = async (params: {
   order: Order;
   items: OrderItem[];
