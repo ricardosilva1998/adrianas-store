@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "../../../db/client";
 import { siteConfigSchema } from "../../../lib/config";
 import { getSiteConfig, invalidateSiteConfigCache } from "../../../lib/config-server";
+import { hashContentSync } from "../../../lib/legacy-banner";
 
 export const GET: APIRoute = async () => {
   const config = await getSiteConfig();
@@ -30,6 +31,13 @@ export const PUT: APIRoute = async ({ request }) => {
       { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
+
+  // Defensively recompute contentVersion server-side. The admin client
+  // hashes async on every onChange, but the server is the source of truth —
+  // never trust client-supplied hashes for storage keys.
+  parsed.data.globals.banner.contentVersion = hashContentSync(
+    parsed.data.globals.banner.contentHtml,
+  );
 
   await db
     .update(schema.siteConfig)
