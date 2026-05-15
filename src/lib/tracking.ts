@@ -55,7 +55,7 @@ export async function recordPageView(input: {
   ip: string;
   ua: string;
 }): Promise<void> {
-  const secret = process.env.AUTH_SECRET ?? "";
+  const secret = process.env.JWT_SECRET ?? "";
   if (!secret) {
     return;
   }
