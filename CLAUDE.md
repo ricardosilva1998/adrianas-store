@@ -231,3 +231,14 @@ Format per entry:
 - QA sign-off overridden by explicit user authorization (npm test -- --run: 138 passed / 1 skipped; npm run build: success)
 - Railway deployment b1410f37-595d-4f2b-9a8b-14d3d80b5683 succeeded; service listening on port 3000; 60s log window clean (only expected migration NOTICEs — "already exists, skipping"); no new migration; no env-var changes
 **Open:** none
+
+### 2026-05-15 13:44 — team-deployment
+**Task:** Deploy "esconder hero na versão mobile" toggle por bloco (hideOnMobile + checkbox no editor + wrapper hidden md:block)
+**Files:** src/lib/blocks.ts, src/lib/blocks.test.ts, src/components/admin/BlockForm.tsx, src/components/admin/BlockForm.test.tsx, src/components/admin/PageEditor.test.tsx, src/components/blocks/BlockRenderer.astro, docs/superpowers/plans/2026-05-14-hero-hide-on-mobile.md
+**Decisions:**
+- Commit 694c4a5 — "feat(hero): opção 'esconder na versão mobile' por bloco"; pushed to origin/main @ 694c4a5 (1dcd17a..694c4a5); new `hideOnMobile` boolean on `heroDataSchema` (default false), BlockRenderer wraps hero in `hidden md:block` when true, checkbox added to Hero block form
+- Commit 6ca622c — "docs(plan): plano de implementação — esconder hero na versão mobile" (acompanhante)
+- payment.md left untracked as instructed; secrets scan clean (no API_KEY/SECRET/TOKEN/PASSWORD patterns in pushed diff between origin/main..HEAD)
+- QA sign-off overridden by explicit user authorization ("podes fazer commit e deploy"; npm test -- --run: 141 passed / 1 skipped — +3 new tests from this feature; npm run build: success in 1.69s)
+- Railway picked up GitHub push automatically (no manual `railway up`); deployment f263a078-36ef-49ad-b6df-7ab92ac12f2f BUILDING → DEPLOYING → SUCCESS in ~1m51s; service listening on port 3000 at 12:44:19; 60s log window clean (only expected migration NOTICEs — "__drizzle_migrations / schema drizzle already exists, skipping"); no new migration; no env-var changes
+**Open:** none
