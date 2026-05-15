@@ -287,12 +287,37 @@ Alterar o `BannerForm` actual:
 - Adiciona:
   - Checkbox "Mostrar barra" (já existia, mantém).
   - `<RichTextEditor mode="inline" value={banner.contentHtml} onChange={…} minHeight={56} placeholder="Frete grátis ≥ €20 · Ver coleção…" />`
-  - `<ColorPicker label="Cor de fundo" value={banner.bgHex} onChange={…} showScale={false} />`
-  - `<ColorPicker label="Cor de texto" value={banner.textHex} onChange={…} showScale={false} />`
+  - `<ColorPicker label="Cor de fundo" value={banner.bgHex} onChange={…} showScale={false} presets={brandingPresets} />`
+  - `<ColorPicker label="Cor de texto" value={banner.textHex} onChange={…} showScale={false} presets={brandingPresets} />`
   - Checkbox "Permitir fechar (reaparece quando o conteúdo mudar)".
   - Bloco de **preview** em baixo: um `<div>` com as cores aplicadas e
     `dangerouslySetInnerHTML={{ __html: sanitizeAnnouncement(banner.contentHtml) }}`
     + texto "Pré-visualização — assim aparece na loja". Sem botão de fechar no preview.
+
+**Presets de branding** — fila de swatches por baixo do `ColorPicker` (extensão ao
+componente; usado igual para fundo e texto):
+
+```ts
+// computado dentro do BannerForm a partir do config.theme.colors
+const brandingPresets = [
+  { label: "Primária", hex: config.theme.colors.primary },
+  { label: "Neutra", hex: config.theme.colors.neutral },
+  ...(config.theme.colors.accent ? [{ label: "Destaque", hex: config.theme.colors.accent }] : []),
+  { label: "Branco", hex: "#FFFFFF" },
+  { label: "Preto", hex: "#111111" },
+];
+```
+
+Cada preset é um botão circular 24×24px com `background: hex`, `title="<label>"`,
+`aria-label="Aplicar cor <label> (<hex>)"`. Click chama `onChange(hex)`. Mostra um anel
+fino à volta do swatch actualmente seleccionado (comparação por hex case-insensitive). A
+implementação vive em `ColorPicker.tsx` — nova prop opcional
+`presets?: Array<{ label: string; hex: string }>`. Se omitida, o componente comporta-se
+exactamente como hoje (zero impacto nos call-sites existentes em `ThemeEditor` etc.).
+
+**Por que não hardcodar `#ED7396`/`#111111` directos**: as cores do branding podem ser
+alteradas em `/admin/theme`. Ler do `config.theme.colors` garante que os presets seguem
+a marca actual sem precisar de manutenção.
 
 `patch()` actualiza `setGlobals` como hoje. O `contentVersion` é recalculado pelo
 cliente em cada `onChange` do RichTextEditor via `hashContentAsync` (definida em §1b;
@@ -408,7 +433,8 @@ existente (`npm test -- --run`) é suficiente.
 - `src/lib/sanitize.test.ts` — testes para `sanitizeAnnouncement`
 - `src/components/admin/RichTextEditor.tsx` — prop `mode`
 - `src/components/admin/RichTextEditor.test.tsx` (criar se não existir; senão estender)
-- `src/components/admin/GlobalsEditor.tsx` — `BannerForm` reescrito
+- `src/components/admin/ColorPicker.tsx` — prop opcional `presets` + linha de swatches
+- `src/components/admin/GlobalsEditor.tsx` — `BannerForm` reescrito, passa `brandingPresets`
 - `src/pages/api/admin/globals.ts` — re-hash defensivo de `contentVersion`
 - `src/components/Header.astro` — remove bloco do banner
 - `src/layouts/BaseLayout.astro` — adiciona `<AnnouncementBar>` antes do `<Header>`
