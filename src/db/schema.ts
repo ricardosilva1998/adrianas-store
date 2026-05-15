@@ -389,6 +389,22 @@ export const orderEvents = pgTable(
   (t) => [index("order_events_order_idx").on(t.orderId)],
 );
 
+export const pageViews = pgTable(
+  "page_views",
+  {
+    id: serial("id").primaryKey(),
+    path: text("path").notNull(),
+    visitorHash: text("visitor_hash").notNull(),
+    viewedAt: timestamp("viewed_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    index("page_views_viewed_at_idx").on(t.viewedAt),
+    index("page_views_path_date_idx").on(t.path, t.viewedAt),
+  ],
+);
+
 export const productsRelations = relations(products, ({ many }) => ({
   images: many(productImages),
   colors: many(productColors),
