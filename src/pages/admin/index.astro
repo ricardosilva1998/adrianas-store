@@ -1,7 +1,10 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
 import DailyChart from "../../components/admin/DailyChart.tsx";
+import VisitsChart from "../../components/admin/VisitsChart.tsx";
+import TopVisitedBlock from "../../components/admin/TopVisitedBlock.astro";
 import { getDashboardStats, formatEuro } from "../../lib/queries";
+import { getVisitStats } from "../../lib/analytics";
 import { getEmailStatus } from "../../lib/email";
 import { getSiteConfig } from "../../lib/config-server";
 
@@ -9,6 +12,10 @@ const user = Astro.locals.user;
 if (!user) return Astro.redirect("/admin/login");
 
 const stats = await getDashboardStats();
+const visitStats = await getVisitStats();
+const conv = visitStats.conversion30;
+const convDisplay =
+  conv.ratePct === null ? "—" : `${conv.ratePct.toFixed(1)}%`;
 const emailStatus = getEmailStatus();
 const siteConfig = await getSiteConfig();
 const customNotifyEmails = siteConfig.globals.notifyEmails ?? [];
@@ -143,6 +150,62 @@ const revenueDiff = stats.revenue.prevMonth
           ))}
         </ol>
       )}
+    </div>
+  </section>
+
+  <section class="mt-12">
+    <header class="mb-5">
+      <h2 class="text-lg font-semibold text-ink">Tráfego do site</h2>
+      <p class="text-xs text-ink-muted">
+        Visitas anónimas (sem cookies) registadas nos últimos 30 dias.
+      </p>
+    </header>
+
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div class="rounded-3xl border border-ink-line bg-surface p-6">
+        <p class="text-xs font-semibold uppercase tracking-wide text-rosa-500">Hoje</p>
+        <p class="mt-3 text-4xl font-semibold text-ink">{visitStats.kpis.today.uniques}</p>
+        <p class="mt-3 text-xs text-ink-muted">
+          visitantes · <strong class="text-ink">{visitStats.kpis.today.pageviews}</strong> pageviews
+        </p>
+      </div>
+
+      <div class="rounded-3xl border border-ink-line bg-surface p-6">
+        <p class="text-xs font-semibold uppercase tracking-wide text-rosa-500">Últimos 7 dias</p>
+        <p class="mt-3 text-4xl font-semibold text-ink">{visitStats.kpis.last7.uniques}</p>
+        <p class="mt-3 text-xs text-ink-muted">
+          visitantes · <strong class="text-ink">{visitStats.kpis.last7.pageviews}</strong> pageviews
+        </p>
+      </div>
+
+      <div class="rounded-3xl border border-ink-line bg-surface p-6">
+        <p class="text-xs font-semibold uppercase tracking-wide text-rosa-500">Últimos 30 dias</p>
+        <p class="mt-3 text-4xl font-semibold text-ink">{visitStats.kpis.last30.uniques}</p>
+        <p class="mt-3 text-xs text-ink-muted">
+          visitantes · <strong class="text-ink">{visitStats.kpis.last30.pageviews}</strong> pageviews
+        </p>
+      </div>
+
+      <div
+        class="rounded-3xl border border-ink-line bg-surface p-6"
+        title="Encomendas pagas ÷ visitantes únicos no período (aproximação)"
+      >
+        <p class="text-xs font-semibold uppercase tracking-wide text-rosa-500">
+          Taxa de conversão (30d)
+        </p>
+        <p class="mt-3 text-4xl font-semibold text-ink">{convDisplay}</p>
+        <p class="mt-3 text-xs text-ink-muted">
+          {conv.paidOrders} encomendas · {conv.uniques} visitantes
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-5 grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+      <VisitsChart client:load data={visitStats.daily30} />
+      <TopVisitedBlock
+        topProducts={visitStats.topProducts30}
+        topPages={visitStats.topPages30}
+      />
     </div>
   </section>
 </AdminLayout>
