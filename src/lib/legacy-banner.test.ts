@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { escapeHtml, hashContentSync, hashContentAsync } from "./legacy-banner";
+import {
+  escapeHtml,
+  hashContentSync,
+  hashContentAsync,
+  legacyBannerMigration,
+} from "./legacy-banner";
 
 describe("escapeHtml", () => {
   it("escapes < and >", () => {
@@ -52,5 +57,113 @@ describe("hashContentAsync", () => {
     for (const s of ["oi", "<p>x</p>", "Frete grátis ≥ €20", ""]) {
       expect(await hashContentAsync(s)).toBe(hashContentSync(s));
     }
+  });
+});
+
+describe("legacyBannerMigration", () => {
+  it("preserves an already-new shape unchanged", () => {
+    const input = {
+      enabled: true,
+      contentHtml: "<p>oi</p>",
+      bgHex: "#ED7396",
+      textHex: "#FFFFFF",
+      dismissible: true,
+      contentVersion: "abc123def456",
+    };
+    expect(legacyBannerMigration(input)).toEqual(input);
+  });
+
+  it("recomputes contentVersion if missing on new shape", () => {
+    const out = legacyBannerMigration({
+      enabled: true,
+      contentHtml: "<p>oi</p>",
+      bgHex: "#ED7396",
+      textHex: "#FFFFFF",
+      dismissible: true,
+    });
+    expect(out.contentVersion).toBe(hashContentSync("<p>oi</p>"));
+  });
+
+  it("migrates legacy rosa + no link", () => {
+    const out = legacyBannerMigration({
+      enabled: true,
+      text: "Frete grátis ≥ 20€",
+      linkUrl: null,
+      bgColor: "rosa",
+      dismissible: true,
+    });
+    expect(out.contentHtml).toBe("<p>Frete grátis ≥ 20€</p>");
+    expect(out.bgHex).toBe("#ED7396");
+    expect(out.textHex).toBe("#FFFFFF");
+    expect(out.enabled).toBe(true);
+    expect(out.dismissible).toBe(true);
+    expect(out.contentVersion).toBe(hashContentSync("<p>Frete grátis ≥ 20€</p>"));
+  });
+
+  it("migrates legacy ink + linkUrl set", () => {
+    const out = legacyBannerMigration({
+      enabled: false,
+      text: "Ver coleção",
+      linkUrl: "/catalogo",
+      bgColor: "ink",
+      dismissible: false,
+    });
+    expect(out.contentHtml).toBe('<p><a href="/catalogo">Ver coleção</a></p>');
+    expect(out.bgHex).toBe("#111111");
+    expect(out.textHex).toBe("#FFFFFF");
+    expect(out.enabled).toBe(false);
+    expect(out.dismissible).toBe(false);
+  });
+
+  it("escapes HTML in legacy text", () => {
+    const out = legacyBannerMigration({
+      enabled: true,
+      text: 'Promo <script>alert("x")</script>',
+      linkUrl: null,
+      bgColor: "rosa",
+      dismissible: true,
+    });
+    expect(out.contentHtml).toBe(
+      "<p>Promo &lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;</p>",
+    );
+  });
+
+  it("handles linkUrl set to empty string as no link", () => {
+    const out = legacyBannerMigration({
+      enabled: true,
+      text: "olá",
+      linkUrl: "",
+      bgColor: "rosa",
+      dismissible: true,
+    });
+    expect(out.contentHtml).toBe("<p>olá</p>");
+  });
+
+  it("escapes linkUrl in href", () => {
+    const out = legacyBannerMigration({
+      enabled: true,
+      text: "x",
+      linkUrl: '/a"><script>x</script>',
+      bgColor: "rosa",
+      dismissible: true,
+    });
+    expect(out.contentHtml).not.toContain("<script>");
+    expect(out.contentHtml).toContain("&quot;");
+  });
+
+  it("falls back to defaults when input is null", () => {
+    const out = legacyBannerMigration(null);
+    expect(out.enabled).toBe(false);
+    expect(out.contentHtml).toBe("");
+    expect(out.bgHex).toBe("#ED7396");
+    expect(out.textHex).toBe("#FFFFFF");
+    expect(out.dismissible).toBe(true);
+    expect(out.contentVersion).toBe(hashContentSync(""));
+  });
+
+  it("falls back to defaults when input is empty object", () => {
+    const out = legacyBannerMigration({});
+    expect(out.contentHtml).toBe("");
+    expect(out.enabled).toBe(false);
   });
 });
