@@ -12,6 +12,7 @@ type RichTextEditorProps = {
   onChange: (html: string) => void;
   placeholder?: string;
   minHeight?: number;
+  mode?: "full" | "inline";
 };
 
 const COLOR_PALETTE = [
@@ -24,20 +25,48 @@ const COLOR_PALETTE = [
   { label: "Amarelo", value: "#ca8a04" },
 ];
 
-export function RichTextEditor({ value, onChange, minHeight = 200 }: RichTextEditorProps) {
+export function RichTextEditor({
+  value,
+  onChange,
+  minHeight = 200,
+  mode = "full",
+}: RichTextEditorProps) {
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline,
-      TextStyle,
-      Color,
-      Link.configure({
-        openOnClick: false,
-        autolink: true,
-        HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
-      }),
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-    ],
+    extensions:
+      mode === "inline"
+        ? [
+            StarterKit.configure({
+              heading: false,
+              bulletList: false,
+              orderedList: false,
+              listItem: false,
+              blockquote: false,
+              codeBlock: false,
+              code: false,
+              horizontalRule: false,
+              strike: false,
+            }),
+            Underline,
+            TextStyle,
+            Color,
+            Link.configure({
+              openOnClick: false,
+              autolink: true,
+              HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
+            }),
+          ]
+        : [
+            StarterKit,
+            Underline,
+            TextStyle,
+            Color,
+            Link.configure({
+              openOnClick: false,
+              autolink: true,
+              HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
+            }),
+            TextAlign.configure({ types: ["heading", "paragraph"] }),
+          ],
     content: value || "",
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
@@ -72,7 +101,7 @@ export function RichTextEditor({ value, onChange, minHeight = 200 }: RichTextEdi
 
   return (
     <div className="overflow-hidden rounded-2xl border border-ink-line bg-white">
-      <Toolbar editor={editor} />
+      <Toolbar editor={editor} inline={mode === "inline"} />
       <div className="px-4 py-3">
         <EditorContent editor={editor} />
       </div>
@@ -80,7 +109,7 @@ export function RichTextEditor({ value, onChange, minHeight = 200 }: RichTextEdi
   );
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+function Toolbar({ editor, inline = false }: { editor: Editor; inline?: boolean }) {
   const setLink = useCallback(() => {
     const previous = editor.getAttributes("link").href as string | undefined;
     const url = window.prompt("URL do link", previous ?? "");
@@ -123,78 +152,84 @@ function Toolbar({ editor }: { editor: Editor }) {
       >
         <span className="underline">U</span>
       </ToolbarButton>
-      <ToolbarButton
-        active={editor.isActive("strike")}
-        onClick={() => editor.chain().focus().toggleStrike().run()}
-        title="Rasurado"
-      >
-        <span className="line-through">S</span>
-      </ToolbarButton>
+      {!inline && (
+        <ToolbarButton
+          active={editor.isActive("strike")}
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          title="Rasurado"
+        >
+          <span className="line-through">S</span>
+        </ToolbarButton>
+      )}
 
-      <Divider />
+      {!inline && (
+        <>
+          <Divider />
 
-      <ToolbarButton
-        active={editor.isActive("heading", { level: 2 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        title="Título 2"
-      >
-        H2
-      </ToolbarButton>
-      <ToolbarButton
-        active={editor.isActive("heading", { level: 3 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        title="Título 3"
-      >
-        H3
-      </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive("heading", { level: 2 })}
+            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+            title="Título 2"
+          >
+            H2
+          </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive("heading", { level: 3 })}
+            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+            title="Título 3"
+          >
+            H3
+          </ToolbarButton>
 
-      <Divider />
+          <Divider />
 
-      <ToolbarButton
-        active={editor.isActive("bulletList")}
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        title="Lista"
-      >
-        •
-      </ToolbarButton>
-      <ToolbarButton
-        active={editor.isActive("orderedList")}
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        title="Lista numerada"
-      >
-        1.
-      </ToolbarButton>
-      <ToolbarButton
-        active={editor.isActive("blockquote")}
-        onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        title="Citação"
-      >
-        ❝
-      </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive("bulletList")}
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            title="Lista"
+          >
+            •
+          </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive("orderedList")}
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            title="Lista numerada"
+          >
+            1.
+          </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive("blockquote")}
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            title="Citação"
+          >
+            ❝
+          </ToolbarButton>
 
-      <Divider />
+          <Divider />
 
-      <ToolbarButton
-        active={editor.isActive({ textAlign: "left" })}
-        onClick={() => editor.chain().focus().setTextAlign("left").run()}
-        title="Alinhar à esquerda"
-      >
-        ⬅
-      </ToolbarButton>
-      <ToolbarButton
-        active={editor.isActive({ textAlign: "center" })}
-        onClick={() => editor.chain().focus().setTextAlign("center").run()}
-        title="Centrar"
-      >
-        ≡
-      </ToolbarButton>
-      <ToolbarButton
-        active={editor.isActive({ textAlign: "right" })}
-        onClick={() => editor.chain().focus().setTextAlign("right").run()}
-        title="Alinhar à direita"
-      >
-        ➡
-      </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive({ textAlign: "left" })}
+            onClick={() => editor.chain().focus().setTextAlign("left").run()}
+            title="Alinhar à esquerda"
+          >
+            ⬅
+          </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive({ textAlign: "center" })}
+            onClick={() => editor.chain().focus().setTextAlign("center").run()}
+            title="Centrar"
+          >
+            ≡
+          </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive({ textAlign: "right" })}
+            onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            title="Alinhar à direita"
+          >
+            ➡
+          </ToolbarButton>
+        </>
+      )}
 
       <Divider />
 
