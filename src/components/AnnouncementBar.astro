@@ -1,0 +1,28 @@
+---
+import AnnouncementDismissButton from "./islands/AnnouncementDismissButton.tsx";
+import { getAnnouncementRender } from "../lib/announcement-bar";
+import type { SiteConfig } from "../lib/config";
+
+interface Props {
+  config: SiteConfig;
+}
+
+const { config } = Astro.props;
+const { banner } = config.globals;
+const { shouldRender, safeHtml, style } = getAnnouncementRender(banner);
+---
+
+{shouldRender && (
+  <div
+    class="relative text-xs px-4 py-2 text-center [&_a]:underline [&_a]:underline-offset-2"
+    style={style}
+    data-announcement-version={banner.contentVersion}
+    role="region"
+    aria-label="Aviso da loja"
+  >
+    <div class="mx-auto max-w-screen-lg" set:html={safeHtml} />
+    {banner.dismissible && (
+      <AnnouncementDismissButton client:load version={banner.contentVersion} />
+    )}
+  </div>
+)}
