@@ -30,8 +30,20 @@ export default function GlobalsEditor({ initialConfig }: Props) {
     [config, initialConfig],
   );
 
-  const setGlobals = (patch: Partial<Globals>) =>
-    setConfig((c) => ({ ...c, globals: { ...c.globals, ...patch } }));
+  // Accepts a partial patch OR an updater receiving the latest globals — the
+  // updater form is essential for callers like RichTextEditor's onUpdate
+  // closure, which sticks to the editor's initial render and would otherwise
+  // overwrite the globals snapshot with stale data on every keystroke.
+  const setGlobals = (
+    patch: Partial<Globals> | ((g: Globals) => Partial<Globals>),
+  ) =>
+    setConfig((c) => ({
+      ...c,
+      globals: {
+        ...c.globals,
+        ...(typeof patch === "function" ? patch(c.globals) : patch),
+      },
+    }));
 
   const handleSave = async () => {
     const res = await fetch("/api/admin/site-config", {
@@ -84,7 +96,9 @@ export default function GlobalsEditor({ initialConfig }: Props) {
 
 interface FormProps {
   config: SiteConfig;
-  setGlobals: (patch: Partial<Globals>) => void;
+  setGlobals: (
+    patch: Partial<Globals> | ((g: Globals) => Partial<Globals>),
+  ) => void;
 }
 
 function IdentityForm({ config, setGlobals }: FormProps) {
@@ -253,8 +267,11 @@ function FooterForm({ config, setGlobals }: FormProps) {
 
 function BannerForm({ config, setGlobals }: FormProps) {
   const { banner } = config.globals;
+  // Functional updater so async callers (hashContentAsync .then) and the
+  // TipTap onUpdate closure — both of which capture an initial banner
+  // snapshot — still merge against the latest banner state.
   const patch = (p: Partial<Globals["banner"]>) =>
-    setGlobals({ banner: { ...banner, ...p } });
+    setGlobals((g) => ({ banner: { ...g.banner, ...p } }));
 
   const brandingPresets = useMemo(() => {
     const presets: Array<{ label: string; hex: string }> = [
