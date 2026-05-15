@@ -2,6 +2,7 @@ import { defineMiddleware } from "astro:middleware";
 import { getSessionUser } from "./lib/auth";
 import { getCustomerSession } from "./lib/customer-auth";
 import { getPreview, getPagePreview } from "./lib/preview-store";
+import { shouldTrack, getClientIp, recordPageView } from "./lib/tracking";
 
 const PUBLIC_ADMIN_ROUTES = new Set(["/admin/login", "/api/admin/login"]);
 
@@ -54,6 +55,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.locals.pagePreview = pendingPage;
       }
     }
+  }
+
+  // Tracking de visitas (storefront only — branch admin já saiu acima).
+  if (shouldTrack(context.request, context.url)) {
+    void recordPageView({
+      path: context.url.pathname,
+      ip: getClientIp(context.request.headers),
+      ua: context.request.headers.get("user-agent") ?? "",
+    }).catch((err) => console.warn("[track]", err));
   }
 
   return next();
