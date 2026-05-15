@@ -5,6 +5,7 @@ import {
   hashContentAsync,
   legacyBannerMigration,
 } from "./legacy-banner";
+import { globalsSchema } from "./config";
 
 describe("escapeHtml", () => {
   it("escapes < and >", () => {
@@ -165,5 +166,71 @@ describe("legacyBannerMigration", () => {
     const out = legacyBannerMigration({});
     expect(out.contentHtml).toBe("");
     expect(out.enabled).toBe(false);
+  });
+});
+
+describe("globalsSchema accepts the new banner shape", () => {
+  const baseGlobals = {
+    identity: {
+      name: "x",
+      tagline: "y",
+      description: "z",
+      email: "a@b.com",
+      whatsapp: "+351 9",
+      instagram: "@x",
+      shippingProvider: "CTT",
+      preparationDays: "3 dias",
+    },
+    nav: [{ href: "/", label: "x" }],
+    footer: { columns: [], bottomText: "x" },
+    payments: [{ id: "mbway" as const, label: "MB Way", instructions: "x" }],
+    notifyEmails: [],
+  };
+
+  it("accepts the new banner shape directly", () => {
+    const parsed = globalsSchema.parse({
+      ...baseGlobals,
+      banner: {
+        enabled: true,
+        contentHtml: "<p>oi</p>",
+        bgHex: "#FF0000",
+        textHex: "#FFFFFF",
+        dismissible: true,
+        contentVersion: "abc123def456",
+      },
+    });
+    expect(parsed.banner.contentHtml).toBe("<p>oi</p>");
+    expect(parsed.banner.bgHex).toBe("#FF0000");
+  });
+
+  it("accepts legacy shape after legacyBannerMigration converts it", () => {
+    const migrated = legacyBannerMigration({
+      enabled: true,
+      text: "Frete grátis",
+      linkUrl: null,
+      bgColor: "rosa",
+      dismissible: true,
+    });
+    const parsed = globalsSchema.parse({ ...baseGlobals, banner: migrated });
+    expect(parsed.banner.contentHtml).toBe("<p>Frete grátis</p>");
+    expect(parsed.banner.bgHex).toBe("#ED7396");
+    expect(parsed.banner.textHex).toBe("#FFFFFF");
+    expect(parsed.banner.contentVersion).toHaveLength(12);
+  });
+
+  it("rejects invalid hex in bgHex", () => {
+    expect(() =>
+      globalsSchema.parse({
+        ...baseGlobals,
+        banner: {
+          enabled: true,
+          contentHtml: "<p>x</p>",
+          bgHex: "rosa",
+          textHex: "#FFFFFF",
+          dismissible: true,
+          contentVersion: "abc123def456",
+        },
+      }),
+    ).toThrow();
   });
 });

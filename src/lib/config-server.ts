@@ -10,6 +10,7 @@ import {
   siteConfigSchema,
   type SiteConfig,
 } from "./config";
+import { legacyBannerMigration } from "./legacy-banner";
 
 // ---------- In-process cache ----------
 
@@ -33,9 +34,18 @@ async function readFromDb(): Promise<SiteConfig> {
     return DEFAULT_SITE_CONFIG;
   }
 
+  // Server-side legacy migration: jsonb `globals.banner` may still hold the
+  // pre-2026-05 shape ({ text, linkUrl, bgColor, ... }). Convert in-memory
+  // before schema validation. Kept here (not as a Zod preprocess) so that
+  // `config.ts` stays free of `node:crypto` and ships clean to client bundles.
+  const rawGlobals = rows[0].globals as Record<string, unknown> | null;
+  const globals = rawGlobals
+    ? { ...rawGlobals, banner: legacyBannerMigration(rawGlobals.banner) }
+    : rawGlobals;
+
   const parsed = siteConfigSchema.safeParse({
     theme: rows[0].theme,
-    globals: rows[0].globals,
+    globals,
   });
   if (!parsed.success) {
     console.error("[site-config] DB row failed schema validation:", parsed.error);

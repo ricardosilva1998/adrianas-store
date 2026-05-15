@@ -2,6 +2,12 @@ import { z } from "zod";
 import { FONT_NAMES } from "./fonts";
 import { deriveScale, isValidHex, SHADE_KEYS } from "./theme-colors";
 
+// Hardcoded SHA-256("") base64url first 12 chars. Must match
+// `hashContentSync("")` in legacy-banner.ts. Verified via:
+// node -e 'console.log(require("crypto").createHash("sha256").update("").digest("base64url").slice(0, 12))'
+// Keeping it literal here avoids importing node:crypto into client bundles.
+const EMPTY_CONTENT_VERSION_LITERAL = "47DEQpj8HBSa";
+
 // This module is pure: no DB, no server-only imports. Safe to import from
 // React islands and client-side bundles. Server-only helpers (DB loader,
 // cache) live in `./config-server.ts`.
@@ -62,10 +68,11 @@ export const globalsSchema = z.object({
   }),
   banner: z.object({
     enabled: z.boolean(),
-    text: z.string().max(200),
-    linkUrl: z.string().nullable(),
-    bgColor: z.enum(["rosa", "ink"]),
+    contentHtml: z.string().max(4000),
+    bgHex: hexSchema,
+    textHex: hexSchema,
     dismissible: z.boolean(),
+    contentVersion: z.string().min(1).max(16),
   }),
   payments: z.array(
     z.object({
@@ -133,10 +140,11 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     },
     banner: {
       enabled: false,
-      text: "",
-      linkUrl: null,
-      bgColor: "rosa",
+      contentHtml: "",
+      bgHex: "#ED7396",
+      textHex: "#FFFFFF",
       dismissible: true,
+      contentVersion: EMPTY_CONTENT_VERSION_LITERAL,
     },
     payments: [
       {
